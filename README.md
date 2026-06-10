@@ -15,6 +15,8 @@ Este es el commit de Erik
 
 Este es el commit de Aramis
 
+Este es el commit de Elsy
+
 # Guía rápida para colaborar en el proyecto
 
 ## 1. Clonar el repositorio
