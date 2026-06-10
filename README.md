@@ -1,7 +1,9 @@
-# Proyecto-02-Mini-emprendedor
+# Proyecto Taller de Emprendimiento
 
 Taller de niños acerca del emprendimiento
-Hola
+
+Link al repositorio en Figma con los mockups:
+https://www.figma.com/design/HKNFxU811mmbG7zZdL3Cw9/EMPRENDEKIDS-IA-%E2%80%94-Prototipo-MVP?node-id=0-1&p=f
 
 Este es el commit de Axell
 
