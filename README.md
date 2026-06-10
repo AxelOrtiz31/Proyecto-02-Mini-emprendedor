@@ -1,7 +1,7 @@
 # Proyecto-02-Mini-emprendedor
+
 Taller de niños acerca del emprendimiento
 Hola
-
 
 Este es el commit de Axell
 
@@ -12,6 +12,8 @@ Este es el commit de Alexis
 Este es el commit de Carlos
 
 Este es el commit de Erik
+
+Este es el commit de Aramis
 
 # Guía rápida para colaborar en el proyecto
 
