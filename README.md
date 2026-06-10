@@ -11,6 +11,8 @@ Este es el commit de Alexis
 
 Este es el commit de Carlos
 
+Este es el commit de Erik
+
 # Guía rápida para colaborar en el proyecto
 
 ## 1. Clonar el repositorio
