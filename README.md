@@ -5,8 +5,10 @@ Hola
 
 Este es el commit de Axell
 
+<<<<<<< HEAD
+Este es el commit 2 de Kevinn
+=======
 Este es el commit de Kevinn
 
 Este es el commit de Erik
-
-Este es el commit de carlos
+>>>>>>> 53d3ab7c99d6cc0878c1031e8d7814ada456be71
