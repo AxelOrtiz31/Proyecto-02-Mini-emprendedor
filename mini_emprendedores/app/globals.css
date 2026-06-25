@@ -1,11 +1,69 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap');
+@import "tailwindcss";
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@theme {
+  --font-sans: "Nunito", system-ui, sans-serif;
+  --font-display: "Baloo 2", "Nunito", system-ui, sans-serif;
+
+  --color-background: oklch(0.99 0.008 85);
+  --color-foreground: oklch(0.31 0.03 55);
+
+  --color-card: oklch(1 0 0);
+  --color-card-foreground: oklch(0.31 0.03 55);
+
+  --color-primary: oklch(0.7 0.18 47);
+  --color-primary-foreground: oklch(0.99 0.005 90);
+
+  --color-secondary: oklch(0.96 0.025 75);
+  --color-secondary-foreground: oklch(0.34 0.04 55);
+
+  --color-muted: oklch(0.93 0.008 80);
+  --color-muted-foreground: oklch(0.55 0.02 65);
+
+  --color-accent: oklch(0.83 0.15 85);
+  --color-accent-foreground: oklch(0.39 0.06 65);
+
+  --color-success: oklch(0.72 0.17 152);
+  --color-success-foreground: oklch(0.99 0.005 90);
+
+  --color-info: oklch(0.58 0.13 240);
+  --color-info-foreground: oklch(0.99 0.005 90);
+
+  --color-border: oklch(0.9 0.008 80);
+
+  --shadow-node: 0 5px 0 0 oklch(0.58 0.18 45), 0 9px 16px -4px oklch(0.58 0.18 45 / 0.45);
+  --shadow-node-success: 0 5px 0 0 oklch(0.58 0.16 152), 0 9px 16px -4px oklch(0.58 0.16 152 / 0.45);
+  --shadow-node-accent: 0 5px 0 0 oklch(0.7 0.15 85), 0 9px 16px -4px oklch(0.7 0.15 85 / 0.45);
+  --shadow-node-locked: 0 5px 0 0 oklch(0.84 0.01 80), 0 7px 12px -4px oklch(0.8 0.01 80 / 0.4);
+  --shadow-card: 0 10px 30px -12px oklch(0.45 0.05 60 / 0.25);
+
+  --animate-node-bounce: node-bounce 2.4s ease-in-out infinite;
+  --animate-mascot: mascot-float 3.2s ease-in-out infinite;
+}
+
+@keyframes node-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.08);
+  }
+  50% {
+    transform: translateY(-7px) scale(1.08);
+  }
+}
+
+@keyframes mascot-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 body {
-  font-family: 'Nunito', system-ui, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
 }
