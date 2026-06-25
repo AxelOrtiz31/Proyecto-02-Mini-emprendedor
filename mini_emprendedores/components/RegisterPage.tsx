@@ -73,7 +73,7 @@ export default function RegisterPage() {
     }
 
     setCargando(false);
-    router.push("/dashboard");
+    router.push("/login");
   }
 
   return (
