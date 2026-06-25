@@ -1,9 +1,10 @@
-"use client";
+  "use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import styles from "./RegisterPage.module.css";
+import { supabase } from "@/lib/supabase";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -15,6 +16,10 @@ export default function RegisterPage() {
     contrasena: "",
     edad: 11,
   });
+  const [error, setError] = useState<string | null>(null);
+  const [cargando, setCargando] = useState(false);
+  const [mostrarPass, setMostrarPass] = useState(false);
+  const [camposError, setCamposError] = useState<Record<string, string>>({});
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -27,12 +32,48 @@ export default function RegisterPage() {
     }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  function validar() {
+    const errores: Record<string, string> = {};
+    if (!form.nombre.trim()) errores.nombre = "El nombre es obligatorio";
+    if (!form.apellido.trim()) errores.apellido = "El apellido es obligatorio";
+    if (!form.correo.trim()) errores.correo = "El correo es obligatorio";
+    if (!form.contrasena) errores.contrasena = "La contraseña es obligatoria";
+    else if (form.contrasena.length < 6) errores.contrasena = "Mínimo 6 caracteres";
+    return errores;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Aquí irá la lógica de registro con BD en el futuro
-    console.log("Datos del registro:", form);
-    // Por ahora redirige al inicio
-    router.push("/");
+    setError(null);
+
+    const errores = validar();
+    if (Object.keys(errores).length > 0) {
+      setCamposError(errores);
+      return;
+    }
+    setCamposError({});
+    setCargando(true);
+
+    const { data, error: authError } = await supabase.auth.signUp({
+      email: form.correo,
+      password: form.contrasena,
+      options: {
+        data: {
+          nombre: form.nombre,
+          apellido: form.apellido,
+          edad: form.edad,
+        },
+      },
+    });
+
+    if (authError) {
+      setError(authError.message);
+      setCargando(false);
+      return;
+    }
+
+    setCargando(false);
+    router.push("/dashboard");
   }
 
   return (
@@ -65,7 +106,7 @@ export default function RegisterPage() {
         {/* Formulario */}
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
           {/* Nombre */}
-          <div className={styles.fieldWrapper}>
+          <div className={`${styles.fieldWrapper} ${camposError.nombre ? styles.fieldWrapperError : ""}`}>
             <span className={styles.fieldIcon}>👤</span>
             <input
               className={styles.input}
@@ -74,13 +115,13 @@ export default function RegisterPage() {
               placeholder="Nombre"
               value={form.nombre}
               onChange={handleChange}
-              required
               autoComplete="given-name"
             />
           </div>
+          {camposError.nombre && <p className={styles.fieldError}>{camposError.nombre}</p>}
 
           {/* Apellido */}
-          <div className={styles.fieldWrapper}>
+          <div className={`${styles.fieldWrapper} ${camposError.apellido ? styles.fieldWrapperError : ""}`}>
             <span className={styles.fieldIcon}>👥</span>
             <input
               className={styles.input}
@@ -89,13 +130,13 @@ export default function RegisterPage() {
               placeholder="Apellido"
               value={form.apellido}
               onChange={handleChange}
-              required
               autoComplete="family-name"
             />
           </div>
+          {camposError.apellido && <p className={styles.fieldError}>{camposError.apellido}</p>}
 
           {/* Correo */}
-          <div className={styles.fieldWrapper}>
+          <div className={`${styles.fieldWrapper} ${camposError.correo ? styles.fieldWrapperError : ""}`}>
             <span className={styles.fieldIcon}>📧</span>
             <input
               className={styles.input}
@@ -104,25 +145,33 @@ export default function RegisterPage() {
               placeholder="Correo electrónico"
               value={form.correo}
               onChange={handleChange}
-              required
               autoComplete="email"
             />
           </div>
+          {camposError.correo && <p className={styles.fieldError}>{camposError.correo}</p>}
 
           {/* Contraseña */}
-          <div className={styles.fieldWrapper}>
+          <div className={`${styles.fieldWrapper} ${camposError.contrasena ? styles.fieldWrapperError : ""}`}>
             <span className={styles.fieldIcon}>🔒</span>
             <input
               className={styles.input}
-              type="password"
+              type={mostrarPass ? "text" : "password"}
               name="contrasena"
               placeholder="Contraseña"
               value={form.contrasena}
               onChange={handleChange}
-              required
               autoComplete="new-password"
             />
+            <button
+              type="button"
+              className={styles.eyeBtn}
+              onClick={() => setMostrarPass((v) => !v)}
+              aria-label={mostrarPass ? "Ocultar contraseña" : "Mostrar contraseña"}
+            >
+              {mostrarPass ? "🙈" : "👁️"}
+            </button>
           </div>
+          {camposError.contrasena && <p className={styles.fieldError}>{camposError.contrasena}</p>}
 
           {/* Edad */}
           <div className={styles.ageField}>
@@ -149,9 +198,11 @@ export default function RegisterPage() {
             </div>
           </div>
 
+          {error && <p className={styles.error}>{error}</p>}
+
           {/* Submit */}
-          <button type="submit" className={styles.submitBtn}>
-            ¡Listo! 🎉
+          <button type="submit" className={styles.submitBtn} disabled={cargando}>
+            {cargando ? "Creando cuenta..." : "¡Listo! 🎉"}
           </button>
         </form>
 
