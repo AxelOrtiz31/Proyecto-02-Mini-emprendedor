@@ -10,6 +10,12 @@ https://www.figma.com/make/mW7o460mJZp4g4QBzuWb46/EmprendeKids-IA-App?p=f
 Link a la pagina subida en Vercel:
 https://emprendedidsia.vercel.app/dashboard
 
+Link a Supabase:
+https://urmfsyhisktlzosppent.supabase.co
+
+Link al levantamiento de requerimientos y manual de usuario:
+https://docs.google.com/document/d/1Aaw5mjwTWogRvFLcTIDflDeSx00q7BRUehI0lWUyJwE/edit?usp=sharing
+
 ## Pasos rapidos para iniciar el proyecto
 Copear el repositorio a tu PC
 ```bash
@@ -20,6 +26,12 @@ Recibir los cambios de otros
 ```bash
 git pull
 ```
+
+Recibir los cambios de la rama principal (origin main)
+```bash
+git pull origin main
+```
+
 Para más información lea la parte de mas abajo (▀̿Ĺ̯▀̿ ̿)
 
 
@@ -40,6 +52,7 @@ Este es el commit de Elsy
 
 ## Instalacion de Node.js
 Node.js es un entorno de ejecución para JavaScript que permite ejecutar código fuera del navegador.
+Es necesario para ejecutar Next en la PC.
 
 Descarga e instala en:  
 https://nodejs.org/es/download
@@ -120,3 +133,11 @@ git pull
 ```
 
 > **Recomendación:** Ejecuta `git pull` antes de comenzar a trabajar para asegurarte de tener la versión más reciente del proyecto.
+
+### 5. Deshacer un cambio reciente
+
+En caso de haber hecho un pull de todas las ramas a tu maquina local usa el siguiente comando para revertirlo, solo funciona con un commit a la vez:
+
+```bash
+git reset --hard ORIG_HEAD
+```
