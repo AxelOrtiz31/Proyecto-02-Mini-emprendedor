@@ -8,7 +8,7 @@ Link al repostorio en Figma con la version 2 de los mockups:
 https://www.figma.com/make/mW7o460mJZp4g4QBzuWb46/EmprendeKids-IA-App?p=f
 
 Link a la pagina subida en Vercel:
-https://emprendedidsia.vercel.app/dashboard
+https://emprendekidsia.vercel.app/
 
 Link a Supabase:
 https://urmfsyhisktlzosppent.supabase.co
@@ -86,6 +86,18 @@ Carpetas y archivos:
 7. packache-lock.json → Versiones exactas de dependencias.
 8. package.json → Configuración, scripts y dependencias del proyecto.
 9. controllers → Procesa solicitudes.
+
+
+## Dependencias instaladas
+Supabase:
+```bash
+npm install @supabase/supabase-js
+```
+
+Para instalar las dependencias agrega esto a package.json en "dependencies":
+```
+"@supabase/supabase-js": "^2.108.2",
+```
 
 ## Guía rápida para colaborar en el proyecto
 
