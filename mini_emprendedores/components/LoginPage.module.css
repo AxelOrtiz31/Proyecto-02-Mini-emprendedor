@@ -142,6 +142,20 @@
 }
 .submitBtn:active { transform: translateY(0); }
 
+/* botón ojo contraseña */
+.eyeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: #b0b0c8;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.eyeBtn:hover { color: #6d5ddb; }
+
 /* ──────────────────────────────
    OLVIDASTE CONTRASEÑA
 ────────────────────────────── */

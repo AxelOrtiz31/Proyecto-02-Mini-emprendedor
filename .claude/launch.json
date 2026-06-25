@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "miniempre",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "mini_emprendedores", "run", "start"],
+      "port": 3000,
+      "autoPort": true
+    }
+  ]
+}
