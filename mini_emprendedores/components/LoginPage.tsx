@@ -4,20 +4,37 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import styles from "./LoginPage.module.css";
+import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
 
   const [form, setForm] = useState({ correo: "", contrasena: "" });
+  const [error, setError] = useState<string | null>(null);
+  const [cargando, setCargando] = useState(false);
+  const [mostrarPass, setMostrarPass] = useState(false);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Aquí irá la lógica de autenticación con BD en el futuro
-    console.log("Login:", form);
+    setError(null);
+    setCargando(true);
+
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: form.correo,
+      password: form.contrasena,
+    });
+
+    if (authError) {
+      setError("Correo o contraseña incorrectos");
+      setCargando(false);
+      return;
+    }
+
+    setCargando(false);
     router.push("/dashboard");
   }
 
@@ -57,18 +74,27 @@ export default function LoginPage() {
             <span className={styles.fieldIcon}>🔒</span>
             <input
               className={styles.input}
-              type="password"
+              type={mostrarPass ? "text" : "password"}
               name="contrasena"
               placeholder="Contraseña"
               value={form.contrasena}
               onChange={handleChange}
-              required
               autoComplete="current-password"
             />
+            <button
+              type="button"
+              className={styles.eyeBtn}
+              onClick={() => setMostrarPass((v) => !v)}
+              aria-label={mostrarPass ? "Ocultar contraseña" : "Mostrar contraseña"}
+            >
+              {mostrarPass ? "🙈" : "👁️"}
+            </button>
           </div>
 
-          <button type="submit" className={styles.submitBtn}>
-            ¡Entrar! 🚀
+          {error && <p style={{ color: "red", fontSize: "0.85rem" }}>{error}</p>}
+
+          <button type="submit" className={styles.submitBtn} disabled={cargando}>
+            {cargando ? "Entrando..." : "¡Entrar! 🚀"}
           </button>
         </form>
 
