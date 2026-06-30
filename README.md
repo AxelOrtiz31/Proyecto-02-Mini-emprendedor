@@ -99,6 +99,13 @@ Para instalar las dependencias agrega esto a package.json en "dependencies":
 "@supabase/supabase-js": "^2.108.2",
 ```
 
+Comandos para usar npm, si no se especifica una libreria despues el comando tendra un comportamiento global:
+```bash
+npm install
+npm uninstall
+npm update
+```
+
 ## Guía rápida para colaborar en el proyecto
 
 ### 1. Clonar el repositorio
