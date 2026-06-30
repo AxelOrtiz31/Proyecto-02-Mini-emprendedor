@@ -106,6 +106,27 @@ npm uninstall
 npm update
 ```
 
+### Comandos para solucionar errores
+Si el proyecto tiene errores con las dependencias, next, etc, y al arrancar te salen errores, ejecuta los siguientes comandos, si tienes Windows:
+```bash
+rmdir /s /q .next
+rmdir /s /q node_modules
+del package-lock.json
+
+npm install
+npm run dev
+```
+
+Si tienes Mac:
+```bash
+rm -rf .next
+rm -rf node_modules
+rm package-lock.json
+
+npm install
+npm run dev
+```
+
 ## Guía rápida para colaborar en el proyecto
 
 ### 1. Clonar el repositorio
