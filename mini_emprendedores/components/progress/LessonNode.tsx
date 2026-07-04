@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   Book,
   Check,
@@ -14,11 +13,8 @@ import {
 } from "lucide-react";
 import type { Activity } from "@/data/course";
 import { cn } from "@/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverTrigger } from "@/components/ui/popover";
+import { ActivityPopover } from "./ActivityPopover";
 
 const kindIcon: Record<Activity["kind"], LucideIcon> = {
   lesson: Star,
@@ -35,7 +31,6 @@ interface LessonNodeProps {
 }
 
 export function LessonNode({ activity, offsetX }: LessonNodeProps) {
-  const Icon = getIcon(activity);
   const isLocked = activity.status === "locked";
   const isCurrent = activity.status === "current";
 
@@ -56,7 +51,7 @@ export function LessonNode({ activity, offsetX }: LessonNodeProps) {
   return (
     <div
       className="relative flex flex-col items-center"
-      style={{ transform: `translateX(${offsetX * 110}px)` }}
+      style={{ transform: `translateX(calc(${offsetX} * var(--path-offset, 110px)))` }}
     >
       <Popover>
         <PopoverTrigger asChild>
@@ -66,9 +61,9 @@ export function LessonNode({ activity, offsetX }: LessonNodeProps) {
             className={cn(baseCircle, stateClass, isCurrent && "animate-node-bounce")}
             aria-label={activity.title}
           >
-            <Icon
+            <ActivityIcon
+              activity={activity}
               className={cn("h-9 w-9", isCurrent && "h-10 w-10")}
-              strokeWidth={2.6}
             />
             {activity.status === "completed" && activity.stars ? (
               <span className="absolute -bottom-2 right-0 flex items-center gap-0.5 rounded-full bg-card px-1.5 py-0.5 text-[10px] font-bold text-accent-foreground shadow-sm">
@@ -78,58 +73,25 @@ export function LessonNode({ activity, offsetX }: LessonNodeProps) {
             ) : null}
           </button>
         </PopoverTrigger>
-        <PopoverContent className="p-0" sideOffset={12}>
-          <div
-            className={cn(
-              "rounded-t-xl px-4 py-3",
-              activity.status === "completed" && "bg-success text-success-foreground",
-              activity.status === "current" && "bg-primary text-primary-foreground",
-              activity.status === "bonus" && "bg-accent text-accent-foreground",
-              activity.status === "locked" && "bg-muted text-muted-foreground",
-            )}
-          >
-            <div className="text-[10px] font-bold uppercase tracking-widest opacity-85">
-              {labelFor(activity)}
-            </div>
-            <div className="font-display text-base font-extrabold">{activity.title}</div>
-          </div>
-          <div className="space-y-3 p-4">
-            <p className="text-sm text-muted-foreground">{activity.description}</p>
-            {isLocked ? (
-              <div className="flex items-center gap-2 rounded-xl bg-muted px-3 py-2 text-xs font-semibold text-muted-foreground">
-                <Lock className="h-3.5 w-3.5" />
-                Completa la actividad anterior para desbloquear
-              </div>
-            ) : (
-              <Link
-                href={`/leccion/${activity.id}`}
-                className={cn(
-                  "flex w-full items-center justify-center rounded-xl px-4 py-2.5 font-display text-sm font-extrabold uppercase tracking-wider text-primary-foreground transition-transform hover:-translate-y-0.5",
-                  activity.status === "completed" && "bg-success",
-                  activity.status === "current" && "bg-primary",
-                  activity.status === "bonus" && "bg-accent text-accent-foreground",
-                )}
-              >
-                {activity.status === "completed" ? "Repasar" : "Empezar"}
-              </Link>
-            )}
-          </div>
-        </PopoverContent>
+        <ActivityPopover activity={activity} />
       </Popover>
     </div>
   );
 }
 
-function getIcon(activity: Activity): LucideIcon {
-  if (activity.status === "locked") return Lock;
-  if (activity.status === "completed") return Check;
-  return kindIcon[activity.kind];
-}
-
-function labelFor(activity: Activity) {
-  if (activity.status === "completed") return "Completada";
-  if (activity.status === "current") return "Empieza aquí";
-  if (activity.status === "bonus") return "Reto bonus";
-  if (activity.status === "locked") return "Bloqueada";
-  return activity.kind;
+function ActivityIcon({
+  activity,
+  className,
+}: {
+  activity: Activity;
+  className: string;
+}) {
+  if (activity.status === "locked") {
+    return <Lock className={className} strokeWidth={2.6} />;
+  }
+  if (activity.status === "completed") {
+    return <Check className={className} strokeWidth={2.6} />;
+  }
+  const Icon = kindIcon[activity.kind];
+  return <Icon className={className} strokeWidth={2.6} />;
 }

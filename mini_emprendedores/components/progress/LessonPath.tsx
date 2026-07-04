@@ -12,7 +12,7 @@ export function LessonPath({ unit }: LessonPathProps) {
   const currentIndex = unit.activities.findIndex((a) => a.status === "current");
 
   return (
-    <div className="relative flex flex-col items-center gap-7 py-8">
+    <div className="relative flex flex-col items-center gap-7 py-8 [--path-offset:70px] md:[--path-offset:110px]">
       {unit.activities.map((activity, i) => {
         const offset = pattern[i % pattern.length];
         const showMascot = i === currentIndex;
@@ -26,7 +26,7 @@ export function LessonPath({ unit }: LessonPathProps) {
               <span
                 className="pointer-events-none absolute"
                 style={{
-                  transform: `translateX(${offset * 110 + (offset >= 0 ? -104 : 104)}px)`,
+                  transform: `translateX(calc(${offset} * var(--path-offset, 110px) + ${offset >= 0 ? -104 : 104}px))`,
                 }}
               >
                 <img
@@ -35,7 +35,7 @@ export function LessonPath({ unit }: LessonPathProps) {
                   width={96}
                   height={96}
                   loading="lazy"
-                  className="h-24 w-24 animate-mascot"
+                  className="h-20 w-20 animate-mascot md:h-24 md:w-24"
                 />
               </span>
             )}
