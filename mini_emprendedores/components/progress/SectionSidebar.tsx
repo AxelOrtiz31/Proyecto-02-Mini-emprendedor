@@ -55,7 +55,7 @@ function SectionButton({
       className={cn(
         "flex w-full items-center gap-3 rounded-2xl border-2 px-3 py-3 text-left transition-colors",
         active
-          ? "border-primary bg-card shadow-[var(--shadow-card)]"
+          ? "border-primary bg-card shadow-(--shadow-card)"
           : "border-transparent hover:bg-card",
       )}
     >

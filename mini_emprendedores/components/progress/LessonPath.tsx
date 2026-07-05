@@ -25,7 +25,7 @@ export function LessonPath({ unit, robotSrc, robotSize }: LessonPathProps) {
         >
           <PathRobot
             path={robotSrc}
-            className="h-[var(--robot-size)] w-[var(--robot-size)] md:h-[var(--robot-size-md)] md:w-[var(--robot-size-md)]"
+            className="h-(--robot-size) w-(--robot-size) md:h-(--robot-size-md) md:w-(--robot-size-md)"
           />
         </div>
       )}
