@@ -38,7 +38,7 @@
   --shadow-node-locked: 0 5px 0 0 oklch(0.84 0.01 80), 0 7px 12px -4px oklch(0.8 0.01 80 / 0.4);
   --shadow-card: 0 10px 30px -12px oklch(0.45 0.05 60 / 0.25);
 
-  --animate-node-bounce: node-bounce 2.4s ease-in-out infinite;
+  --animate-node-bounce: node-bounce 3.4s cubic-bezier(0.37, 0, 0.63, 1) infinite;
   --animate-mascot: mascot-float 3.2s ease-in-out infinite;
 }
 
