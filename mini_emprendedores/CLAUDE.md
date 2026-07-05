@@ -7,3 +7,5 @@
 4.  **Idioma del Código:** Mantén todos los nombres de variables, propiedades (`props`), funciones y archivos en Inglés.
 5.  **Idioma de la Interfaz:** Todo el texto estático visible para el usuario debe estar en Español con una ortografía impecable.
 6.  **Props Dinámicas:** Estructura los componentes para que reciban la información a través de `props` o arreglos de configuración, facilitando la futura conexión con el backend.
+
+Backend / SQL: Revisa el archivo @base.sql. Si la estructura actual no contempla el progreso de los usuarios (qué lecciones han pasado y su XP), entrégame el script SQL exacto (tablas, columnas o relaciones nuevas) que debo ejecutar en mi base de datos para soportar esta lógica.
