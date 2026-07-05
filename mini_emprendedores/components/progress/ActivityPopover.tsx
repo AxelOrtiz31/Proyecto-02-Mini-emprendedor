@@ -14,10 +14,10 @@ export function ActivityPopover({ activity }: ActivityPopoverProps) {
   const isLocked = activity.status === "locked";
 
   return (
-    <PopoverContent className="p-0" sideOffset={12}>
+    <PopoverContent className="w-80 p-0" sideOffset={16}>
       <div
         className={cn(
-          "rounded-t-xl px-4 py-3",
+          "rounded-t-xl px-5 py-4",
           activity.status === "completed" && "bg-success text-success-foreground",
           activity.status === "current" && "bg-primary text-primary-foreground",
           activity.status === "bonus" && "bg-accent text-accent-foreground",
@@ -27,12 +27,12 @@ export function ActivityPopover({ activity }: ActivityPopoverProps) {
         <div className="text-[10px] font-bold uppercase tracking-widest opacity-85">
           {labelFor(activity)}
         </div>
-        <div className="font-display text-base font-extrabold">{activity.title}</div>
+        <div className="font-display text-lg font-extrabold">{activity.title}</div>
       </div>
-      <div className="space-y-3 p-4">
-        <p className="text-sm text-muted-foreground">{activity.description}</p>
+      <div className="space-y-4 p-5">
+        <p className="text-base text-muted-foreground">{activity.description}</p>
         {isLocked ? (
-          <div className="flex items-center gap-2 rounded-xl bg-muted px-3 py-2 text-xs font-semibold text-muted-foreground">
+          <div className="flex items-center gap-2 rounded-xl bg-muted px-3 py-2 text-sm font-semibold text-muted-foreground">
             <Lock className="h-3.5 w-3.5" />
             Completa la actividad anterior para desbloquear
           </div>
@@ -40,7 +40,7 @@ export function ActivityPopover({ activity }: ActivityPopoverProps) {
           <Link
             href={`/leccion/${activity.id}`}
             className={cn(
-              "flex w-full items-center justify-center rounded-xl px-4 py-2.5 font-display text-sm font-extrabold uppercase tracking-wider text-primary-foreground transition-transform hover:-translate-y-0.5",
+              "flex w-full items-center justify-center rounded-xl px-4 py-3 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground transition-transform hover:-translate-y-0.5",
               activity.status === "completed" && "bg-success",
               activity.status === "current" && "bg-primary",
               activity.status === "bonus" && "bg-accent text-accent-foreground",

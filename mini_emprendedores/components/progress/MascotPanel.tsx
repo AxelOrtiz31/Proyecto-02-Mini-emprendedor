@@ -9,15 +9,15 @@ export function MascotPanel({ variant }: MascotPanelProps) {
   const isSidebar = variant === "sidebar";
 
   const asideClass = isSidebar
-    ? "hidden w-80 shrink-0 xl:block"
+    ? "hidden w-96 shrink-0 xl:block"
     : "mx-auto mt-12 w-full max-w-md xl:hidden";
 
-  const innerClass = isSidebar ? "sticky top-20 space-y-4 p-5" : "space-y-4";
+  const innerClass = isSidebar ? "sticky top-20 space-y-6 p-5" : "space-y-4";
 
   return (
     <aside className={asideClass}>
       <div className={innerClass}>
-        <div className="rounded-3xl border-2 border-accent/40 bg-card p-5 shadow-[var(--shadow-card)]">
+        <div className="rounded-3xl border-2 border-accent/40 bg-card p-5 shadow-[var(--shadow-card)] xl:p-6">
           <div className="flex items-center gap-3">
             <img
               src="/caelus.svg"
@@ -43,7 +43,7 @@ export function MascotPanel({ variant }: MascotPanelProps) {
           </div>
         </div>
 
-        <div className="rounded-3xl border-2 border-border bg-card p-5">
+        <div className="rounded-3xl border-2 border-border bg-card p-5 xl:p-6">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
             <Medal className="h-4 w-4 text-primary" />
             Logros recientes
@@ -55,7 +55,7 @@ export function MascotPanel({ variant }: MascotPanelProps) {
           </ul>
         </div>
 
-        <div className="rounded-3xl bg-gradient-to-br from-info to-[oklch(0.5_0.14_240)] p-5 text-info-foreground">
+        <div className="rounded-3xl bg-gradient-to-br from-info to-[oklch(0.5_0.14_240)] p-5 text-info-foreground xl:p-6">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest opacity-90">
             <Sparkles className="h-4 w-4" /> Próxima sección
           </div>

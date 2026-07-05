@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { AnimationItem } from "lottie-web";
+import { cn } from "@/lib/utils";
 
 interface PathRobotProps {
   path: string;
@@ -10,14 +11,14 @@ interface PathRobotProps {
 
 export function PathRobot({ path, className }: PathRobotProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<AnimationItem | null>(null);
 
   useEffect(() => {
-    let animation: AnimationItem | undefined;
     let cancelled = false;
 
     import("lottie-web").then(({ default: lottie }) => {
       if (cancelled || !containerRef.current) return;
-      animation = lottie.loadAnimation({
+      animationRef.current = lottie.loadAnimation({
         container: containerRef.current,
         renderer: "svg",
         loop: true,
@@ -28,9 +29,21 @@ export function PathRobot({ path, className }: PathRobotProps) {
 
     return () => {
       cancelled = true;
-      animation?.destroy();
+      animationRef.current?.destroy();
+      animationRef.current = null;
     };
   }, [path]);
 
-  return <div ref={containerRef} className={className} aria-hidden="true" />;
+  function handleReplay() {
+    animationRef.current?.goToAndPlay(0, true);
+  }
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseEnter={handleReplay}
+      className={cn("pointer-events-auto", className)}
+      aria-hidden="true"
+    />
+  );
 }

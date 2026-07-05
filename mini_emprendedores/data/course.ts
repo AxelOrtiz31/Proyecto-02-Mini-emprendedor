@@ -33,6 +33,7 @@ export interface Section {
   title: string;
   status: SectionStatus;
   robot?: string;
+  robotSize?: { base: number; md: number };
   units: Unit[];
 }
 
@@ -42,6 +43,8 @@ export const course: Section[] = [
     number: 1,
     title: "¿Qué es emprender?",
     status: "current",
+    robot: "/intro-robot.json",
+    robotSize: { base: 90, md: 140 },
     units: [
       {
         id: "s1-u1",
@@ -56,7 +59,6 @@ export const course: Section[] = [
               "Conoce qué hace un emprendedor y descubre que tú también puedes serlo.",
             kind: "lesson",
             status: "completed",
-            stars: 3,
           },
           {
             id: "s1-u1-a2",
@@ -125,6 +127,7 @@ export const course: Section[] = [
     title: "¿Quién es mi cliente?",
     status: "locked",
     robot: "/web-analytics.json",
+    robotSize: { base: 170, md: 240 },
     units: [
       {
         id: "s3-u1",
@@ -248,6 +251,7 @@ export const course: Section[] = [
     title: "¡A vender!",
     status: "locked",
     robot: "/live-chatbot.json",
+    robotSize: { base: 170, md: 240 },
     units: [
       {
         id: "s6-u1",
