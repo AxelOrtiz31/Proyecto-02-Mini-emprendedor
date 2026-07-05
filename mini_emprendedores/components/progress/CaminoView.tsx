@@ -40,10 +40,13 @@ export function CaminoView() {
 
         <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">
           <div className="space-y-12">
-            {activeSection.units.map((unit) => (
+            {activeSection.units.map((unit, unitIndex) => (
               <section key={unit.id}>
                 <UnitBanner sectionNumber={activeSection.number} unit={unit} />
-                <LessonPath unit={unit} />
+                <LessonPath
+                  unit={unit}
+                  robotSrc={unitIndex === 0 ? activeSection.robot : undefined}
+                />
               </section>
             ))}
           </div>

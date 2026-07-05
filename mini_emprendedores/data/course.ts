@@ -32,6 +32,7 @@ export interface Section {
   number: number;
   title: string;
   status: SectionStatus;
+  robot?: string;
   units: Unit[];
 }
 
@@ -82,6 +83,7 @@ export const course: Section[] = [
     number: 2,
     title: "Mi idea de negocio",
     status: "locked",
+    robot: "/anima-bot.json",
     units: [
       {
         id: "s2-u1",
@@ -122,6 +124,7 @@ export const course: Section[] = [
     number: 3,
     title: "¿Quién es mi cliente?",
     status: "locked",
+    robot: "/web-analytics.json",
     units: [
       {
         id: "s3-u1",
@@ -162,6 +165,7 @@ export const course: Section[] = [
     number: 4,
     title: "¡Le doy color a mi negocio!",
     status: "locked",
+    robot: "/ai-robot.json",
     units: [
       {
         id: "s4-u1",
@@ -202,6 +206,7 @@ export const course: Section[] = [
     number: 5,
     title: "¿Cuánto vale mi esfuerzo?",
     status: "locked",
+    robot: "/robot.json",
     units: [
       {
         id: "s5-u1",
@@ -242,6 +247,7 @@ export const course: Section[] = [
     number: 6,
     title: "¡A vender!",
     status: "locked",
+    robot: "/live-chatbot.json",
     units: [
       {
         id: "s6-u1",
