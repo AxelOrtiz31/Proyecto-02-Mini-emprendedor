@@ -1,41 +1,56 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { TopBar } from "./TopBar";
 import { SectionSidebar } from "./SectionSidebar";
 import { SectionChips } from "./SectionChips";
 import { UnitBanner } from "./UnitBanner";
 import { LessonPath } from "./LessonPath";
 import { MascotPanel } from "./MascotPanel";
-import { course } from "@/data/course";
+import { deriveCourse, fetchCompletedCodes, xpForCompleted } from "@/lib/progress";
 
 export function CaminoView() {
-  const [activeSectionId, setActiveSectionId] = useState(
-    course.find((s) => s.status === "current")?.id ?? course[0].id,
+  const [completedIds, setCompletedIds] = useState<string[]>([]);
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    fetchCompletedCodes().then((codes) => {
+      if (active) setCompletedIds(codes);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const sections = useMemo(() => deriveCourse(completedIds), [completedIds]);
+
+  const currentSectionId = useMemo(
+    () => sections.find((s) => s.status === "current")?.id ?? sections[0].id,
+    [sections],
   );
 
-  const activeSection = useMemo(
-    () => course.find((s) => s.id === activeSectionId) ?? course[0],
-    [activeSectionId],
-  );
+  const activeSectionId = selectedSectionId ?? currentSectionId;
+  const activeSection = sections.find((s) => s.id === activeSectionId) ?? sections[0];
+  const xp = xpForCompleted(completedIds);
 
   return (
     <div className="min-h-screen overflow-x-clip bg-background">
-      <TopBar streak={12} ideas={500} xp={1240} />
+      <TopBar streak={12} ideas={500} xp={xp} />
 
       <div className="mx-auto max-w-7xl">
         <SectionChips
-          sections={course}
+          sections={sections}
           activeSectionId={activeSectionId}
-          onSelect={setActiveSectionId}
+          onSelect={setSelectedSectionId}
         />
       </div>
 
       <div className="mx-auto flex max-w-7xl xl:max-w-360 xl:gap-6">
         <SectionSidebar
-          sections={course}
+          sections={sections}
           activeSectionId={activeSectionId}
-          onSelect={setActiveSectionId}
+          onSelect={setSelectedSectionId}
         />
 
         <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { StatCard } from "./StatCard";
 import type { LessonStat } from "./types";
 
@@ -7,11 +6,11 @@ interface StatsPanelProps {
   subtitle: string;
   stats: LessonStat[];
   claimLabel: string;
-  claimHref: string;
+  onClaim: () => void;
   mascotSrc: string;
 }
 
-export function StatsPanel({ heading, subtitle, stats, claimLabel, claimHref, mascotSrc }: StatsPanelProps) {
+export function StatsPanel({ heading, subtitle, stats, claimLabel, onClaim, mascotSrc }: StatsPanelProps) {
   return (
     <section className="relative z-20 mx-auto flex min-h-screen w-full max-w-md animate-fade-in-up flex-col items-center justify-center gap-4 px-6 py-10">
       <img
@@ -35,12 +34,13 @@ export function StatsPanel({ heading, subtitle, stats, claimLabel, claimHref, ma
       </div>
 
       <div className="mt-8 w-full animate-btn-pulse">
-        <Link
-          href={claimHref}
+        <button
+          type="button"
+          onClick={onClaim}
           className="block w-full rounded-2xl bg-primary py-4 text-center font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-[5px] active:shadow-none"
         >
           {claimLabel}
-        </Link>
+        </button>
       </div>
     </section>
   );

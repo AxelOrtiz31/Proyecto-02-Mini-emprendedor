@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ConfettiLayer } from "./ConfettiLayer";
 import { SplashScreen } from "./SplashScreen";
 import { StatsPanel } from "./StatsPanel";
+import { saveCompletedLesson } from "@/lib/progress";
 import type { LessonStat } from "./types";
 
 /* Debe cubrir el fade-out del splash definido en globals.css (1.6 s de espera + 0.4 s). */
@@ -16,12 +18,23 @@ const LESSON_STATS: LessonStat[] = [
 ];
 
 export default function ModuleCompletePage() {
+  const router = useRouter();
   const [phase, setPhase] = useState<"splash" | "stats">("splash");
 
   useEffect(() => {
     const timer = setTimeout(() => setPhase("stats"), SPLASH_DURATION_MS);
     return () => clearTimeout(timer);
   }, []);
+
+  // Al reclamar XP se guarda la lección recibida por query (?lesson=) como
+  // completada para el usuario, lo que desbloquea la siguiente, y se vuelve al camino.
+  async function handleClaim() {
+    const lessonId = new URLSearchParams(window.location.search).get("lesson");
+    if (lessonId) {
+      await saveCompletedLesson(lessonId);
+    }
+    router.push("/dashboard");
+  }
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-background">
@@ -35,7 +48,7 @@ export default function ModuleCompletePage() {
           subtitle="Completaste la unidad 1 sin fallos y en tiempo récord."
           stats={LESSON_STATS}
           claimLabel="Reclamar XP"
-          claimHref="/dashboard"
+          onClaim={handleClaim}
           mascotSrc="/caelus.svg"
         />
       )}
