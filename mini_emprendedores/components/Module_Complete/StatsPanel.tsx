@@ -1,3 +1,4 @@
+import { LottiePlayer } from "./LottiePlayer";
 import { StatCard } from "./StatCard";
 import type { LessonStat } from "./types";
 
@@ -13,13 +14,9 @@ interface StatsPanelProps {
 export function StatsPanel({ heading, subtitle, stats, claimLabel, onClaim, mascotSrc }: StatsPanelProps) {
   return (
     <section className="relative z-20 mx-auto flex min-h-screen w-full max-w-md animate-fade-in-up flex-col items-center justify-center gap-4 px-6 py-10">
-      <img
-        src={mascotSrc}
-        alt="Mascota de MiniEmpre celebrando"
-        width={112}
-        height={112}
-        className="h-28 w-28 animate-mascot"
-      />
+      <div className="h-52 w-52 animate-mascot sm:h-60 sm:w-60">
+        <LottiePlayer path={mascotSrc} className="h-full w-full" />
+      </div>
       <h1 className="text-center font-display text-3xl font-extrabold text-foreground sm:text-4xl">
         {heading}
       </h1>

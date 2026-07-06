@@ -12,11 +12,14 @@ import { deriveCourse, fetchCompletedCodes, xpForCompleted } from "@/lib/progres
 export function CaminoView() {
   const [completedIds, setCompletedIds] = useState<string[]>([]);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let active = true;
     fetchCompletedCodes().then((codes) => {
-      if (active) setCompletedIds(codes);
+      if (!active) return;
+      setCompletedIds(codes);
+      setLoaded(true);
     });
     return () => {
       active = false;
@@ -33,6 +36,16 @@ export function CaminoView() {
   const activeSectionId = selectedSectionId ?? currentSectionId;
   const activeSection = sections.find((s) => s.id === activeSectionId) ?? sections[0];
   const xp = xpForCompleted(completedIds);
+
+  // Mientras no lleguen las lecciones completadas mostramos un loader breve, para que
+  // el primer render con contenido ya use la sección correcta y no parpadee a la sección 1.
+  if (!loaded) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-background">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen overflow-x-clip bg-background">

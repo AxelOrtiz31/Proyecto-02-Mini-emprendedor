@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import type { AnimationItem } from "lottie-web";
-import { cn } from "@/lib/utils";
 
 interface PathRobotProps {
   path: string;
@@ -34,15 +33,10 @@ export function PathRobot({ path, className }: PathRobotProps) {
     };
   }, [path]);
 
-  function handleReplay() {
-    animationRef.current?.goToAndPlay(0, true);
-  }
-
   return (
     <div
       ref={containerRef}
-      onMouseEnter={handleReplay}
-      className={cn("pointer-events-auto", className)}
+      className={className}
       aria-hidden="true"
     />
   );

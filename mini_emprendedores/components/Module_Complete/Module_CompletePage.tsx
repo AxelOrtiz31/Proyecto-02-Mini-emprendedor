@@ -53,7 +53,7 @@ export default function ModuleCompletePage() {
           stats={LESSON_STATS}
           claimLabel="Reclamar XP"
           onClaim={handleClaim}
-          mascotSrc="/caelus.svg"
+          mascotSrc="/cloud-robotics.json"
         />
       )}
     </main>
