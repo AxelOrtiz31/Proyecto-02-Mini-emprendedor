@@ -83,7 +83,7 @@ export function LessonNode({ activity, offsetX }: LessonNodeProps) {
 function StartLabel() {
   return (
     <span className="pointer-events-none absolute -top-13 left-1/2 z-10 -translate-x-1/2">
-      <span className="relative block animate-mascot rounded-2xl border-2 border-border bg-card px-4 py-2 font-display text-sm font-extrabold uppercase tracking-widest text-primary shadow-[var(--shadow-card)]">
+      <span className="relative block animate-mascot rounded-2xl border-2 border-border bg-card px-4 py-2 font-display text-sm font-extrabold uppercase tracking-widest text-primary shadow-(--shadow-card)">
         Empezar
         <span className="absolute left-1/2 top-full h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b-2 border-r-2 border-border bg-card" />
       </span>

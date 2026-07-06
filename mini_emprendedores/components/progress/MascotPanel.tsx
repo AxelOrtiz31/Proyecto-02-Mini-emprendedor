@@ -17,7 +17,7 @@ export function MascotPanel({ variant }: MascotPanelProps) {
   return (
     <aside className={asideClass}>
       <div className={innerClass}>
-        <div className="rounded-3xl border-2 border-accent/40 bg-card p-5 shadow-[var(--shadow-card)] xl:p-6">
+        <div className="rounded-3xl border-2 border-accent/40 bg-card p-5 shadow-(--shadow-card) xl:p-6">
           <div className="flex items-center gap-3">
             <img
               src="/caelus.svg"
@@ -55,7 +55,7 @@ export function MascotPanel({ variant }: MascotPanelProps) {
           </ul>
         </div>
 
-        <div className="rounded-3xl bg-gradient-to-br from-info to-[oklch(0.5_0.14_240)] p-5 text-info-foreground xl:p-6">
+        <div className="rounded-3xl bg-linear-to-br from-info to-[oklch(0.5_0.14_240)] p-5 text-info-foreground xl:p-6">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest opacity-90">
             <Sparkles className="h-4 w-4" /> Próxima sección
           </div>
