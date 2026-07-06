@@ -9,7 +9,7 @@ import { saveCompletedLesson } from "@/lib/progress";
 import type { LessonStat } from "./types";
 
 /* Debe cubrir el fade-out del splash definido en globals.css (1.6 s de espera + 0.4 s). */
-const SPLASH_DURATION_MS = 2000;
+const SPLASH_DURATION_MS = 3460;
 
 const LESSON_STATS: LessonStat[] = [
   { id: "xp", label: "XP total", value: "23", tone: "primary", icon: "zap" },
@@ -40,7 +40,11 @@ export default function ModuleCompletePage() {
     <main className="relative min-h-screen overflow-hidden bg-background">
       <ConfettiLayer />
       {phase === "splash" && (
-        <SplashScreen title="¡Lección completada!" mascotSrc="/caelus.svg" />
+        <SplashScreen
+          title="¡Lección completada!"
+          glowSrc="/reward-light.json"
+          successSrc="/success-check.json"
+        />
       )}
       {phase === "stats" && (
         <StatsPanel

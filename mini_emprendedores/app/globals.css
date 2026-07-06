@@ -41,12 +41,12 @@
   --animate-node-bounce: node-bounce 3.4s cubic-bezier(0.37, 0, 0.63, 1) infinite;
   --animate-mascot: mascot-float 3.2s ease-in-out infinite;
 
-  --animate-swoosh-in: swoosh-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-swoosh-in: swoosh-in 1.3s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-mascot-pop: mascot-pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
   --animate-title-rise: title-rise 0.7s ease-out 0.45s both;
   --animate-confetti-fall: confetti-fall 3s linear infinite;
   --animate-count-up: count-up 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  --animate-fade-out: fade-out 0.4s ease-in 1.6s forwards;
+  --animate-fade-out: fade-out 0.4s ease-in 2.8s forwards;
   --animate-fade-in-up: fade-in-up 0.6s ease-out both;
   --animate-btn-pulse: btn-pulse 1.6s ease-in-out 1s infinite;
 }
