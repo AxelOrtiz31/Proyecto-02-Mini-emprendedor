@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { Flame, Lightbulb, Star, LogOut } from "lucide-react";
 import { StatPill } from "./StatPill";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
+import { User, Trophy, MessageCircle } from "lucide-react";
+import { ChatModal } from "@/components/IA_Bot/ChatModal";
 
 interface TopBarProps {
   streak: number;
@@ -15,6 +18,7 @@ interface TopBarProps {
 export function TopBar({ streak, ideas, xp }: TopBarProps) {
   const router = useRouter();
   const [cerrando, setCerrando] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   async function handleCerrarSesion() {
     setCerrando(true);
@@ -32,6 +36,7 @@ export function TopBar({ streak, ideas, xp }: TopBarProps) {
   }
 
   return (
+    <>
     <header className="sticky top-0 z-40 border-b border-border bg-card/85 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-4 md:px-8 xl:max-w-360">
         <div className="flex items-center gap-2">
@@ -55,6 +60,33 @@ export function TopBar({ streak, ideas, xp }: TopBarProps) {
           <StatPill icon={Star} value={xp} label="XP" tone="info" />
         </div>
 
+        {/* Acciones */}
+        <div className="flex items-center gap-2">
+          {/* Botones de navegación */}
+          <Link
+            href="/profile"
+            className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            title="Perfil"
+          >
+            <User className="h-5 w-5" />
+          </Link>
+          <Link
+            href="/evaluation"
+            className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            title="Examen final"
+          >
+            <Trophy className="h-5 w-5" />
+          </Link>
+          <button
+            type="button"
+            onClick={() => setChatOpen(true)}
+            className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            title="Chatbot"
+          >
+            <MessageCircle className="h-5 w-5" />
+          </button>
+        </div>
+
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-display text-sm font-extrabold text-primary-foreground shadow-sm">
             LM
@@ -74,5 +106,7 @@ export function TopBar({ streak, ideas, xp }: TopBarProps) {
         </div>
       </div>
     </header>
+    <ChatModal open={chatOpen} onClose={() => setChatOpen(false)} />
+    </>
   );
 }

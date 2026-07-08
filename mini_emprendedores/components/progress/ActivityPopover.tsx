@@ -27,10 +27,17 @@ export function ActivityPopover({ activity }: ActivityPopoverProps) {
         <div className="text-[10px] font-bold uppercase tracking-widest opacity-85">
           {labelFor(activity)}
         </div>
-        <div className="font-display text-lg font-extrabold">{activity.title}</div>
+
+        <div className="font-display text-lg font-extrabold">
+          {activity.title}
+        </div>
       </div>
+
       <div className="space-y-4 p-5">
-        <p className="text-base text-muted-foreground">{activity.description}</p>
+        <p className="text-base text-muted-foreground">
+          {activity.description}
+        </p>
+
         {isLocked ? (
           <div className="flex items-center gap-2 rounded-xl bg-muted px-3 py-2 text-sm font-semibold text-muted-foreground">
             <Lock className="h-3.5 w-3.5" />
@@ -38,7 +45,7 @@ export function ActivityPopover({ activity }: ActivityPopoverProps) {
           </div>
         ) : (
           <Link
-            href={`/leccion/${activity.id}`}
+            href={getActivityHref(activity.id)}
             className={cn(
               "flex w-full items-center justify-center rounded-xl px-4 py-3 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground transition-transform hover:-translate-y-0.5",
               activity.status === "completed" && "bg-success",
@@ -54,10 +61,24 @@ export function ActivityPopover({ activity }: ActivityPopoverProps) {
   );
 }
 
+function getActivityHref(activityId: string) {
+  // Los ids tienen el formato s{seccion}-u{unidad}-a{actividad}.
+  // El numero de seccion coincide con el numero de modulo (module01..module06).
+  const match = activityId.match(/^s(\d+)-/);
+
+  if (match) {
+    const moduleNumber = match[1].padStart(2, "0");
+    return `/modules01_06_complete/module${moduleNumber}?lesson=${activityId}`;
+  }
+
+  return `/leccion/${activityId}`;
+}
+
 function labelFor(activity: Activity) {
   if (activity.status === "completed") return "Completada";
   if (activity.status === "current") return "Empieza aquí";
   if (activity.status === "bonus") return "Reto bonus";
   if (activity.status === "locked") return "Bloqueada";
+
   return activity.kind;
 }

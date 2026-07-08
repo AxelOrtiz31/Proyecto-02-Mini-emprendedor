@@ -15,6 +15,8 @@ export interface Activity {
   kind: ActivityKind;
   status: ActivityStatus;
   stars?: number;
+  // Ruta que abre el nodo. Si se omite, se usa la lección genérica /leccion/{id}.
+  route?: string;
 }
 
 export interface Unit {
@@ -56,9 +58,10 @@ export const course: Section[] = [
             id: "s1-u1-a1",
             title: "¿Qué es un emprendedor?",
             description:
-              "Conoce qué hace un emprendedor y descubre que tú también puedes serlo.",
+              "Responde unas preguntas rápidas para conocerte y personalizar tu camino.",
             kind: "lesson",
             status: "completed",
+            route: "/modules01_06_complete/module01",
           },
           {
             id: "s1-u1-a2",
@@ -224,6 +227,7 @@ export const course: Section[] = [
               "Descubre cuánto cuesta crear tu producto y cuánto deberías cobrar.",
             kind: "lesson",
             status: "locked",
+            route: "/modules01_06_complete/module05",
           },
           {
             id: "s5-u1-a2",
@@ -266,6 +270,7 @@ export const course: Section[] = [
               "Prepara qué vas a decir para convencer a tus primeros clientes.",
             kind: "lesson",
             status: "locked",
+            route: "/modules01_06_complete/module06",
           },
           {
             id: "s6-u1-a2",
