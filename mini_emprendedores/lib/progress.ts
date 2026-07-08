@@ -6,29 +6,45 @@ import {
   type SectionStatus,
 } from "@/data/course";
 
-// El progreso de cada alumno se guarda en la tabla progreso_lecciones de Supabase,
-// ligado a su usuario (alumno_id = auth.uid). Cada lección completada desbloquea
-// la siguiente de forma secuencial en todo el camino.
+// El progreso de cada alumno se guarda en la tabla progreso_lecciones de Supabase.
+// IMPORTANTE:
+// codigo_leccion debe coincidir exactamente con los ids definidos en data/course.ts.
+// Ejemplos:
+// s1-u1-a1, s1-u1-a2, s1-u1-a3
+// s2-u1-a1, s2-u1-a2, s2-u1-a3, s2-u1-a4
 
 export const XP_PER_ACTIVITY = 23;
 
-// Orden lineal de todas las lecciones (nodos) a lo largo del camino.
 export const activityOrder: string[] = course.flatMap((section) =>
   section.units.flatMap((unit) => unit.activities.map((activity) => activity.id)),
 );
 
+async function getCurrentUserId(): Promise<string | null> {
+  const { data: userData, error } = await supabase.auth.getUser();
+
+  if (error || !userData.user) {
+    return null;
+  }
+
+  return userData.user.id;
+}
+
 // Códigos de lección completados por el usuario autenticado.
 export async function fetchCompletedCodes(): Promise<string[]> {
-  const { data: userData } = await supabase.auth.getUser();
-  const user = userData.user;
-  if (!user) return [];
+  const userId = await getCurrentUserId();
+
+  if (!userId) return [];
 
   const { data, error } = await supabase
     .from("progreso_lecciones")
     .select("codigo_leccion")
-    .eq("alumno_id", user.id);
+    .eq("alumno_id", userId)
+    .eq("estado", "completada");
 
-  if (error || !data) return [];
+  if (error || !data) {
+    console.error("Error cargando progreso:", error?.message);
+    return [];
+  }
 
   return data
     .map((row) => row.codigo_leccion)
@@ -36,21 +52,63 @@ export async function fetchCompletedCodes(): Promise<string[]> {
 }
 
 // Marca una lección como completada para el usuario autenticado.
+// No usa upsert con onConflict porque tu tabla no mostró constraint unique
+// en alumno_id + codigo_leccion.
 export async function saveCompletedLesson(code: string): Promise<void> {
-  const { data: userData } = await supabase.auth.getUser();
-  const user = userData.user;
-  if (!user) return;
+  const userId = await getCurrentUserId();
 
-  await supabase.from("progreso_lecciones").upsert(
-    {
-      alumno_id: user.id,
+  if (!userId) {
+    throw new Error("Necesitas iniciar sesión para guardar tu avance.");
+  }
+
+  const completedAt = new Date().toISOString();
+
+  const { data: existingRows, error: existingError } = await supabase
+    .from("progreso_lecciones")
+    .select("id")
+    .eq("alumno_id", userId)
+    .eq("codigo_leccion", code)
+    .limit(1);
+
+  if (existingError) {
+    throw new Error(existingError.message);
+  }
+
+  const existingId = existingRows?.[0]?.id;
+
+  if (existingId) {
+    const { error: updateError } = await supabase
+      .from("progreso_lecciones")
+      .update({
+        estado: "completada",
+        xp_obtenido: XP_PER_ACTIVITY,
+        estrellas: 3,
+        completada_en: completedAt,
+      })
+      .eq("id", existingId)
+      .eq("alumno_id", userId);
+
+    if (updateError) {
+      throw new Error(updateError.message);
+    }
+
+    return;
+  }
+
+  const { error: insertError } = await supabase
+    .from("progreso_lecciones")
+    .insert({
+      alumno_id: userId,
       codigo_leccion: code,
       estado: "completada",
       xp_obtenido: XP_PER_ACTIVITY,
-      completada_en: new Date().toISOString(),
-    },
-    { onConflict: "alumno_id,codigo_leccion" },
-  );
+      estrellas: 3,
+      completada_en: completedAt,
+    });
+
+  if (insertError) {
+    throw new Error(insertError.message);
+  }
 }
 
 function statusForActivity(
@@ -60,12 +118,19 @@ function statusForActivity(
 ): ActivityStatus {
   if (completedIds.includes(activityId)) return "completed";
   if (activityId === firstPendingId) return "current";
+
   return "locked";
 }
 
 function statusForSection(activityStatuses: ActivityStatus[]): SectionStatus {
-  if (activityStatuses.every((status) => status === "completed")) return "completed";
-  if (activityStatuses.some((status) => status === "current")) return "current";
+  if (activityStatuses.every((status) => status === "completed")) {
+    return "completed";
+  }
+
+  if (activityStatuses.some((status) => status === "current")) {
+    return "current";
+  }
+
   return "locked";
 }
 
@@ -87,7 +152,11 @@ export function deriveCourse(completedIds: string[]): Section[] {
       unit.activities.map((activity) => activity.status),
     );
 
-    return { ...section, status: statusForSection(activityStatuses), units };
+    return {
+      ...section,
+      status: statusForSection(activityStatuses),
+      units,
+    };
   });
 }
 
