@@ -74,7 +74,7 @@ export default function Module03Page() {
   }
 
   function handleFinish() {
-    router.push("/modules01_06_complete/modulecomplete?lesson=module03");
+    router.push("/modules01_06_complete/modulecomplete?lesson=s3-u1-a1");
   }
 
   /* ── Act 2 lógica ── */

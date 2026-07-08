@@ -99,7 +99,7 @@ export default function Module04Page() {
   }
 
   function handleFinish() {
-    router.push("/modules01_06_complete/modulecomplete?lesson=module04");
+    router.push("/modules01_06_complete/modulecomplete?lesson=s4-u1-a1");
   }
 
   /* ── Intro ── */
