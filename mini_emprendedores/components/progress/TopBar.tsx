@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Flame, Lightbulb, Star, LogOut } from "lucide-react";
 import { StatPill } from "./StatPill";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
+import { User, Trophy, MessageCircle } from "lucide-react";
 
 interface TopBarProps {
   streak: number;
@@ -53,6 +55,32 @@ export function TopBar({ streak, ideas, xp }: TopBarProps) {
           <StatPill icon={Flame} value={streak} label="Racha" tone="primary" />
           <StatPill icon={Lightbulb} value={ideas} label="Ideas" tone="accent" />
           <StatPill icon={Star} value={xp} label="XP" tone="info" />
+        </div>
+
+        {/* Acciones */}
+        <div className="flex items-center gap-2">
+          {/* Botones de navegación */}
+          <Link
+            href="/profile"
+            className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            title="Perfil"
+          >
+            <User className="h-5 w-5" />
+          </Link>
+          <Link
+            href="/evaluation"
+            className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            title="Examen final"
+          >
+            <Trophy className="h-5 w-5" />
+          </Link>
+          <Link
+            href="/ia_bot"
+            className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            title="Chatbot"
+          >
+            <MessageCircle className="h-5 w-5" />
+          </Link>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
