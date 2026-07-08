@@ -9,9 +9,14 @@ interface OnboardingHeaderProps {
   onBack: () => void;
 }
 
-export function OnboardingHeader({ title, step, total, onBack }: OnboardingHeaderProps) {
+export function OnboardingHeader({
+  title,
+  step,
+  total,
+  onBack,
+}: OnboardingHeaderProps) {
   return (
-    <div className="mx-auto flex w-full max-w-md items-center gap-3">
+    <div className="mx-auto flex w-full max-w-xl items-center gap-3">
       <button
         type="button"
         onClick={onBack}
@@ -25,7 +30,8 @@ export function OnboardingHeader({ title, step, total, onBack }: OnboardingHeade
         <p className="text-xs font-black uppercase tracking-wider text-primary">
           Módulo de preguntas
         </p>
-        <p className="truncate font-display text-sm font-extrabold text-foreground">
+
+        <p className="truncate font-display text-sm font-extrabold text-foreground sm:text-base">
           {title}
         </p>
       </div>
