@@ -38,14 +38,29 @@ export default async function LessonPage({ params }: LessonPageProps) {
 }
 
 function getModuleRouteFromLessonId(lessonId: string) {
-  // Los ids tienen el formato s{seccion}-u{unidad}-a{actividad}.
-  // El numero de seccion coincide con el numero de modulo (module01..module06).
-  const match = lessonId.match(/^s(\d+)-/);
-
-  if (!match) {
-    return null;
+  if (lessonId.startsWith("s1-u1")) {
+    return `/modules01_06_complete/module01?lesson=${lessonId}`;
   }
 
-  const moduleNumber = match[1].padStart(2, "0");
-  return `/modules01_06_complete/module${moduleNumber}?lesson=${lessonId}`;
+  if (lessonId.startsWith("s2-u1")) {
+    return `/modules01_06_complete/module02?lesson=${lessonId}`;
+  }
+
+  if (lessonId.startsWith("s3-u1")) {
+    return `/modules01_06_complete/module03?lesson=${lessonId}`;
+  }
+
+  if (lessonId.startsWith("s4-u1")) {
+    return `/modules01_06_complete/module04?lesson=${lessonId}`;
+  }
+
+  if (lessonId.startsWith("s5-u1")) {
+    return `/modules01_06_complete/module05?lesson=${lessonId}`;
+  }
+
+  if (lessonId.startsWith("s6-u1")) {
+    return `/modules01_06_complete/module06?lesson=${lessonId}`;
+  }
+
+  return null;
 }
