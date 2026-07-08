@@ -27,10 +27,17 @@ export function ActivityPopover({ activity }: ActivityPopoverProps) {
         <div className="text-[10px] font-bold uppercase tracking-widest opacity-85">
           {labelFor(activity)}
         </div>
-        <div className="font-display text-lg font-extrabold">{activity.title}</div>
+
+        <div className="font-display text-lg font-extrabold">
+          {activity.title}
+        </div>
       </div>
+
       <div className="space-y-4 p-5">
-        <p className="text-base text-muted-foreground">{activity.description}</p>
+        <p className="text-base text-muted-foreground">
+          {activity.description}
+        </p>
+
         {isLocked ? (
           <div className="flex items-center gap-2 rounded-xl bg-muted px-3 py-2 text-sm font-semibold text-muted-foreground">
             <Lock className="h-3.5 w-3.5" />
@@ -38,7 +45,7 @@ export function ActivityPopover({ activity }: ActivityPopoverProps) {
           </div>
         ) : (
           <Link
-            href={activity.route ?? `/leccion/${activity.id}`}
+            href={getActivityHref(activity.id)}
             className={cn(
               "flex w-full items-center justify-center rounded-xl px-4 py-3 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground transition-transform hover:-translate-y-0.5",
               activity.status === "completed" && "bg-success",
@@ -54,10 +61,39 @@ export function ActivityPopover({ activity }: ActivityPopoverProps) {
   );
 }
 
+function getActivityHref(activityId: string) {
+  if (activityId.startsWith("s1-u1")) {
+    return `/modules01_06_complete/module01?lesson=${activityId}`;
+  }
+
+  if (activityId.startsWith("s1-u2")) {
+    return `/modules01_06_complete/module02?lesson=${activityId}`;
+  }
+
+  if (activityId.startsWith("s1-u3")) {
+    return `/modules01_06_complete/module03?lesson=${activityId}`;
+  }
+
+  if (activityId.startsWith("s1-u4")) {
+    return `/modules01_06_complete/module04?lesson=${activityId}`;
+  }
+
+  if (activityId.startsWith("s1-u5")) {
+    return `/modules01_06_complete/module05?lesson=${activityId}`;
+  }
+
+  if (activityId.startsWith("s1-u6")) {
+    return `/modules01_06_complete/module06?lesson=${activityId}`;
+  }
+
+  return `/leccion/${activityId}`;
+}
+
 function labelFor(activity: Activity) {
   if (activity.status === "completed") return "Completada";
   if (activity.status === "current") return "Empieza aquí";
   if (activity.status === "bonus") return "Reto bonus";
   if (activity.status === "locked") return "Bloqueada";
+
   return activity.kind;
 }
