@@ -89,6 +89,7 @@ CREATE TABLE public.preguntas_evaluacion (
   orden smallint NOT NULL DEFAULT 1,
   activa boolean NOT NULL DEFAULT true,
   creada_en timestamp with time zone NOT NULL DEFAULT now(),
+  multiple boolean NOT NULL DEFAULT false,
   CONSTRAINT preguntas_evaluacion_pkey PRIMARY KEY (id),
   CONSTRAINT preguntas_evaluacion_evaluacion_id_fkey FOREIGN KEY (evaluacion_id) REFERENCES public.evaluaciones(id)
 );
@@ -142,3 +143,190 @@ CREATE TABLE public.progreso_lecciones (
   CONSTRAINT progreso_lecciones_alumno_id_fkey FOREIGN KEY (alumno_id) REFERENCES public.perfiles(id),
   CONSTRAINT progreso_lecciones_leccion_id_fkey FOREIGN KEY (leccion_id) REFERENCES public.lecciones(id)
 );
+
+
+-- 1) La política que faltaba: modulos tiene RLS pero sin lectura.
+ALTER TABLE public.modulos ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura de modulos" ON public.modulos;
+CREATE POLICY "Lectura de modulos" ON public.modulos
+  FOR SELECT TO authenticated USING (true);
+
+-- 2) Verifica que la semilla SÍ tiene datos (esto corre como postgres y salta RLS):
+SELECT
+  (SELECT count(*) FROM public.modulos)                          AS modulos,
+  (SELECT count(*) FROM public.evaluaciones WHERE tipo='modulo') AS evals_modulo,
+  (SELECT count(*) FROM public.preguntas_evaluacion)             AS preguntas,
+  (SELECT count(*) FROM public.opciones_respuesta)               AS opciones;
+
+
+  -- Semilla del módulo de preguntas (onboarding) del Módulo 1.
+-- Correr en el SQL Editor de Supabase. Es idempotente: se puede correr varias veces.
+-- Plantilla para los módulos 2-6: copia el bloque DO y cambia el numero de módulo y los textos.
+
+-- a) Soporte de preguntas de selección múltiple (no rompe nada: default false).
+ALTER TABLE public.preguntas_evaluacion
+  ADD COLUMN IF NOT EXISTS multiple boolean NOT NULL DEFAULT false;
+
+-- b) Catálogo de módulos (numero 1-6). El numero es la llave que enlaza con Section.number del frontend.
+INSERT INTO public.modulos (numero, titulo, orden) VALUES
+  (1, '¿Qué es emprender?', 1),
+  (2, 'Mi idea de negocio', 2),
+  (3, '¿Quién es mi cliente?', 3),
+  (4, '¡Le doy color a mi negocio!', 4),
+  (5, '¿Cuánto vale mi esfuerzo?', 5),
+  (6, '¡A vender!', 6)
+ON CONFLICT (numero) DO NOTHING;
+
+-- c) Evaluación del Módulo 1 con sus preguntas y opciones.
+DO $$
+DECLARE
+  v_modulo_id integer;
+  v_eval_id   integer;
+  v_preg_id   integer;
+BEGIN
+  SELECT id INTO v_modulo_id FROM public.modulos WHERE numero = 1;
+
+  -- No duplicar si ya se sembró la evaluación de este módulo.
+  IF EXISTS (
+    SELECT 1 FROM public.evaluaciones
+    WHERE tipo = 'modulo' AND modulo_id = v_modulo_id
+  ) THEN
+    RETURN;
+  END IF;
+
+  INSERT INTO public.evaluaciones (nombre, descripcion, tipo, modulo_id, instrucciones)
+  VALUES (
+    'Módulo 1 · ¿Qué es emprender?',
+    'Preguntas de inicio para conocerte y personalizar tu camino emprendedor.',
+    'modulo',
+    v_modulo_id,
+    'Elige la opción que más va contigo. ¡No hay respuestas incorrectas!'
+  )
+  RETURNING id INTO v_eval_id;
+
+  -- Pregunta 1 (selección única).
+  INSERT INTO public.preguntas_evaluacion (evaluacion_id, texto, orden, multiple)
+  VALUES (v_eval_id, '¿Qué hace principalmente un emprendedor?', 1, false)
+  RETURNING id INTO v_preg_id;
+  INSERT INTO public.opciones_respuesta (pregunta_id, etiqueta, emoji, valor, orden) VALUES
+    (v_preg_id, 'Crea productos o servicios que ayudan a otros', '🚀', 1, 1),
+    (v_preg_id, 'Solo trabaja para otras empresas', '🏢', 1, 2),
+    (v_preg_id, 'Espera que alguien le dé una idea', '😴', 1, 3);
+
+  -- Pregunta 2 (selección múltiple).
+  INSERT INTO public.preguntas_evaluacion (evaluacion_id, texto, orden, multiple)
+  VALUES (v_eval_id, '¿Por qué quieres aprender a emprender?', 2, true)
+  RETURNING id INTO v_preg_id;
+  INSERT INTO public.opciones_respuesta (pregunta_id, etiqueta, emoji, valor, orden) VALUES
+    (v_preg_id, 'Solo por diversión', '🎉', 1, 1),
+    (v_preg_id, 'Impulsar mi carrera', '💼', 1, 2),
+    (v_preg_id, 'Usar mi tiempo productivamente', '🧠', 1, 3),
+    (v_preg_id, 'Conectar con otras personas', '🧑‍🤝‍🧑', 1, 4),
+    (v_preg_id, 'Generar ingresos extra', '💰', 1, 5),
+    (v_preg_id, 'Apoyar mis estudios', '📚', 1, 6),
+    (v_preg_id, 'Otra razón', '🟣', 1, 7);
+
+  -- Pregunta 3 (selección única).
+  INSERT INTO public.preguntas_evaluacion (evaluacion_id, texto, orden, multiple)
+  VALUES (v_eval_id, '¿Cuánto sabes sobre emprender?', 3, false)
+  RETURNING id INTO v_preg_id;
+  INSERT INTO public.opciones_respuesta (pregunta_id, etiqueta, emoji, valor, orden) VALUES
+    (v_preg_id, 'Soy nuevo en esto', '🌱', 1, 1),
+    (v_preg_id, 'Conozco algunos conceptos', '📈', 1, 2),
+    (v_preg_id, 'Tengo una idea en mente', '🛠️', 1, 3),
+    (v_preg_id, 'Ya tengo un pequeño negocio', '🏆', 1, 4);
+
+  -- Pregunta 4 (selección única).
+  INSERT INTO public.preguntas_evaluacion (evaluacion_id, texto, orden, multiple)
+  VALUES (v_eval_id, '¿Cuánto tiempo puedes dedicar al día?', 4, false)
+  RETURNING id INTO v_preg_id;
+  INSERT INTO public.opciones_respuesta (pregunta_id, etiqueta, emoji, valor, orden) VALUES
+    (v_preg_id, '5 minutos · Casual', '⏱️', 1, 1),
+    (v_preg_id, '10 minutos · Regular', '🔥', 1, 2),
+    (v_preg_id, '15 minutos · Serio', '🚀', 1, 3),
+    (v_preg_id, '20 minutos · Intenso', '🏅', 1, 4);
+END $$;
+
+-- d) Políticas RLS (recomendado; hoy las tablas solo tienen GRANT abierto).
+--    Contenido de solo lectura para autenticados; sesiones y respuestas acotadas al alumno dueño.
+ALTER TABLE public.evaluaciones          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.preguntas_evaluacion  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.opciones_respuesta    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sesiones_evaluacion   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.respuestas_evaluacion ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Lectura de evaluaciones" ON public.evaluaciones;
+CREATE POLICY "Lectura de evaluaciones" ON public.evaluaciones
+  FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Lectura de preguntas" ON public.preguntas_evaluacion;
+CREATE POLICY "Lectura de preguntas" ON public.preguntas_evaluacion
+  FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Lectura de opciones" ON public.opciones_respuesta;
+CREATE POLICY "Lectura de opciones" ON public.opciones_respuesta
+  FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Alumno ve sus sesiones" ON public.sesiones_evaluacion;
+CREATE POLICY "Alumno ve sus sesiones" ON public.sesiones_evaluacion
+  FOR SELECT TO authenticated USING (auth.uid() = alumno_id);
+
+DROP POLICY IF EXISTS "Alumno crea sus sesiones" ON public.sesiones_evaluacion;
+CREATE POLICY "Alumno crea sus sesiones" ON public.sesiones_evaluacion
+  FOR INSERT TO authenticated WITH CHECK (auth.uid() = alumno_id);
+
+DROP POLICY IF EXISTS "Alumno actualiza sus sesiones" ON public.sesiones_evaluacion;
+CREATE POLICY "Alumno actualiza sus sesiones" ON public.sesiones_evaluacion
+  FOR UPDATE TO authenticated USING (auth.uid() = alumno_id) WITH CHECK (auth.uid() = alumno_id);
+
+DROP POLICY IF EXISTS "Alumno ve sus respuestas" ON public.respuestas_evaluacion;
+CREATE POLICY "Alumno ve sus respuestas" ON public.respuestas_evaluacion
+  FOR SELECT TO authenticated USING (
+    sesion_id IN (SELECT id FROM public.sesiones_evaluacion WHERE alumno_id = auth.uid())
+  );
+
+DROP POLICY IF EXISTS "Alumno inserta sus respuestas" ON public.respuestas_evaluacion;
+CREATE POLICY "Alumno inserta sus respuestas" ON public.respuestas_evaluacion
+  FOR INSERT TO authenticated WITH CHECK (
+    sesion_id IN (SELECT id FROM public.sesiones_evaluacion WHERE alumno_id = auth.uid())
+  );
+
+
+-- 1) Repone el trigger que crea el perfil al registrarse (para NUEVOS registros)
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.perfiles (id, nombre, apellido, edad)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'nombre', 'Alumno'),
+    COALESCE(NEW.raw_user_meta_data->>'apellido', ''),
+    NULLIF(NEW.raw_user_meta_data->>'edad', '')::smallint
+  )
+  ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- 2) Crea los perfiles que faltan para los usuarios que YA existen (esto quita el 409 ahora)
+INSERT INTO public.perfiles (id, nombre, apellido, edad)
+SELECT
+  u.id,
+  COALESCE(u.raw_user_meta_data->>'nombre', 'Alumno'),
+  COALESCE(u.raw_user_meta_data->>'apellido', ''),
+  NULLIF(u.raw_user_meta_data->>'edad', '')::smallint
+FROM auth.users u
+LEFT JOIN public.perfiles p ON p.id = u.id
+WHERE p.id IS NULL;
+
+ALTER TABLE public.preguntas_evaluacion ADD COLUMN IF NOT EXISTS nivel integer;
+ALTER TABLE public.preguntas_evaluacion ADD COLUMN IF NOT EXISTS nivel integer;
