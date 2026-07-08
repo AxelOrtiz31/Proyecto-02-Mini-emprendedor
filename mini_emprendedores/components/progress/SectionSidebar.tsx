@@ -16,7 +16,7 @@ export function SectionSidebar({
   onSelect,
 }: SectionSidebarProps) {
   return (
-    <aside className="hidden w-60 shrink-0 lg:block">
+    <aside className="hidden w-60 shrink-0 lg:block xl:w-64">
       <div className="sticky top-20 p-5">
         <div className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
           Tu camino
@@ -55,7 +55,7 @@ function SectionButton({
       className={cn(
         "flex w-full items-center gap-3 rounded-2xl border-2 px-3 py-3 text-left transition-colors",
         active
-          ? "border-primary bg-card shadow-[var(--shadow-card)]"
+          ? "border-primary bg-card shadow-(--shadow-card)"
           : "border-transparent hover:bg-card",
       )}
     >
