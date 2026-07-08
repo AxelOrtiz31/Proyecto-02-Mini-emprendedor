@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "EmprendeKids IA",
   description: "App para mini emprendedores 🧐",
   icons: {
-    icon: "caelus.svg",
+    icon: "/caelus.svg",
   },
 };
 
