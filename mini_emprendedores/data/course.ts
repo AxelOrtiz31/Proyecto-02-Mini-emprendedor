@@ -227,6 +227,7 @@ export const course: Section[] = [
               "Descubre cuánto cuesta crear tu producto y cuánto deberías cobrar.",
             kind: "lesson",
             status: "locked",
+            route: "/modules01_06_complete/module05",
           },
           {
             id: "s5-u1-a2",
@@ -269,6 +270,7 @@ export const course: Section[] = [
               "Prepara qué vas a decir para convencer a tus primeros clientes.",
             kind: "lesson",
             status: "locked",
+            route: "/modules01_06_complete/module06",
           },
           {
             id: "s6-u1-a2",
