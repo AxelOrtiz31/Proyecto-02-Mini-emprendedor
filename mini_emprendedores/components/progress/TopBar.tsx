@@ -50,7 +50,7 @@ export function TopBar({ streak, ideas, xp }: TopBarProps) {
 
           <span className="hidden font-display text-xl font-extrabold sm:inline-block">
             <span className="text-foreground">Mini</span>
-            <span className="text-primary">Empre</span>
+            <span className="text-primary">Emprendedores</span>
           </span>
         </div>
 
