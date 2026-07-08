@@ -62,28 +62,13 @@ export function ActivityPopover({ activity }: ActivityPopoverProps) {
 }
 
 function getActivityHref(activityId: string) {
-  if (activityId.startsWith("s1-u1")) {
-    return `/modules01_06_complete/module01?lesson=${activityId}`;
-  }
+  // Los ids tienen el formato s{seccion}-u{unidad}-a{actividad}.
+  // El numero de seccion coincide con el numero de modulo (module01..module06).
+  const match = activityId.match(/^s(\d+)-/);
 
-  if (activityId.startsWith("s2-u1")) {
-    return `/modules01_06_complete/module02?lesson=${activityId}`;
-  }
-
-  if (activityId.startsWith("s3-u1")) {
-    return `/modules01_06_complete/module03?lesson=${activityId}`;
-  }
-
-  if (activityId.startsWith("s4-u1")) {
-    return `/modules01_06_complete/module04?lesson=${activityId}`;
-  }
-
-  if (activityId.startsWith("s5-u1")) {
-    return `/modules01_06_complete/module05?lesson=${activityId}`;
-  }
-
-  if (activityId.startsWith("s6-u1")) {
-    return `/modules01_06_complete/module06?lesson=${activityId}`;
+  if (match) {
+    const moduleNumber = match[1].padStart(2, "0");
+    return `/modules01_06_complete/module${moduleNumber}?lesson=${activityId}`;
   }
 
   return `/leccion/${activityId}`;
