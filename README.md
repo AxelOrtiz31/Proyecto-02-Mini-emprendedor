@@ -181,3 +181,7 @@ En caso de haber hecho un pull de todas las ramas a tu maquina local usa el sigu
 ```bash
 git reset --hard ORIG_HEAD
 ```
+
+```bash
+git merge --abort
+```
