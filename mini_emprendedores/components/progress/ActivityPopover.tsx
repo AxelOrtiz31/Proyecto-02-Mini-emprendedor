@@ -38,7 +38,7 @@ export function ActivityPopover({ activity }: ActivityPopoverProps) {
           </div>
         ) : (
           <Link
-            href={`/leccion/${activity.id}`}
+            href={activity.route ?? `/leccion/${activity.id}`}
             className={cn(
               "flex w-full items-center justify-center rounded-xl px-4 py-3 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground transition-transform hover:-translate-y-0.5",
               activity.status === "completed" && "bg-success",
