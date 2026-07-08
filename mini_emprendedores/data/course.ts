@@ -145,6 +145,7 @@ export const course: Section[] = [
               "Descubre quiénes son los clientes y por qué son tan importantes.",
             kind: "lesson",
             status: "locked",
+            route: "/modules01_06_complete/module03",
           },
           {
             id: "s3-u1-a2",
@@ -186,6 +187,7 @@ export const course: Section[] = [
               "Inventa un nombre pegajoso y un logo llamativo para tu negocio.",
             kind: "lesson",
             status: "locked",
+            route: "/modules01_06_complete/module04", 
           },
           {
             id: "s4-u1-a2",
