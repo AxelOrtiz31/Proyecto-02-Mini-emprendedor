@@ -1,66 +1,12 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { Lightbulb, Medal, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
 
 interface MascotPanelProps {
   variant: "sidebar" | "inline";
 }
 
-interface ProfileData {
-  nombre: string;
-  apellido: string;
-  avatar_url?: string;
-}
-
 export function MascotPanel({ variant }: MascotPanelProps) {
-  const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [loading, setLoading] = useState(true);
   const isSidebar = variant === "sidebar";
-
-  useEffect(() => {
-    async function loadProfile() {
-      try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-          setLoading(false);
-          return;
-        }
-
-        const { data: perfil, error: perfilError } = await supabase
-          .from("perfiles")
-          .select("nombre, apellido, avatar_id")
-          .eq("id", user.id)
-          .maybeSingle();
-
-        if (perfilError) throw perfilError;
-
-        let avatarUrl = undefined;
-        if (perfil?.avatar_id) {
-          const { data: avatar } = await supabase
-            .from("avatares")
-            .select("url_imagen")
-            .eq("id", perfil.avatar_id)
-            .maybeSingle();
-          avatarUrl = avatar?.url_imagen;
-        }
-
-        setProfile({
-          nombre: perfil?.nombre || "Alumno",
-          apellido: perfil?.apellido || "",
-          avatar_url: avatarUrl,
-        });
-      } catch (error) {
-        console.error("Error cargando perfil en MascotPanel:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadProfile();
-  }, []);
 
   const asideClass = isSidebar
     ? "hidden w-96 shrink-0 xl:block"
@@ -68,15 +14,13 @@ export function MascotPanel({ variant }: MascotPanelProps) {
 
   const innerClass = isSidebar ? "sticky top-20 space-y-6 p-5" : "space-y-4";
 
-  const displayName = loading ? "Cargando..." : profile ? `${profile.nombre} ${profile.apellido}`.trim() || "Usuario" : "Usuario";
-
   return (
     <aside className={asideClass}>
       <div className={innerClass}>
         <div className="rounded-3xl border-2 border-accent/40 bg-card p-5 shadow-(--shadow-card) xl:p-6">
           <div className="flex items-center gap-3">
             <img
-              src={profile?.avatar_url || "/caelus.svg"}
+              src="/caelus.svg"
               alt="Lupe"
               width={64}
               height={64}
@@ -84,9 +28,7 @@ export function MascotPanel({ variant }: MascotPanelProps) {
               className="h-16 w-16 animate-mascot"
             />
             <div>
-              <div className="font-display text-base font-extrabold">
-                {loading ? "Cargando..." : `¡Hola, ${displayName}!`}
-              </div>
+              <div className="font-display text-base font-extrabold">¡Hola, Lupe!</div>
               <div className="text-xs text-muted-foreground">Vamos por la sección 1 🚀</div>
             </div>
           </div>
