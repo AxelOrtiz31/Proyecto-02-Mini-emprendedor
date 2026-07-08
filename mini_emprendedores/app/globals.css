@@ -38,8 +38,17 @@
   --shadow-node-locked: 0 5px 0 0 oklch(0.84 0.01 80), 0 7px 12px -4px oklch(0.8 0.01 80 / 0.4);
   --shadow-card: 0 10px 30px -12px oklch(0.45 0.05 60 / 0.25);
 
-  --animate-node-bounce: node-bounce 2.4s ease-in-out infinite;
+  --animate-node-bounce: node-bounce 3.4s cubic-bezier(0.37, 0, 0.63, 1) infinite;
   --animate-mascot: mascot-float 3.2s ease-in-out infinite;
+
+  --animate-swoosh-in: swoosh-in 1.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-mascot-pop: mascot-pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+  --animate-title-rise: title-rise 0.7s ease-out 0.45s both;
+  --animate-confetti-fall: confetti-fall 3s linear infinite;
+  --animate-count-up: count-up 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-fade-out: fade-out 0.4s ease-in 2.8s forwards;
+  --animate-fade-in-up: fade-in-up 0.6s ease-out both;
+  --animate-btn-pulse: btn-pulse 1.6s ease-in-out 1s infinite;
 }
 
 @keyframes node-bounce {
@@ -59,6 +68,93 @@
   }
   50% {
     transform: translateY(-8px);
+  }
+}
+
+@keyframes swoosh-in {
+  from {
+    transform: translate(-150%, -50%) skewY(-8deg);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%) skewY(-8deg);
+    opacity: 1;
+  }
+}
+
+@keyframes mascot-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes title-rise {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes confetti-fall {
+  from {
+    transform: translateY(-5vh) rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(105vh) rotate(540deg);
+    opacity: 0.7;
+  }
+}
+
+@keyframes count-up {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Termina a los 2 s (1.6 s de espera + 0.4 s), en sincronía con SPLASH_DURATION_MS. */
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes btn-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
   }
 }
 

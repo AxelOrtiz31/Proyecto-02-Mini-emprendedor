@@ -7,6 +7,13 @@
       "runtimeArgs": ["--prefix", "mini_emprendedores", "run", "start"],
       "port": 3000,
       "autoPort": true
+    },
+    {
+      "name": "miniempre-dev",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "set GROQ_API_KEY=&& npm --prefix mini_emprendedores run dev"],
+      "port": 3000,
+      "autoPort": true
     }
   ]
 }

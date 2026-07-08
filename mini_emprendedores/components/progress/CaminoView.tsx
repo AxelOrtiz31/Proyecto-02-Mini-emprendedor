@@ -1,71 +1,130 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { TopBar } from "./TopBar";
 import { SectionSidebar } from "./SectionSidebar";
+import { SectionChips } from "./SectionChips";
 import { UnitBanner } from "./UnitBanner";
 import { LessonPath } from "./LessonPath";
 import { MascotPanel } from "./MascotPanel";
-import { course } from "@/data/course";
+import { deriveCourse, fetchCompletedCodes, xpForCompleted } from "@/lib/progress";
 
 export function CaminoView() {
-  const [activeSectionId, setActiveSectionId] = useState(
-    course.find((s) => s.status === "current")?.id ?? course[0].id,
-  );
+  const [completedIds, setCompletedIds] = useState<string[] | null>(null);
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
 
-  const activeSection = useMemo(
-    () => course.find((s) => s.id === activeSectionId) ?? course[0],
-    [activeSectionId],
-  );
+  useEffect(() => {
+    let active = true;
+
+    async function loadProgress() {
+      try {
+        const codes = await fetchCompletedCodes();
+
+        if (!active) return;
+
+        setCompletedIds(codes);
+      } catch (error) {
+        console.error("Error cargando progreso:", error);
+
+        if (!active) return;
+
+        setCompletedIds([]);
+      }
+    }
+
+    loadProgress();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const loaded = completedIds !== null;
+
+  const sections = useMemo(() => {
+    if (!loaded) return [];
+
+    return deriveCourse(completedIds);
+  }, [completedIds, loaded]);
+
+  const currentSectionId = useMemo(() => {
+    if (!sections.length) return null;
+
+    return sections.find((section) => section.status === "current")?.id ?? sections[0].id;
+  }, [sections]);
+
+  const activeSectionId = useMemo(() => {
+    if (!sections.length) return null;
+
+    const selectedSectionExists =
+      selectedSectionId && sections.some((section) => section.id === selectedSectionId);
+
+    if (selectedSectionExists) {
+      return selectedSectionId;
+    }
+
+    return currentSectionId;
+  }, [sections, selectedSectionId, currentSectionId]);
+
+  const activeSection = useMemo(() => {
+    if (!sections.length || !activeSectionId) return null;
+
+    return sections.find((section) => section.id === activeSectionId) ?? null;
+  }, [sections, activeSectionId]);
+
+  const xp = useMemo(() => {
+    if (!completedIds) return 0;
+
+    return xpForCompleted(completedIds);
+  }, [completedIds]);
+
+  if (!loaded || !activeSection || !activeSectionId) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-background">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background">
-      <TopBar streak={12} ideas={500} xp={1240} />
+    <div className="min-h-screen overflow-x-clip bg-background">
+      <TopBar streak={12} ideas={500} xp={xp} />
 
-      <div className="mx-auto flex max-w-7xl">
-        <SectionSidebar
-          sections={course}
+      <div className="mx-auto max-w-7xl">
+        <SectionChips
+          sections={sections}
           activeSectionId={activeSectionId}
-          onSelect={setActiveSectionId}
+          onSelect={setSelectedSectionId}
+        />
+      </div>
+
+      <div className="mx-auto flex max-w-7xl xl:max-w-360 xl:gap-6">
+        <SectionSidebar
+          sections={sections}
+          activeSectionId={activeSectionId}
+          onSelect={setSelectedSectionId}
         />
 
-        <main className="min-w-0 flex-1 px-4 py-8 md:px-8">
-          {activeSection.units.length === 0 ? (
-            <LockedSection
-              title={activeSection.title}
-              number={activeSection.number}
-            />
-          ) : (
-            <div className="space-y-12">
-              {activeSection.units.map((unit, idx) => (
-                <section key={unit.id}>
-                  <UnitBanner sectionNumber={activeSection.number} unit={unit} />
-                  <LessonPath unit={unit} />
-                  {idx < activeSection.units.length - 1 && (
-                    <div className="mx-auto my-2 h-px w-24 bg-border" />
-                  )}
-                </section>
-              ))}
-            </div>
-          )}
+        <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">
+          <div className="mx-auto w-full space-y-12 xl:max-w-160 xl:space-y-16">
+            {activeSection.units.map((unit, unitIndex) => (
+              <section key={unit.id}>
+                <UnitBanner sectionNumber={activeSection.number} unit={unit} />
+
+                <LessonPath
+                  unit={unit}
+                  robotSrc={unitIndex === 0 ? activeSection.robot : undefined}
+                  robotSize={unitIndex === 0 ? activeSection.robotSize : undefined}
+                />
+              </section>
+            ))}
+          </div>
+
+          <MascotPanel variant="inline" />
         </main>
 
-        <MascotPanel />
+        <MascotPanel variant="sidebar" />
       </div>
-    </div>
-  );
-}
-
-function LockedSection({ title, number }: { title: string; number: number }) {
-  return (
-    <div className="mx-auto mt-16 max-w-md rounded-3xl border-2 border-dashed border-border bg-card p-10 text-center">
-      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted font-display text-2xl font-extrabold text-muted-foreground">
-        {number}
-      </div>
-      <h2 className="font-display text-xl font-extrabold">{title}</h2>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Esta sección se desbloquea cuando completes la anterior. ¡Sigue avanzando!
-      </p>
     </div>
   );
 }
