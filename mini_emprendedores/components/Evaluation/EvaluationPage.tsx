@@ -2,57 +2,80 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { OnboardingHeader } from "./OnboardingHeader";
+import { ProgressSegments } from "./ProgressSegments";
+import { QuestionCard } from "./QuestionCard";
+import { EvaluationError } from "./EvaluationError";
+import { ConfettiLayer } from "@/components/Module_Complete/ConfettiLayer";
+import { SplashScreen } from "@/components/Module_Complete/SplashScreen";
+import { StatsPanel } from "@/components/Module_Complete/StatsPanel";
+import type { LessonStat } from "@/components/Module_Complete/types";
+import {
+  fetchFinalEvaluation,
+  finishEvaluationSession,
+  hasCorrectOptions,
+  isAnswerCorrect,
+  startEvaluationSession,
+  type Evaluation,
+} from "@/lib/evaluations";
+
+/* Debe cubrir el fade-out del splash definido en globals.css (1.6 s de espera + 0.4 s). */
+const SPLASH_DURATION_MS = 3460;
+
+type Phase = "loading" | "quiz" | "splash" | "stats";
 
 export default function EvaluationPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [modulosCompletados, setModulosCompletados] = useState<number[]>([]);
-  const [session, setSession] = useState<any>(null);
+
+  const [phase, setPhase] = useState<Phase>("loading");
+  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
+  const [sessionId, setSessionId] = useState<number | null>(null);
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<Record<number, number[]>>({});
+  const [saving, setSaving] = useState(false);
+  const [score, setScore] = useState({ correct: 0, total: 0 });
 
   useEffect(() => {
-    async function checkAccess() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.push("/login");
-        return;
-      }
-      setSession(session);
+    let active = true;
 
-      // Obtener todas las lecciones completadas del usuario
-      const { data: progreso, error } = await supabase
-        .from("progreso_lecciones")
-        .select("codigo_leccion")
-        .eq("alumno_id", session.user.id)
-        .eq("estado", "completada");
+    async function loadEvaluation() {
+      setPhase("loading");
+      setStep(0);
+      setAnswers({});
 
-      if (error) {
-        console.error("Error al obtener progreso:", error);
-        setLoading(false);
-        return;
-      }
+      const data = await fetchFinalEvaluation();
 
-      // Extraer módulos únicos de los códigos de lección
-      const modulos = new Set<number>();
-      progreso?.forEach((p) => {
-        if (p.codigo_leccion) {
-          const match = p.codigo_leccion.match(/^s(\d+)/);
-          if (match) {
-            modulos.add(parseInt(match[1], 10));
-          }
+      if (!active) return;
+
+      if (data) {
+        setEvaluation(data);
+
+        const id = await startEvaluationSession(data.id);
+
+        if (active) {
+          setSessionId(id);
+          setPhase("quiz");
         }
-      });
-
-      setModulosCompletados(Array.from(modulos));
-      setLoading(false);
+      } else {
+        setEvaluation(null);
+      }
     }
 
-    checkAccess();
-  }, [router]);
+    loadEvaluation();
 
-  const todosLosModulosCompletados = modulosCompletados.length >= 6;
+    return () => {
+      active = false;
+    };
+  }, []);
 
-  if (loading) {
+  useEffect(() => {
+    if (phase !== "splash") return;
+
+    const timer = setTimeout(() => setPhase("stats"), SPLASH_DURATION_MS);
+    return () => clearTimeout(timer);
+  }, [phase]);
+
+  if (phase === "loading") {
     return (
       <div className="grid min-h-screen place-items-center bg-background">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
@@ -60,62 +83,158 @@ export default function EvaluationPage() {
     );
   }
 
+  if (!evaluation) {
+    return <EvaluationError onBack={() => router.push("/dashboard")} />;
+  }
+
+  if (phase === "splash") {
+    return (
+      <main className="relative min-h-screen overflow-hidden bg-background">
+        <ConfettiLayer />
+        <SplashScreen
+          title="¡Examen final completado!"
+          glowSrc="/reward-light.json"
+          successSrc="/success-check.json"
+        />
+      </main>
+    );
+  }
+
+  if (phase === "stats") {
+    const stats: LessonStat[] = [
+      { id: "aciertos", label: "Aciertos", value: `${score.correct}/${score.total}`, tone: "success", icon: "target" },
+      { id: "preguntas", label: "Preguntas", value: `${evaluation.questions.length}`, tone: "primary", icon: "zap" },
+    ];
+
+    return (
+      <main className="relative min-h-screen overflow-hidden bg-background">
+        <ConfettiLayer />
+        <StatsPanel
+          heading="¡Ya eres un mini emprendedor!"
+          subtitle="Completaste el examen final. ¡Estamos muy orgullosos de ti!"
+          stats={stats}
+          claimLabel="Ir al inicio"
+          onClaim={() => router.push("/dashboard")}
+          mascotSrc="/cloud-robotics.json"
+        />
+      </main>
+    );
+  }
+
+  const questions = evaluation.questions;
+  const question = questions[step];
+  const selected = answers[question.id] ?? [];
+
+  const total = questions.length;
+  const isLast = step === total - 1;
+
+  const hasSelected = selected.length > 0;
+  const questionHasCorrectOptions = hasCorrectOptions(question);
+
+  const currentAnswerIsCorrect = hasSelected
+    ? isAnswerCorrect(question, selected)
+    : false;
+
+  const canContinue = hasSelected && currentAnswerIsCorrect && !saving;
+
+  function toggle(optionId: number) {
+    const current = answers[question.id] ?? [];
+    const next = question.multiple ? toggleInList(current, optionId) : [optionId];
+
+    setAnswers({
+      ...answers,
+      [question.id]: next,
+    });
+  }
+
+  function back() {
+    if (step > 0) {
+      setStep(step - 1);
+      return;
+    }
+
+    router.push("/dashboard");
+  }
+
+  async function next() {
+    if (!canContinue) return;
+
+    if (!isLast) {
+      setStep(step + 1);
+      return;
+    }
+
+    setSaving(true);
+
+    const payload = questions.map((item) => ({
+      questionId: item.id,
+      optionIds: answers[item.id] ?? [],
+    }));
+
+    if (sessionId) {
+      await finishEvaluationSession(sessionId, payload, questions);
+    }
+
+    setScore(scoreEvaluation(questions, answers));
+    setSaving(false);
+    setPhase("splash");
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-4 text-center">
-      {todosLosModulosCompletados ? (
-        <>
-          <div className="font-display text-3xl font-extrabold text-foreground">
-            🎉 ¡Evaluación Final!
-          </div>
-          <p className="max-w-sm text-sm font-semibold text-muted-foreground">
-            Has completado todos los módulos. ¡Felicidades! Ahora puedes realizar la evaluación final para poner a prueba todo lo aprendido.
-          </p>
+    <main className="flex min-h-screen flex-col bg-background px-4 pb-6 pt-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-xl flex-1 flex-col">
+        <OnboardingHeader
+          title={evaluation.name}
+          step={step}
+          total={total}
+          onBack={back}
+        />
+
+        <ProgressSegments total={total} current={step} />
+
+        <div className="mt-8 w-full sm:mt-10">
+          <QuestionCard
+            question={question}
+            selected={selected}
+            showResult={hasSelected && questionHasCorrectOptions}
+            answerIsCorrect={currentAnswerIsCorrect}
+            onToggle={toggle}
+          />
+        </div>
+
+        <div className="mt-auto w-full pt-8">
           <button
-            onClick={() => router.push("/evaluacion/final")}
-            className="rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
+            type="button"
+            onClick={next}
+            disabled={!canContinue}
+            className="w-full rounded-2xl bg-primary px-6 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
           >
-            Comenzar evaluación
+            {saving ? "Guardando..." : isLast ? "Terminar" : "Continuar"}
           </button>
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="mt-2 text-sm font-extrabold text-muted-foreground underline underline-offset-2"
-          >
-            Volver al dashboard
-          </button>
-        </>
-      ) : (
-        <>
-          <div className="font-display text-2xl font-extrabold text-foreground">
-            🔒 Evaluación no disponible
-          </div>
-          <p className="max-w-sm text-sm font-semibold text-muted-foreground">
-            Para acceder a la evaluación final, necesitas completar los 6 módulos del curso.
-          </p>
-          <div className="mt-2 flex flex-wrap justify-center gap-2">
-            {[1, 2, 3, 4, 5, 6].map((num) => (
-              <span
-                key={num}
-                className={`rounded-full px-3 py-1 text-xs font-extrabold uppercase ${
-                  modulosCompletados.includes(num)
-                    ? "bg-success/20 text-success"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                Módulo {num} {modulosCompletados.includes(num) ? "✅" : "⏳"}
-              </span>
-            ))}
-          </div>
-          <p className="mt-4 text-sm font-semibold text-muted-foreground">
-            Completados: {modulosCompletados.length} de 6
-          </p>
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="mt-4 rounded-2xl bg-primary px-6 py-3 font-display text-sm font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
-          >
-            Volver al camino
-          </button>
-        </>
-      )}
+        </div>
+      </div>
     </main>
   );
+}
+
+function toggleInList(list: number[], value: number): number[] {
+  if (list.includes(value)) {
+    return list.filter((item) => item !== value);
+  }
+
+  return [...list, value];
+}
+
+function scoreEvaluation(
+  questions: Evaluation["questions"],
+  answers: Record<number, number[]>,
+): { correct: number; total: number } {
+  const scoredQuestions = questions.filter(hasCorrectOptions);
+
+  const correct = scoredQuestions.reduce((sum, question) => {
+    const optionIds = answers[question.id] ?? [];
+    return sum + (isAnswerCorrect(question, optionIds) ? 1 : 0);
+  }, 0);
+
+  return { correct, total: scoredQuestions.length };
 }
