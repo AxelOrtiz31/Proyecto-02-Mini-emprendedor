@@ -37,6 +37,17 @@ export function CaminoView() {
   const activeSection = sections.find((s) => s.id === activeSectionId) ?? sections[0];
   const xp = xpForCompleted(completedIds);
 
+  // El robot camina en la unidad donde está la lección actual; si la sección ya
+  // se completó, se queda en la última unidad con avance.
+  const robotUnitId = useMemo(() => {
+    const units = activeSection.units;
+    const withCurrent = units.find((u) => u.activities.some((a) => a.status === "current"));
+    const withProgress = [...units]
+      .reverse()
+      .find((u) => u.activities.some((a) => a.status === "completed"));
+    return (withCurrent ?? withProgress ?? units[0]).id;
+  }, [activeSection]);
+
   // Mientras no lleguen las lecciones completadas mostramos un loader breve, para que
   // el primer render con contenido ya use la sección correcta y no parpadee a la sección 1.
   if (!loaded) {
@@ -59,7 +70,7 @@ export function CaminoView() {
         />
       </div>
 
-      <div className="mx-auto flex max-w-7xl xl:max-w-360 xl:gap-6">
+      <div className="mx-auto flex max-w-7xl xl:max-w-360 xl:gap-6 2xl:max-w-448 2xl:gap-10">
         <SectionSidebar
           sections={sections}
           activeSectionId={activeSectionId}
@@ -67,14 +78,14 @@ export function CaminoView() {
         />
 
         <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">
-          <div className="mx-auto w-full space-y-12 xl:max-w-160 xl:space-y-16">
-            {activeSection.units.map((unit, unitIndex) => (
+          <div className="mx-auto w-full space-y-12 xl:max-w-160 xl:space-y-16 2xl:max-w-200">
+            {activeSection.units.map((unit) => (
               <section key={unit.id}>
                 <UnitBanner sectionNumber={activeSection.number} unit={unit} />
                 <LessonPath
                   unit={unit}
-                  robotSrc={unitIndex === 0 ? activeSection.robot : undefined}
-                  robotSize={unitIndex === 0 ? activeSection.robotSize : undefined}
+                  robotSrc={unit.id === robotUnitId ? activeSection.robot : undefined}
+                  robotSize={unit.id === robotUnitId ? activeSection.robotSize : undefined}
                 />
               </section>
             ))}

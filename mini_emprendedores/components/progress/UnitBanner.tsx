@@ -13,7 +13,7 @@ export function UnitBanner({ sectionNumber, unit }: UnitBannerProps) {
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-4 rounded-3xl px-4 py-4 shadow-[var(--shadow-card)] sm:px-6 sm:py-5",
+        "flex items-center justify-between gap-4 rounded-3xl px-4 py-4 shadow-[var(--shadow-card)] sm:px-6 sm:py-5 xl:px-8 xl:py-6",
         isPrimary
           ? "bg-gradient-to-r from-primary to-[oklch(0.74_0.16_60)] text-primary-foreground"
           : "bg-gradient-to-r from-accent to-[oklch(0.87_0.14_92)] text-accent-foreground",
@@ -23,10 +23,10 @@ export function UnitBanner({ sectionNumber, unit }: UnitBannerProps) {
         <div className="text-[11px] font-bold uppercase tracking-widest opacity-85">
           Sección {sectionNumber} · Unidad {unit.number}
         </div>
-        <h2 className="font-display text-xl font-extrabold leading-tight sm:text-2xl">
+        <h2 className="font-display text-xl font-extrabold leading-tight sm:text-2xl xl:text-3xl">
           {unit.title}
         </h2>
-        <p className="text-sm font-semibold opacity-90">{unit.subtitle}</p>
+        <p className="text-sm font-semibold opacity-90 xl:text-base">{unit.subtitle}</p>
       </div>
 
       <button
