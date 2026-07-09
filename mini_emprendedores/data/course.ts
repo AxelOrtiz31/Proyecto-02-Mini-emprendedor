@@ -157,9 +157,9 @@ export const course: Section[] = [
           },
           {
             id: "s3-u1-a3",
-            title: "El retrato de mi cliente",
+            title: "Elige tu cliente ideal",
             description:
-              "Crea el retrato de tu cliente ideal: su edad, sus gustos y sus necesidades.",
+              "Aplica lo aprendido: elige quién será el cliente principal de tu propio negocio.",
             kind: "challenge",
             status: "locked",
           },
@@ -182,9 +182,9 @@ export const course: Section[] = [
         activities: [
           {
             id: "s4-u1-a1",
-            title: "Nombre y logo",
+            title: "Nombre de mi negocio",
             description:
-              "Inventa un nombre pegajoso y un logo llamativo para tu negocio.",
+              "Inventa un nombre pegajoso para tu negocio.",
             kind: "lesson",
             status: "locked",
             route: "/modules01_06_complete/module04", 
@@ -199,9 +199,9 @@ export const course: Section[] = [
           },
           {
             id: "s4-u1-a3",
-            title: "Mi cartel publicitario",
+            title: "Mi logo y vista previa",
             description:
-              "Diseña un cartel para que todos conozcan tu negocio.",
+              "Crea el logo de tu negocio y descubre cómo se ve todo junto.",
             kind: "challenge",
             status: "locked",
           },

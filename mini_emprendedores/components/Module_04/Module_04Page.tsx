@@ -1,188 +1,143 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { OnboardingHeader } from "./OnboardingHeader";
-import { ProgressSegments } from "./ProgressSegments";
-import { QuestionCard } from "./QuestionCard";
-import { EvaluationError } from "./EvaluationError";
-import {
-  fetchLessonEvaluation,
-  finishEvaluationSession,
-  hasCorrectOptions,
-  isAnswerCorrect,
-  startEvaluationSession,
-  type Evaluation,
-} from "@/lib/evaluations";
+import { saveCompletedLesson } from "@/lib/progress";
+import { saveMiNegocio } from "@/lib/negocio";
+import { Reto } from "./steps/Reto";
+import { ExplicacionNombre } from "./steps/ExplicacionNombre";
+import { EligeNombre } from "./steps/EligeNombre";
+import { ColoresTeach } from "./steps/ColoresTeach";
+import { EligeColoresEstilo } from "./steps/EligeColoresEstilo";
+import { LogoConstructor } from "./steps/LogoConstructor";
+import { VistaPrevia } from "./steps/VistaPrevia";
+import { CheckCorto } from "./CheckCorto";
+import type { ColorMarca, EstiloMarca, LogoForma } from "./data";
 
 const MODULE_NUMBER = 4;
-const DEFAULT_LESSON_ID = "s4-u1-a1";
+
+type Step =
+  | "reto"
+  | "explicacion_nombre"
+  | "elige_nombre"
+  | "check_a1"
+  | "colores_teach"
+  | "elige_colores_estilo"
+  | "logo_constructor"
+  | "vista_previa"
+  | "check_final";
+
+function initialStepFor(lessonId: string): Step {
+  if (lessonId === "s4-u1-a2") return "colores_teach";
+  if (lessonId === "s4-u1-a3") return "logo_constructor";
+  return "reto";
+}
 
 interface Module04PageProps {
   lessonId?: string;
 }
 
 export default function Module04Page({
-  lessonId = DEFAULT_LESSON_ID,
+  lessonId = "s4-u1-a1",
 }: Module04PageProps) {
   const router = useRouter();
+  const [step, setStep] = useState<Step>(() => initialStepFor(lessonId));
 
-  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
-  const [sessionId, setSessionId] = useState<number | null>(null);
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, number[]>>({});
-  const [saving, setSaving] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-
-    async function loadEvaluation() {
-      setLoading(true);
-      setStep(0);
-      setAnswers({});
-
-      const data = await fetchLessonEvaluation(lessonId, MODULE_NUMBER);
-
-      if (!active) return;
-
-      if (data) {
-        setEvaluation(data);
-
-        const id = await startEvaluationSession(data.id);
-
-        if (active) {
-          setSessionId(id);
-        }
-      } else {
-        setEvaluation(null);
-        setSessionId(null);
-      }
-
-      setLoading(false);
+  async function markDone(code: string) {
+    try {
+      await saveCompletedLesson(code);
+    } catch (error) {
+      console.error("No se pudo guardar el avance:", error);
     }
+  }
 
-    loadEvaluation();
+  async function guardarNegocio(cambios: Parameters<typeof saveMiNegocio>[0]) {
+    try {
+      await saveMiNegocio(cambios);
+    } catch (error) {
+      console.error("No se pudo guardar tu negocio:", error);
+    }
+  }
 
-    return () => {
-      active = false;
-    };
-  }, [lessonId]);
+  function finishModule() {
+    router.push("/modules01_06_complete/modulecomplete?lesson=s4-u1-a3");
+  }
 
-  if (loading) {
+  if (step === "reto") {
+    return <Reto onNext={() => setStep("explicacion_nombre")} />;
+  }
+
+  if (step === "explicacion_nombre") {
+    return <ExplicacionNombre onNext={() => setStep("elige_nombre")} />;
+  }
+
+  if (step === "elige_nombre") {
     return (
-      <div className="grid min-h-screen place-items-center bg-background">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
-      </div>
+      <EligeNombre
+        onSaved={async (nombre: string) => {
+          await guardarNegocio({ nombreNegocio: nombre });
+          setStep("check_a1");
+        }}
+      />
     );
   }
 
-  if (!evaluation) {
-    return <EvaluationError onBack={() => router.push("/dashboard")} />;
-  }
-
-  const questions = evaluation.questions;
-  const question = questions[step];
-  const selected = answers[question.id] ?? [];
-
-  const total = questions.length;
-  const isLast = step === total - 1;
-
-  const hasSelected = selected.length > 0;
-  const questionHasCorrectOptions = hasCorrectOptions(question);
-
-  const currentAnswerIsCorrect = hasSelected
-    ? isAnswerCorrect(question, selected)
-    : false;
-
-  const canContinue = hasSelected && currentAnswerIsCorrect && !saving;
-
-  function toggle(optionId: number) {
-    const current = answers[question.id] ?? [];
-    const next = question.multiple ? toggleInList(current, optionId) : [optionId];
-
-    setAnswers({
-      ...answers,
-      [question.id]: next,
-    });
-  }
-
-  function back() {
-    if (step > 0) {
-      setStep(step - 1);
-      return;
-    }
-
-    router.push("/dashboard");
-  }
-
-  async function next() {
-    if (!canContinue) return;
-
-    if (!isLast) {
-      setStep(step + 1);
-      return;
-    }
-
-    setSaving(true);
-
-    const payload = questions.map((item) => ({
-      questionId: item.id,
-      optionIds: answers[item.id] ?? [],
-    }));
-
-    if (sessionId) {
-      await finishEvaluationSession(sessionId, payload, questions);
-    }
-
-    router.push(
-      `/modules01_06_complete/modulecomplete?lesson=${encodeURIComponent(
-        lessonId,
-      )}`,
+  if (step === "check_a1") {
+    return (
+      <CheckCorto
+        lessonId="s4-u1-a1"
+        moduleNumber={MODULE_NUMBER}
+        onPass={async () => {
+          await markDone("s4-u1-a1");
+          setStep("colores_teach");
+        }}
+      />
     );
+  }
+
+  if (step === "colores_teach") {
+    return <ColoresTeach onNext={() => setStep("elige_colores_estilo")} />;
+  }
+
+  if (step === "elige_colores_estilo") {
+    return (
+      <EligeColoresEstilo
+        onSaved={async (
+          colores: { primario: ColorMarca; secundario: ColorMarca },
+          estilo: EstiloMarca,
+        ) => {
+          await guardarNegocio({
+            colorPrimario: colores.primario.hex,
+            colorSecundario: colores.secundario.hex,
+            estiloMarca: estilo.id,
+          });
+          await markDone("s4-u1-a2");
+          setStep("logo_constructor");
+        }}
+      />
+    );
+  }
+
+  if (step === "logo_constructor") {
+    return (
+      <LogoConstructor
+        onSaved={async (icono: string, forma: LogoForma) => {
+          await guardarNegocio({ logoIcono: icono, logoForma: forma.id });
+          setStep("vista_previa");
+        }}
+      />
+    );
+  }
+
+  if (step === "vista_previa") {
+    return <VistaPrevia onNext={() => setStep("check_final")} />;
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-background px-4 pb-6 pt-4 sm:px-6 lg:px-8">
-      <div className="mx-auto flex w-full max-w-xl flex-1 flex-col">
-        <OnboardingHeader
-          title={evaluation.name}
-          step={step}
-          total={total}
-          onBack={back}
-        />
-
-        <ProgressSegments total={total} current={step} />
-
-        <div className="mt-8 w-full sm:mt-10">
-          <QuestionCard
-            question={question}
-            selected={selected}
-            showResult={hasSelected && questionHasCorrectOptions}
-            answerIsCorrect={currentAnswerIsCorrect}
-            onToggle={toggle}
-          />
-        </div>
-
-        <div className="mt-auto w-full pt-8">
-          <button
-            type="button"
-            onClick={next}
-            disabled={!canContinue}
-            className="w-full rounded-2xl bg-primary px-6 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
-          >
-            {saving ? "Guardando..." : isLast ? "Terminar" : "Continuar"}
-          </button>
-        </div>
-      </div>
-    </main>
+    <CheckCorto
+      lessonId="s4-u1-a3"
+      moduleNumber={MODULE_NUMBER}
+      onPass={finishModule}
+    />
   );
-}
-
-function toggleInList(list: number[], value: number): number[] {
-  if (list.includes(value)) {
-    return list.filter((item) => item !== value);
-  }
-
-  return [...list, value];
 }
