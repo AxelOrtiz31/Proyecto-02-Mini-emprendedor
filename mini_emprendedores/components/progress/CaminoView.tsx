@@ -113,8 +113,8 @@ export function CaminoView() {
 
                 <LessonPath
                   unit={unit}
-                  robotSrc={unit.id === robotUnitId ? activeSection.robot : undefined}
-                  robotSize={unit.id === robotUnitId ? activeSection.robotSize : undefined}
+                  robotSrc={activeSection.robot}
+                  robotSize={activeSection.robotSize}
                 />
               </section>
             ))}
