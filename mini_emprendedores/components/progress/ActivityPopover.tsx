@@ -66,23 +66,23 @@ function getActivityHref(activityId: string) {
     return `/modules01_06_complete/module01?lesson=${activityId}`;
   }
 
-  if (activityId.startsWith("s1-u2")) {
+  if (activityId.startsWith("s2-u1")) {
     return `/modules01_06_complete/module02?lesson=${activityId}`;
   }
 
-  if (activityId.startsWith("s1-u3")) {
+  if (activityId.startsWith("s3-u1")) {
     return `/modules01_06_complete/module03?lesson=${activityId}`;
   }
 
-  if (activityId.startsWith("s1-u4")) {
+  if (activityId.startsWith("s4-u1")) {
     return `/modules01_06_complete/module04?lesson=${activityId}`;
   }
 
-  if (activityId.startsWith("s1-u5")) {
+  if (activityId.startsWith("s5-u1")) {
     return `/modules01_06_complete/module05?lesson=${activityId}`;
   }
 
-  if (activityId.startsWith("s1-u6")) {
+  if (activityId.startsWith("s6-u1")) {
     return `/modules01_06_complete/module06?lesson=${activityId}`;
   }
 

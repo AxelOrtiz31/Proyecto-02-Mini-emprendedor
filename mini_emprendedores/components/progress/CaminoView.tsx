@@ -10,47 +10,75 @@ import { MascotPanel } from "./MascotPanel";
 import { deriveCourse, fetchCompletedCodes, xpForCompleted } from "@/lib/progress";
 
 export function CaminoView() {
-  const [completedIds, setCompletedIds] = useState<string[]>([]);
+  const [completedIds, setCompletedIds] = useState<string[] | null>(null);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let active = true;
-    fetchCompletedCodes().then((codes) => {
-      if (!active) return;
-      setCompletedIds(codes);
-      setLoaded(true);
-    });
+
+    async function loadProgress() {
+      try {
+        const codes = await fetchCompletedCodes();
+
+        if (!active) return;
+
+        setCompletedIds(codes);
+      } catch (error) {
+        console.error("Error cargando progreso:", error);
+
+        if (!active) return;
+
+        setCompletedIds([]);
+      }
+    }
+
+    loadProgress();
+
     return () => {
       active = false;
     };
   }, []);
 
-  const sections = useMemo(() => deriveCourse(completedIds), [completedIds]);
+  const loaded = completedIds !== null;
 
-  const currentSectionId = useMemo(
-    () => sections.find((s) => s.status === "current")?.id ?? sections[0].id,
-    [sections],
-  );
+  const sections = useMemo(() => {
+    if (!loaded) return [];
 
-  const activeSectionId = selectedSectionId ?? currentSectionId;
-  const activeSection = sections.find((s) => s.id === activeSectionId) ?? sections[0];
-  const xp = xpForCompleted(completedIds);
+    return deriveCourse(completedIds);
+  }, [completedIds, loaded]);
 
-  // El robot camina en la unidad donde está la lección actual; si la sección ya
-  // se completó, se queda en la última unidad con avance.
-  const robotUnitId = useMemo(() => {
-    const units = activeSection.units;
-    const withCurrent = units.find((u) => u.activities.some((a) => a.status === "current"));
-    const withProgress = [...units]
-      .reverse()
-      .find((u) => u.activities.some((a) => a.status === "completed"));
-    return (withCurrent ?? withProgress ?? units[0]).id;
-  }, [activeSection]);
+  const currentSectionId = useMemo(() => {
+    if (!sections.length) return null;
 
-  // Mientras no lleguen las lecciones completadas mostramos un loader breve, para que
-  // el primer render con contenido ya use la sección correcta y no parpadee a la sección 1.
-  if (!loaded) {
+    return sections.find((section) => section.status === "current")?.id ?? sections[0].id;
+  }, [sections]);
+
+  const activeSectionId = useMemo(() => {
+    if (!sections.length) return null;
+
+    const selectedSectionExists =
+      selectedSectionId && sections.some((section) => section.id === selectedSectionId);
+
+    if (selectedSectionExists) {
+      return selectedSectionId;
+    }
+
+    return currentSectionId;
+  }, [sections, selectedSectionId, currentSectionId]);
+
+  const activeSection = useMemo(() => {
+    if (!sections.length || !activeSectionId) return null;
+
+    return sections.find((section) => section.id === activeSectionId) ?? null;
+  }, [sections, activeSectionId]);
+
+  const xp = useMemo(() => {
+    if (!completedIds) return 0;
+
+    return xpForCompleted(completedIds);
+  }, [completedIds]);
+
+  if (!loaded || !activeSection || !activeSectionId) {
     return (
       <div className="grid min-h-screen place-items-center bg-background">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
@@ -82,6 +110,7 @@ export function CaminoView() {
             {activeSection.units.map((unit) => (
               <section key={unit.id}>
                 <UnitBanner sectionNumber={activeSection.number} unit={unit} />
+
                 <LessonPath
                   unit={unit}
                   robotSrc={unit.id === robotUnitId ? activeSection.robot : undefined}

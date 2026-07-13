@@ -92,6 +92,7 @@ Carpetas y archivos:
 Supabase:
 ```bash
 npm install @supabase/supabase-js
+npm install howler
 ```
 
 Para instalar las dependencias agrega esto a package.json en "dependencies":
@@ -180,4 +181,8 @@ En caso de haber hecho un pull de todas las ramas a tu maquina local usa el sigu
 
 ```bash
 git reset --hard ORIG_HEAD
+```
+
+```bash
+git merge --abort
 ```

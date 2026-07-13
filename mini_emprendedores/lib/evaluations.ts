@@ -155,6 +155,39 @@ export async function fetchModuleEvaluation(
   return mapEvaluation(data[0]);
 }
 
+export async function fetchFinalEvaluation(): Promise<Evaluation | null> {
+  const { data, error } = await supabase
+    .from("evaluaciones")
+    .select(
+      `id, nombre, instrucciones,
+       preguntas_evaluacion (
+         id,
+         texto,
+         multiple,
+         orden,
+         opciones_respuesta (
+           id,
+           etiqueta,
+           emoji,
+           valor,
+           orden,
+           es_correcta
+         )
+       )`,
+    )
+    .eq("tipo", "final")
+    .eq("activa", true)
+    .limit(1)
+    .returns<EvaluationRow[]>();
+
+  if (error || !data || data.length === 0) {
+    console.error("Error cargando evaluación final:", error?.message);
+    return null;
+  }
+
+  return mapEvaluation(data[0]);
+}
+
 export async function startEvaluationSession(
   evaluationId: number,
 ): Promise<number | null> {
