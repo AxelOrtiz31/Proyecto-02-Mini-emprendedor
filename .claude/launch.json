@@ -10,8 +10,8 @@
     },
     {
       "name": "miniempre-dev",
-      "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "set GROQ_API_KEY=&& npm --prefix mini_emprendedores run dev"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "mini_emprendedores", "run", "dev"],
       "port": 3000,
       "autoPort": true
     }
