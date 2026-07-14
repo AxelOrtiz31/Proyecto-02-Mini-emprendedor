@@ -42,6 +42,41 @@ export function CoursePath({
     ? allActivities.findIndex((activity) => activity.id === robotActivityId)
     : -1;
 
+  // Sección donde va el progreso (la que contiene la actividad actual).
+  const currentSectionIndex = sections.findIndex((section) =>
+    section.units.some((unit) =>
+      unit.activities.some((activity) => activity.id === robotActivityId),
+    ),
+  );
+
+  // Cada sección tiene su propio robot y cada robot tiene un modo:
+  // - "waiting": sección futura → robot en gris, esperando en su primer nivel.
+  // - "active": sección en curso → robot a color, parado en la actividad actual.
+  // - "resting": sección ya superada → su robot se queda a color en el último
+  //   nivel de esa sección (ahí terminó su recorrido).
+  type RobotMode = "waiting" | "active" | "resting";
+
+  function robotPlanFor(sectionIndex: number): {
+    activityId: string | null;
+    mode: RobotMode;
+  } {
+    const acts = sections[sectionIndex].units.flatMap((unit) => unit.activities);
+
+    if (!acts.length || currentSectionIndex === -1) {
+      return { activityId: null, mode: "waiting" };
+    }
+
+    if (sectionIndex < currentSectionIndex) {
+      return { activityId: acts[acts.length - 1].id, mode: "resting" };
+    }
+
+    if (sectionIndex === currentSectionIndex) {
+      return { activityId: robotActivityId, mode: "active" };
+    }
+
+    return { activityId: acts[0].id, mode: "waiting" };
+  }
+
   let globalIndex = 0;
 
   return (
@@ -51,8 +86,9 @@ export function CoursePath({
     >
       <PathFootprints containerRef={containerRef} walkedUntil={robotGlobalIndex} />
 
-      {sections.map((section) => {
+      {sections.map((section, sectionIndex) => {
         const robotSize = section.robotSize ?? defaultRobotSize;
+        const robotPlan = robotPlanFor(sectionIndex);
 
         return (
           <section
@@ -67,7 +103,8 @@ export function CoursePath({
               unit.activities.map((activity) => {
                 const index = globalIndex++;
                 const offset = pattern[index % pattern.length];
-                const showRobot = Boolean(section.robot) && index === robotGlobalIndex;
+                const showRobot =
+                  Boolean(section.robot) && activity.id === robotPlan.activityId;
                 const robotSide = offset >= 0 ? -1 : 1;
 
                 return (
@@ -78,7 +115,14 @@ export function CoursePath({
                     <LessonNode activity={activity} offsetX={offset} />
                     {showRobot && section.robot && (
                       <div
-                        className="pointer-events-none absolute left-1/2 top-1/2 z-10 [--robot-shift:88px] md:[--robot-shift:118px]"
+                        className={cn(
+                          "pointer-events-none absolute left-1/2 top-1/2 z-10 [--robot-shift:88px] md:[--robot-shift:118px]",
+                          // Robot de sección futura: en gris, esperando su turno.
+                          robotPlan.mode === "waiting" && "grayscale opacity-50",
+                          // Robot de sección superada: a color pero más tenue,
+                          // descansando en el último nivel que recorrió.
+                          robotPlan.mode === "resting" && "opacity-80",
+                        )}
                         style={
                           {
                             transform: `translate(-50%, -55%) translateX(calc(${offset} * var(--path-offset) + ${robotSide} * var(--robot-shift)))`,
