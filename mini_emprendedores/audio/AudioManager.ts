@@ -1,4 +1,4 @@
-import { bgm } from "./sounds";
+import { bgm, sfx } from "./sounds";
 
 let currentMusic: any = null;
 let currentTrack: keyof typeof bgm | null = null;
@@ -17,4 +17,8 @@ export function playMusic(track: keyof typeof bgm) {
 export function stopMusic() {
   currentMusic?.stop();
   currentTrack = null;
+}
+
+export function playSfx(sound: keyof typeof sfx) {
+  sfx[sound].play();
 }
