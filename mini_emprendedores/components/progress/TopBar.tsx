@@ -71,9 +71,9 @@ export function TopBar({ streak, ideas, xp }: TopBarProps) {
             <User className="h-5 w-5" />
           </Link>
           <Link
-            href="/evaluation"
+            href="/achievements"
             className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            title="Examen final"
+            title="Logros"
           >
             <Trophy className="h-5 w-5" />
           </Link>

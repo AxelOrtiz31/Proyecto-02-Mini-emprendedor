@@ -1,19 +1,23 @@
 "use client";
 
-import { Lock } from "lucide-react";
+import { Lock, Trophy } from "lucide-react";
 import type { Section } from "@/data/course";
 import { cn } from "@/lib/utils";
 
 interface SectionChipsProps {
   sections: Section[];
   activeSectionId: string;
+  finalExamUnlocked: boolean;
   onSelect: (id: string) => void;
+  onStartFinalExam: () => void;
 }
 
 export function SectionChips({
   sections,
   activeSectionId,
+  finalExamUnlocked,
   onSelect,
+  onStartFinalExam,
 }: SectionChipsProps) {
   return (
     <nav aria-label="Secciones del camino" className="overflow-x-auto px-4 py-3 lg:hidden">
@@ -27,6 +31,12 @@ export function SectionChips({
             />
           </li>
         ))}
+        <li>
+          <FinalExamChip
+            unlocked={finalExamUnlocked}
+            onStart={onStartFinalExam}
+          />
+        </li>
       </ul>
     </nav>
   );
@@ -66,6 +76,42 @@ function SectionChip({
         {locked ? <Lock className="h-3 w-3" strokeWidth={2.6} /> : section.number}
       </span>
       {section.title}
+    </button>
+  );
+}
+
+function FinalExamChip({
+  unlocked,
+  onStart,
+}: {
+  unlocked: boolean;
+  onStart: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onStart}
+      disabled={!unlocked}
+      className={cn(
+        "flex items-center gap-2 whitespace-nowrap rounded-full border-2 py-1.5 pl-1.5 pr-3 font-display text-sm font-extrabold transition-colors",
+        unlocked && "border-primary bg-card text-foreground",
+        !unlocked && "cursor-not-allowed border-border bg-card text-muted-foreground",
+      )}
+    >
+      <span
+        className={cn(
+          "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs",
+          unlocked && "bg-primary text-primary-foreground",
+          !unlocked && "bg-muted text-muted-foreground",
+        )}
+      >
+        {unlocked ? (
+          <Trophy className="h-3 w-3" strokeWidth={2.6} />
+        ) : (
+          <Lock className="h-3 w-3" strokeWidth={2.6} />
+        )}
+      </span>
+      Evaluación final
     </button>
   );
 }
