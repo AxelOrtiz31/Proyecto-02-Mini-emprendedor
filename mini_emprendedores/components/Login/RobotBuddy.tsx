@@ -4,11 +4,13 @@
 // redonda, visor azul marino con ojitos felices en cian, orejas laterales con
 // aletas, panza cian y bracitos tipo aleta, todo con contorno grueso navy.
 // Tres estados:
+// Cuatro estados:
 // - "idle":  flota y saluda con la aleta derecha.
 // - "point": apunta hacia el formulario (foco en el correo).
 // - "peek":  estira la aleta izquierda y se tapa un ojo (contraseña).
+// - "happy": celebra con las dos aletas arriba y flota más rápido.
 
-export type RobotMood = "idle" | "point" | "peek";
+export type RobotMood = "idle" | "point" | "peek" | "happy";
 
 interface RobotBuddyProps {
   mood: RobotMood;
@@ -58,6 +60,10 @@ export function RobotBuddy({ mood, className }: RobotBuddyProps) {
         [data-mood="peek"] .rb-armL { transform: rotate(-159deg) scale(1.5); }
         [data-mood="peek"] .rb-eyeL { transform: scaleY(0.15); }
         [data-mood="peek"] .rb-head { transform: rotate(-4deg); }
+        [data-mood="happy"] .rb-armL { transform: rotate(150deg); }
+        [data-mood="happy"] .rb-armR { transform: rotate(-150deg); }
+        [data-mood="happy"] .rb-float { animation: rb-float 1.1s ease-in-out infinite; }
+        [data-mood="happy"] .rb-head { transform: rotate(3deg); }
         @media (prefers-reduced-motion: reduce) {
           .rb-float, [data-mood="idle"] .rb-armR { animation: none; }
         }

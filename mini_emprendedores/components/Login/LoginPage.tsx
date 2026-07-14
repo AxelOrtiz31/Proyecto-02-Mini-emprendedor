@@ -13,6 +13,7 @@ const bubbleText: Record<RobotMood, string> = {
   idle: "¡Hola de nuevo! ¿Entramos? 👋",
   point: "¡Escribe tu correo ahí!",
   peek: "Prometo no ver tu contraseña 🙈",
+  happy: "¡Yujuu! Vamos a aprender 🎉",
 };
 
 export default function LoginPage() {
