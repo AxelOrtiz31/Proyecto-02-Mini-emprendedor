@@ -16,7 +16,7 @@ export function SectionSidebar({
   onSelect,
 }: SectionSidebarProps) {
   return (
-    <aside className="hidden w-60 shrink-0 lg:block xl:w-64">
+    <aside className="hidden w-60 shrink-0 lg:block xl:w-64 2xl:w-72">
       <div className="sticky top-20 p-5">
         <div className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
           Tu camino

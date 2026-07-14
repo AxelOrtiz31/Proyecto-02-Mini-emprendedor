@@ -1,17 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { TopBar } from "./TopBar";
 import { SectionSidebar } from "./SectionSidebar";
 import { SectionChips } from "./SectionChips";
 import { UnitBanner } from "./UnitBanner";
-import { LessonPath } from "./LessonPath";
+import { CoursePath } from "./CoursePath";
 import { MascotPanel } from "./MascotPanel";
 import { deriveCourse, fetchCompletedCodes, xpForCompleted } from "@/lib/progress";
 
 export function CaminoView() {
   const [completedIds, setCompletedIds] = useState<string[] | null>(null);
-  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+  const scrollingTo = useRef<string | null>(null);
+  const didInitialScroll = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -50,27 +53,22 @@ export function CaminoView() {
   const currentSectionId = useMemo(() => {
     if (!sections.length) return null;
 
-    return sections.find((section) => section.status === "current")?.id ?? sections[0].id;
+    return (
+      sections.find((section) => section.status === "current")?.id ??
+      [...sections].reverse().find((section) => section.status === "completed")?.id ??
+      sections[0].id
+    );
   }, [sections]);
 
-  const activeSectionId = useMemo(() => {
+  const robotActivityId = useMemo(() => {
     if (!sections.length) return null;
 
-    const selectedSectionExists =
-      selectedSectionId && sections.some((section) => section.id === selectedSectionId);
+    const all = sections.flatMap((section) =>
+      section.units.flatMap((unit) => unit.activities),
+    );
 
-    if (selectedSectionExists) {
-      return selectedSectionId;
-    }
-
-    return currentSectionId;
-  }, [sections, selectedSectionId, currentSectionId]);
-
-  const activeSection = useMemo(() => {
-    if (!sections.length || !activeSectionId) return null;
-
-    return sections.find((section) => section.id === activeSectionId) ?? null;
-  }, [sections, activeSectionId]);
+    return all.find((activity) => activity.status === "current")?.id ?? all[all.length - 1]?.id ?? null;
+  }, [sections]);
 
   const xp = useMemo(() => {
     if (!completedIds) return 0;
@@ -78,7 +76,59 @@ export function CaminoView() {
     return xpForCompleted(completedIds);
   }, [completedIds]);
 
-  if (!loaded || !activeSection || !activeSectionId) {
+  useEffect(() => {
+    if (!loaded || !currentSectionId || didInitialScroll.current) return;
+
+    didInitialScroll.current = true;
+    setActiveSectionId(currentSectionId);
+
+
+    if (sections[0]?.id === currentSectionId) return;
+
+    requestAnimationFrame(() => {
+      sectionRefs.current[currentSectionId]?.scrollIntoView({ block: "start" });
+    });
+  }, [loaded, currentSectionId, sections]);
+
+
+  useEffect(() => {
+    if (!sections.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (scrollingTo.current) return;
+
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        const first = visible[0]?.target.getAttribute("data-section-id");
+
+        if (first) setActiveSectionId(first);
+      },
+      { rootMargin: "-30% 0px -50% 0px" },
+    );
+
+    for (const element of Object.values(sectionRefs.current)) {
+      if (element) observer.observe(element);
+    }
+
+    return () => observer.disconnect();
+  }, [sections]);
+
+
+  function handleSelectSection(id: string) {
+    setActiveSectionId(id);
+    scrollingTo.current = id;
+
+    sectionRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    window.setTimeout(() => {
+      scrollingTo.current = null;
+    }, 900);
+  }
+
+  if (!loaded || !sections.length) {
     return (
       <div className="grid min-h-screen place-items-center bg-background">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
@@ -86,44 +136,69 @@ export function CaminoView() {
     );
   }
 
+  const activeSection =
+    sections.find((section) => section.id === activeSectionId) ?? sections[0];
+
+  const currentIndex = sections.findIndex((section) => section.id === currentSectionId);
+  const currentSection = currentIndex !== -1 ? sections[currentIndex] : null;
+  const nextSection = currentIndex !== -1 ? sections[currentIndex + 1] ?? null : null;
+  const courseComplete = sections.every((section) => section.status === "completed");
+
   return (
     <div className="min-h-screen overflow-x-clip bg-background">
       <TopBar streak={12} ideas={500} xp={xp} />
 
-      <div className="mx-auto max-w-7xl">
-        <SectionChips
-          sections={sections}
-          activeSectionId={activeSectionId}
-          onSelect={setSelectedSectionId}
-        />
+      <div className="sticky top-16 z-30 bg-background/90 backdrop-blur lg:hidden">
+        <div className="mx-auto max-w-7xl">
+          <SectionChips
+            sections={sections}
+            activeSectionId={activeSection.id}
+            onSelect={handleSelectSection}
+          />
+        </div>
       </div>
 
-      <div className="mx-auto flex max-w-7xl xl:max-w-360 xl:gap-6">
+      <div className="mx-auto flex max-w-7xl xl:max-w-360 xl:gap-6 2xl:max-w-448 2xl:gap-10">
         <SectionSidebar
           sections={sections}
-          activeSectionId={activeSectionId}
-          onSelect={setSelectedSectionId}
+          activeSectionId={activeSection.id}
+          onSelect={handleSelectSection}
         />
 
         <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">
-          <div className="mx-auto w-full space-y-12 xl:max-w-160 xl:space-y-16">
-            {activeSection.units.map((unit, unitIndex) => (
-              <section key={unit.id}>
-                <UnitBanner sectionNumber={activeSection.number} unit={unit} />
+          <div className="mx-auto w-full xl:max-w-160 2xl:max-w-200">
+            {/* Banner fijo: siempre visible y cambia según la sección que recorres. */}
+            <div className="sticky top-30 z-20 lg:top-18">
+              <UnitBanner
+                key={activeSection.id}
+                sectionNumber={activeSection.number}
+                unit={activeSection.units[0]}
+              />
+            </div>
 
-                <LessonPath
-                  unit={unit}
-                  robotSrc={unitIndex === 0 ? activeSection.robot : undefined}
-                  robotSize={unitIndex === 0 ? activeSection.robotSize : undefined}
-                />
-              </section>
-            ))}
+            <CoursePath
+              sections={sections}
+              robotActivityId={robotActivityId}
+              registerSection={(id, element) => {
+                sectionRefs.current[id] = element;
+              }}
+            />
           </div>
 
-          <MascotPanel variant="inline" />
+          <MascotPanel
+            variant="inline"
+            currentSection={currentSection}
+            nextSection={nextSection}
+            courseComplete={courseComplete}
+          />
         </main>
 
-        <MascotPanel variant="sidebar" />
+        <MascotPanel
+          variant="sidebar"
+          currentSection={currentSection}
+          nextSection={nextSection}
+          courseComplete={courseComplete}
+        />
       </div>
     </div>
   );
