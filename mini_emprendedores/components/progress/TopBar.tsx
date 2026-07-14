@@ -42,15 +42,15 @@ export function TopBar({ streak, ideas, xp }: TopBarProps) {
         <div className="flex items-center gap-2">
           <img
             src="/caelus.svg"
-            alt="MiniEmpre"
+            alt="EmprendeKids"
             width={36}
             height={36}
             className="h-9 w-9"
           />
 
           <span className="hidden font-display text-xl font-extrabold sm:inline-block">
-            <span className="text-foreground">Mini</span>
-            <span className="text-primary">Empre</span>
+            <span className="text-foreground">Emprende</span>
+            <span className="text-primary">Kids</span>
           </span>
         </div>
 

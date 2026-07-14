@@ -11,11 +11,8 @@ import { deriveCourse, fetchCompletedCodes, xpForCompleted } from "@/lib/progres
 
 export function CaminoView() {
   const [completedIds, setCompletedIds] = useState<string[] | null>(null);
-  // Sección resaltada en el sidebar y mostrada en el banner fijo.
-  // Se actualiza al hacer scroll (scroll-spy) o al hacer clic en el sidebar/chips.
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
-  // Evita que el scroll-spy pelee con el scroll suave al hacer clic.
   const scrollingTo = useRef<string | null>(null);
   const didInitialScroll = useRef(false);
 
@@ -53,7 +50,6 @@ export function CaminoView() {
     return deriveCourse(completedIds);
   }, [completedIds, loaded]);
 
-  // Sección donde está el progreso actual del alumno.
   const currentSectionId = useMemo(() => {
     if (!sections.length) return null;
 
@@ -64,8 +60,6 @@ export function CaminoView() {
     );
   }, [sections]);
 
-  // Actividad donde debe pararse el robot: la actividad "current" global.
-  // Si el curso está terminado, se queda en la última actividad.
   const robotActivityId = useMemo(() => {
     if (!sections.length) return null;
 
@@ -82,14 +76,13 @@ export function CaminoView() {
     return xpForCompleted(completedIds);
   }, [completedIds]);
 
-  // Al cargar, lleva al alumno directo a la sección donde va su progreso.
   useEffect(() => {
     if (!loaded || !currentSectionId || didInitialScroll.current) return;
 
     didInitialScroll.current = true;
     setActiveSectionId(currentSectionId);
 
-    // Solo hace falta desplazarse si el progreso no está en la primera sección.
+
     if (sections[0]?.id === currentSectionId) return;
 
     requestAnimationFrame(() => {
@@ -97,8 +90,7 @@ export function CaminoView() {
     });
   }, [loaded, currentSectionId, sections]);
 
-  // Scroll-spy: mientras se recorre el camino, resalta la sección visible
-  // en el sidebar y actualiza el banner fijo.
+
   useEffect(() => {
     if (!sections.length) return;
 
@@ -124,15 +116,13 @@ export function CaminoView() {
     return () => observer.disconnect();
   }, [sections]);
 
-  // Clic en el sidebar o en los chips: desplaza suavemente hasta esa sección
-  // sin salir del camino.
+
   function handleSelectSection(id: string) {
     setActiveSectionId(id);
     scrollingTo.current = id;
 
     sectionRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "start" });
 
-    // Libera el scroll-spy cuando termina el desplazamiento suave.
     window.setTimeout(() => {
       scrollingTo.current = null;
     }, 900);
@@ -149,7 +139,6 @@ export function CaminoView() {
   const activeSection =
     sections.find((section) => section.id === activeSectionId) ?? sections[0];
 
-  // Datos reales de progreso para el panel derecho (saludo y próxima sección).
   const currentIndex = sections.findIndex((section) => section.id === currentSectionId);
   const currentSection = currentIndex !== -1 ? sections[currentIndex] : null;
   const nextSection = currentIndex !== -1 ? sections[currentIndex + 1] ?? null : null;

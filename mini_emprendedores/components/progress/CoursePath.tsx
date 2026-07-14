@@ -8,19 +8,14 @@ import { LessonNode } from "./LessonNode";
 import { PathRobot } from "./PathRobot";
 import { PathFootprints } from "./PathFootprints";
 
-// Zig-zag offsets: -1 izquierda, 0 centro, 1 derecha.
-// Se recorre con un índice GLOBAL de actividad para que el camino
-// nunca se reinicie al centro al cambiar de sección.
 const pattern = [0, 0.6, 1, 0.6, 0, -0.6, -1, -0.6];
-
 const ROBOT_SCALE = 0.75;
 const defaultRobotSize = { base: 128, md: 176 };
 
 interface CoursePathProps {
   sections: Section[];
-  // Actividad "actual" de todo el curso. Ahí se dibuja el único robot.
+
   robotActivityId: string | null;
-  // Para registrar cada sección como ancla del scroll-spy / navegación.
   registerSection: (id: string, element: HTMLElement | null) => void;
 }
 
@@ -31,9 +26,7 @@ export function CoursePath({
 }: CoursePathProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Lista plana de actividades de TODO el curso, en orden. Con ella se
-  // calcula el índice global de cada nodo (zig-zag continuo) y hasta qué
-  // segmento van pintadas las huellas.
+
   const allActivities = sections.flatMap((section) =>
     section.units.flatMap((unit) => unit.activities),
   );
@@ -42,18 +35,12 @@ export function CoursePath({
     ? allActivities.findIndex((activity) => activity.id === robotActivityId)
     : -1;
 
-  // Sección donde va el progreso (la que contiene la actividad actual).
   const currentSectionIndex = sections.findIndex((section) =>
     section.units.some((unit) =>
       unit.activities.some((activity) => activity.id === robotActivityId),
     ),
   );
 
-  // Cada sección tiene su propio robot y cada robot tiene un modo:
-  // - "waiting": sección futura → robot en gris, esperando en su primer nivel.
-  // - "active": sección en curso → robot a color, parado en la actividad actual.
-  // - "resting": sección ya superada → su robot se queda a color en el último
-  //   nivel de esa sección (ahí terminó su recorrido).
   type RobotMode = "waiting" | "active" | "resting";
 
   function robotPlanFor(sectionIndex: number): {
@@ -117,10 +104,7 @@ export function CoursePath({
                       <div
                         className={cn(
                           "pointer-events-none absolute left-1/2 top-1/2 z-10 [--robot-shift:88px] md:[--robot-shift:118px]",
-                          // Robot de sección futura: en gris, esperando su turno.
                           robotPlan.mode === "waiting" && "grayscale opacity-50",
-                          // Robot de sección superada: a color pero más tenue,
-                          // descansando en el último nivel que recorrió.
                           robotPlan.mode === "resting" && "opacity-80",
                         )}
                         style={
@@ -148,7 +132,6 @@ export function CoursePath({
   );
 }
 
-// Divisor delgado que anuncia la sección dentro del camino sin cortarlo.
 function SectionDivider({ section }: { section: Section }) {
   const locked = section.status === "locked";
   const completed = section.status === "completed";
