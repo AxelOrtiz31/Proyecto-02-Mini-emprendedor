@@ -1,4 +1,4 @@
-import { Target, Timer, Zap } from "lucide-react";
+import { Star, Target, Timer, Trophy, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LessonStat, StatIcon, StatTone } from "./types";
 
@@ -12,6 +12,8 @@ const STAT_ICONS: Record<StatIcon, typeof Zap> = {
   zap: Zap,
   target: Target,
   timer: Timer,
+  star: Star,
+  trophy: Trophy,
 };
 
 interface StatCardProps {
