@@ -6,6 +6,7 @@ import type { Section } from "@/data/course";
 import { getTipOfTheDay } from "@/data/tips";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
+import { playSfx } from "@/audio/AudioManager";
 
 interface MascotPanelProps {
   variant: "sidebar" | "inline";
@@ -95,6 +96,7 @@ export function MascotPanel({
               height={64}
               loading="lazy"
               className="h-16 w-16 animate-mascot"
+              onClick={() => playSfx("urururu")}
             />
             <div>
               <div className="font-display text-base font-extrabold">

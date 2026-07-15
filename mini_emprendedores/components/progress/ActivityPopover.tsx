@@ -5,6 +5,7 @@ import { Lock } from "lucide-react";
 import type { Activity } from "@/data/course";
 import { cn } from "@/lib/utils";
 import { PopoverContent } from "@/components/ui/popover";
+import { playSfx } from "@/audio/AudioManager";
 
 interface ActivityPopoverProps {
   activity: Activity;
@@ -52,6 +53,7 @@ export function ActivityPopover({ activity }: ActivityPopoverProps) {
               activity.status === "current" && "bg-primary",
               activity.status === "bonus" && "bg-accent text-accent-foreground",
             )}
+            onClick={() => playSfx("click")}
           >
             {activity.status === "completed" ? "Repasar" : "Empezar"}
           </Link>
