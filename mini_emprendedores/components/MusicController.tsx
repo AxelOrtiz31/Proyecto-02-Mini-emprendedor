@@ -23,6 +23,11 @@ export default function MusicController() {
       return;
     }
 
+    if (pathname.startsWith("/modules01_06_complete")) {
+      playMusic("levels");
+      return;
+    }
+
   }, [pathname]);
 
   return null;
