@@ -5,11 +5,13 @@ import { fetchMiNegocio, type MiNegocio } from "@/lib/negocio";
 import { LOGO_FORMAS } from "../data";
 
 interface VistaPreviaProps {
-  onNext: () => void;
+  onSaved: (percepcion: string) => void;
 }
 
-export function VistaPrevia({ onNext }: VistaPreviaProps) {
+export function VistaPrevia({ onSaved }: VistaPreviaProps) {
   const [negocio, setNegocio] = useState<MiNegocio | null>(null);
+  const [percepcion, setPercepcion] = useState("");
+  const [guardando, setGuardando] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -25,14 +27,25 @@ export function VistaPrevia({ onNext }: VistaPreviaProps) {
   const colorPrimario = negocio?.colorPrimario ?? "#FFD93D";
   const colorSecundario = negocio?.colorSecundario ?? "#4FACFE";
 
+  function confirmar() {
+    const limpio = percepcion.trim();
+    if (!limpio) return;
+    setGuardando(true);
+    onSaved(limpio);
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-6 py-10 text-center">
+    <main className="flex min-h-screen flex-col items-center bg-background px-4 pb-8 pt-6 text-center sm:px-6">
       <span className="rounded-full bg-secondary px-4 py-1.5 font-display text-xs font-extrabold uppercase tracking-widest text-secondary-foreground">
-        ¡Así se ve tu negocio!
+        Reto final · Crea la identidad de tu negocio
       </span>
 
+      <h1 className="mt-4 font-display text-lg font-extrabold text-foreground sm:text-xl">
+        ¡Así se ve tu negocio!
+      </h1>
+
       <div
-        className="flex w-full max-w-xs flex-col items-center gap-3 rounded-3xl border-4 px-6 py-8 shadow-(--shadow-card)"
+        className="mt-4 flex w-full max-w-xs flex-col items-center gap-3 rounded-3xl border-4 px-6 py-8 shadow-(--shadow-card)"
         style={{ borderColor: colorPrimario, backgroundColor: `${colorPrimario}15` }}
       >
         <div
@@ -46,6 +59,10 @@ export function VistaPrevia({ onNext }: VistaPreviaProps) {
           {negocio?.nombreNegocio ?? "Mi negocio"}
         </h2>
 
+        {negocio?.eslogan && (
+          <p className="text-sm font-bold italic text-foreground">&ldquo;{negocio.eslogan}&rdquo;</p>
+        )}
+
         <div className="flex gap-2">
           <span className="h-4 w-4 rounded-full" style={{ backgroundColor: colorPrimario }} />
           <span className="h-4 w-4 rounded-full" style={{ backgroundColor: colorSecundario }} />
@@ -58,17 +75,26 @@ export function VistaPrevia({ onNext }: VistaPreviaProps) {
         )}
       </div>
 
-      <p className="max-w-sm text-sm font-semibold text-muted-foreground">
-        ¡Tu negocio ya tiene nombre, colores y logo propios! Lo seguirás
-        construyendo en los próximos módulos. 🚀
-      </p>
+      <div className="mt-6 w-full max-w-sm text-left">
+        <label className="mb-1 block text-xs font-extrabold uppercase tracking-wide text-muted-foreground">
+          🌟 ¿Qué quieres que las personas piensen cuando vean tu marca?
+        </label>
+        <textarea
+          value={percepcion}
+          onChange={(e) => setPercepcion(e.target.value.slice(0, 120))}
+          placeholder="Ej. que es confiable, alegre y hecha con cuidado"
+          rows={3}
+          className="w-full resize-none rounded-2xl border-2 border-border bg-card px-4 py-3 text-sm font-semibold text-foreground shadow-(--shadow-card) outline-none focus:border-primary"
+        />
+      </div>
 
       <button
         type="button"
-        onClick={onNext}
-        className="mt-2 rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
+        onClick={confirmar}
+        disabled={!percepcion.trim() || guardando}
+        className="mt-8 w-full max-w-sm rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
       >
-        Continuar →
+        {guardando ? "Guardando..." : "Terminar mi marca →"}
       </button>
     </main>
   );

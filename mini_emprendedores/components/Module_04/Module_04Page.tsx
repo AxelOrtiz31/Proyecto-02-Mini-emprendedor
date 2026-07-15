@@ -5,32 +5,44 @@ import { useRouter } from "next/navigation";
 import { saveCompletedLesson } from "@/lib/progress";
 import { saveMiNegocio } from "@/lib/negocio";
 import { Reto } from "./steps/Reto";
-import { ExplicacionNombre } from "./steps/ExplicacionNombre";
+import { NivelTeach } from "./steps/NivelTeach";
 import { EligeNombre } from "./steps/EligeNombre";
 import { ColoresTeach } from "./steps/ColoresTeach";
 import { EligeColoresEstilo } from "./steps/EligeColoresEstilo";
+import { EligeEslogan } from "./steps/EligeEslogan";
 import { LogoConstructor } from "./steps/LogoConstructor";
 import { VistaPrevia } from "./steps/VistaPrevia";
+import { FinBloque } from "./steps/FinBloque";
 import { CheckCorto } from "./CheckCorto";
+import { NIVELES, COMPETENCIAS_BLOQUE_4, XP_FIN_BLOQUE_4 } from "./data";
 import type { ColorMarca, EstiloMarca, LogoForma } from "./data";
 
 const MODULE_NUMBER = 4;
+const CODIGO_RETO_FINAL = "s4-u1-a5";
+const INDICE_NOMBRE = 0;
+const INDICE_COLORES = 1;
+const INDICE_ESLOGAN = 2;
 
-type Step =
+type Fase =
   | "reto"
-  | "explicacion_nombre"
-  | "elige_nombre"
-  | "check_a1"
+  | "nivel_teach"
+  | "aplicar_nombre"
   | "colores_teach"
-  | "elige_colores_estilo"
-  | "logo_constructor"
-  | "vista_previa"
-  | "check_final";
+  | "aplicar_colores"
+  | "aplicar_eslogan"
+  | "nivel_check"
+  | "reto_final_logo"
+  | "reto_final_vista"
+  | "fin_bloque";
 
-function initialStepFor(lessonId: string): Step {
-  if (lessonId === "s4-u1-a2") return "colores_teach";
-  if (lessonId === "s4-u1-a3") return "logo_constructor";
-  return "reto";
+function initialStateFor(lessonId: string): { fase: Fase; index: number } {
+  if (lessonId === CODIGO_RETO_FINAL) {
+    return { fase: "reto_final_logo", index: NIVELES.length - 1 };
+  }
+
+  const i = NIVELES.findIndex((n) => n.codigo === lessonId);
+  if (i === -1) return { fase: "reto", index: 0 };
+  return { fase: "nivel_teach", index: i };
 }
 
 interface Module04PageProps {
@@ -41,7 +53,9 @@ export default function Module04Page({
   lessonId = "s4-u1-a1",
 }: Module04PageProps) {
   const router = useRouter();
-  const [step, setStep] = useState<Step>(() => initialStepFor(lessonId));
+  const inicio = initialStateFor(lessonId);
+  const [fase, setFase] = useState<Fase>(inicio.fase);
+  const [nivelIndex, setNivelIndex] = useState(inicio.index);
 
   async function markDone(code: string) {
     try {
@@ -60,46 +74,47 @@ export default function Module04Page({
   }
 
   function finishModule() {
-    router.push("/modules01_06_complete/modulecomplete?lesson=s4-u1-a3");
+    router.push(`/modules01_06_complete/modulecomplete?lesson=${CODIGO_RETO_FINAL}`);
   }
 
-  if (step === "reto") {
-    return <Reto onNext={() => setStep("explicacion_nombre")} />;
+  if (fase === "reto") {
+    return <Reto onNext={() => setFase("nivel_teach")} />;
   }
 
-  if (step === "explicacion_nombre") {
-    return <ExplicacionNombre onNext={() => setStep("elige_nombre")} />;
+  const nivel = NIVELES[nivelIndex];
+  const esUltimoNivel = nivelIndex === NIVELES.length - 1;
+
+  if (fase === "nivel_teach") {
+    return (
+      <NivelTeach
+        nivel={nivel}
+        totalNiveles={NIVELES.length}
+        onNext={() => {
+          if (nivelIndex === INDICE_NOMBRE) return setFase("aplicar_nombre");
+          if (nivelIndex === INDICE_COLORES) return setFase("colores_teach");
+          if (nivelIndex === INDICE_ESLOGAN) return setFase("aplicar_eslogan");
+          setFase("nivel_check");
+        }}
+      />
+    );
   }
 
-  if (step === "elige_nombre") {
+  if (fase === "aplicar_nombre") {
     return (
       <EligeNombre
         onSaved={async (nombre: string) => {
           await guardarNegocio({ nombreNegocio: nombre });
-          setStep("check_a1");
+          setFase("nivel_check");
         }}
       />
     );
   }
 
-  if (step === "check_a1") {
-    return (
-      <CheckCorto
-        lessonId="s4-u1-a1"
-        moduleNumber={MODULE_NUMBER}
-        onPass={async () => {
-          await markDone("s4-u1-a1");
-          setStep("colores_teach");
-        }}
-      />
-    );
+  if (fase === "colores_teach") {
+    return <ColoresTeach onNext={() => setFase("aplicar_colores")} />;
   }
 
-  if (step === "colores_teach") {
-    return <ColoresTeach onNext={() => setStep("elige_colores_estilo")} />;
-  }
-
-  if (step === "elige_colores_estilo") {
+  if (fase === "aplicar_colores") {
     return (
       <EligeColoresEstilo
         onSaved={async (
@@ -111,33 +126,71 @@ export default function Module04Page({
             colorSecundario: colores.secundario.hex,
             estiloMarca: estilo.id,
           });
-          await markDone("s4-u1-a2");
-          setStep("logo_constructor");
+          setFase("nivel_check");
         }}
       />
     );
   }
 
-  if (step === "logo_constructor") {
+  if (fase === "aplicar_eslogan") {
+    return (
+      <EligeEslogan
+        onSaved={async (eslogan: string) => {
+          await guardarNegocio({ eslogan });
+          setFase("nivel_check");
+        }}
+      />
+    );
+  }
+
+  if (fase === "nivel_check") {
+    return (
+      <CheckCorto
+        lessonId={nivel.codigo}
+        moduleNumber={MODULE_NUMBER}
+        onPass={async () => {
+          await markDone(nivel.codigo);
+
+          if (esUltimoNivel) {
+            setFase("reto_final_logo");
+            return;
+          }
+
+          setNivelIndex(nivelIndex + 1);
+          setFase("nivel_teach");
+        }}
+      />
+    );
+  }
+
+  if (fase === "reto_final_logo") {
     return (
       <LogoConstructor
         onSaved={async (icono: string, forma: LogoForma) => {
           await guardarNegocio({ logoIcono: icono, logoForma: forma.id });
-          setStep("vista_previa");
+          setFase("reto_final_vista");
         }}
       />
     );
   }
 
-  if (step === "vista_previa") {
-    return <VistaPrevia onNext={() => setStep("check_final")} />;
+  if (fase === "reto_final_vista") {
+    return (
+      <VistaPrevia
+        onSaved={async (percepcion: string) => {
+          await guardarNegocio({ marcaPercepcion: percepcion });
+          setFase("fin_bloque");
+        }}
+      />
+    );
   }
 
   return (
-    <CheckCorto
-      lessonId="s4-u1-a3"
-      moduleNumber={MODULE_NUMBER}
-      onPass={finishModule}
+    <FinBloque
+      insignias={NIVELES.map((n) => n.insignia)}
+      xp={XP_FIN_BLOQUE_4}
+      competencias={COMPETENCIAS_BLOQUE_4}
+      onNext={finishModule}
     />
   );
 }

@@ -6,19 +6,20 @@ import { saveCompletedLesson } from "@/lib/progress";
 import { saveMiNegocio } from "@/lib/negocio";
 import { Reto } from "./steps/Reto";
 import { NivelTeach } from "./steps/NivelTeach";
-import { DisenoEmpaque } from "./steps/DisenoEmpaque";
-import { FinBloque } from "./steps/FinBloque";
+import { ResumenNegocio } from "./steps/ResumenNegocio";
+import { MiPitch } from "./steps/MiPitch";
+import { FinCurso } from "./steps/FinCurso";
 import { CheckCorto } from "./CheckCorto";
-import { NIVELES, COMPETENCIAS_BLOQUE_5, XP_FIN_BLOQUE_5 } from "./data";
+import { NIVELES, COMPETENCIAS_CURSO_COMPLETO } from "./data";
 
-const MODULE_NUMBER = 5;
-const CODIGO_RETO_FINAL = "s5-u1-a5";
+const MODULE_NUMBER = 7;
+const CODIGO_RETO_FINAL = "s7-u1-a5";
 
-type Fase = "reto" | "nivel_teach" | "nivel_check" | "diseno_empaque" | "fin_bloque";
+type Fase = "reto" | "nivel_teach" | "nivel_check" | "resumen" | "pitch" | "fin_curso";
 
 function initialStateFor(lessonId: string): { fase: Fase; index: number } {
   if (lessonId === CODIGO_RETO_FINAL) {
-    return { fase: "diseno_empaque", index: NIVELES.length - 1 };
+    return { fase: "resumen", index: NIVELES.length - 1 };
   }
 
   const i = NIVELES.findIndex((n) => n.codigo === lessonId);
@@ -26,13 +27,13 @@ function initialStateFor(lessonId: string): { fase: Fase; index: number } {
   return { fase: "nivel_teach", index: i };
 }
 
-interface Module05PageProps {
+interface Module07PageProps {
   lessonId?: string;
 }
 
-export default function Module05Page({
-  lessonId = "s5-u1-a1",
-}: Module05PageProps) {
+export default function Module07Page({
+  lessonId = "s7-u1-a1",
+}: Module07PageProps) {
   const router = useRouter();
   const inicio = initialStateFor(lessonId);
   const [fase, setFase] = useState<Fase>(inicio.fase);
@@ -76,7 +77,7 @@ export default function Module05Page({
           await markDone(nivel.codigo);
 
           if (esUltimoNivel) {
-            setFase("diseno_empaque");
+            setFase("resumen");
             return;
           }
 
@@ -87,31 +88,31 @@ export default function Module05Page({
     );
   }
 
-  if (fase === "diseno_empaque") {
+  if (fase === "resumen") {
     return (
-      <DisenoEmpaque
-        onSaved={async ({ color, material, elementos, ambiental }) => {
+      <ResumenNegocio onNext={() => setFase("pitch")} />
+    );
+  }
+
+  if (fase === "pitch") {
+    return (
+      <MiPitch
+        onSaved={async ({ diseno, razon }) => {
           try {
-            await saveMiNegocio({
-              empaqueColor: color,
-              empaqueMaterial: material,
-              empaqueElementos: elementos,
-              empaqueAmbiental: ambiental,
-            });
+            await saveMiNegocio({ pitchDiseno: diseno, pitchRazon: razon });
           } catch (error) {
-            console.error("No se pudo guardar tu empaque:", error);
+            console.error("No se pudo guardar tu pitch:", error);
           }
-          setFase("fin_bloque");
+          setFase("fin_curso");
         }}
       />
     );
   }
 
   return (
-    <FinBloque
+    <FinCurso
       insignias={NIVELES.map((n) => n.insignia)}
-      xp={XP_FIN_BLOQUE_5}
-      competencias={COMPETENCIAS_BLOQUE_5}
+      competencias={COMPETENCIAS_CURSO_COMPLETO}
       onNext={finishModule}
     />
   );
