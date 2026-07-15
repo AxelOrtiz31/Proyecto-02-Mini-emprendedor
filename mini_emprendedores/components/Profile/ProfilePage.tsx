@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
+import { calculateStreak, formatStreakDays } from "@/lib/streak";
 
 interface Profile {
   nombre: string;
@@ -123,7 +124,7 @@ export default function ProfilePage() {
           }
         }
 
-        const racha = calcularRacha(completadas);
+        const racha = calculateStreak(completadas.map((p) => p.completada_en));
 
         setStats({
           totalLecciones,
@@ -204,7 +205,7 @@ export default function ProfilePage() {
           <StatCard label="Lecciones" value={stats.totalLecciones} icon="📚" color="bg-blue-100 text-blue-700" />
           <StatCard label="XP" value={stats.totalXp} icon="⭐" color="bg-yellow-100 text-yellow-700" />
           <StatCard label="Estrellas" value={stats.totalEstrellas} icon="🌟" color="bg-green-100 text-green-700" />
-          <StatCard label="Racha" value={`${stats.racha} ${stats.racha === 1 ? "día" : "días"}`} icon="🔥" color="bg-red-100 text-red-700" />
+          <StatCard label="Racha" value={formatStreakDays(stats.racha)} icon="🔥" color="bg-red-100 text-red-700" />
         </div>
 
         {/* Módulo actual */}
@@ -246,35 +247,4 @@ function StatCard({ label, value, icon, color }: { label: string; value: string 
       <p className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">{label}</p>
     </div>
   );
-}
-
-function calcularRacha(progreso: { completada_en: string | null }[]): number {
-  if (!progreso.length) return 0;
-
-  const fechas = progreso
-    .map((p) => p.completada_en?.split("T")[0])
-    .filter((fecha): fecha is string => fecha !== undefined && fecha !== null);
-
-  if (fechas.length === 0) return 0;
-
-  const fechasUnicas = [...new Set(fechas)].sort().reverse();
-
-  let racha = 0;
-  let fechaEsperada = new Date();
-  fechaEsperada.setHours(0, 0, 0, 0);
-
-  for (const fechaStr of fechasUnicas) {
-    const fecha = new Date(fechaStr);
-    fecha.setHours(0, 0, 0, 0);
-
-    const diff = (fechaEsperada.getTime() - fecha.getTime()) / (1000 * 60 * 60 * 24);
-    if (diff === 0 || diff === 1) {
-      racha++;
-      fechaEsperada.setDate(fechaEsperada.getDate() - 1);
-    } else {
-      break;
-    }
-  }
-
-  return racha;
 }
