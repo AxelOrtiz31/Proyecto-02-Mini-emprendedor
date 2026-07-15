@@ -1,188 +1,196 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { OnboardingHeader } from "./OnboardingHeader";
-import { ProgressSegments } from "./ProgressSegments";
-import { QuestionCard } from "./QuestionCard";
-import { EvaluationError } from "./EvaluationError";
-import {
-  fetchLessonEvaluation,
-  finishEvaluationSession,
-  hasCorrectOptions,
-  isAnswerCorrect,
-  startEvaluationSession,
-  type Evaluation,
-} from "@/lib/evaluations";
+import { saveCompletedLesson } from "@/lib/progress";
+import { saveMiNegocio } from "@/lib/negocio";
+import { Reto } from "./steps/Reto";
+import { NivelTeach } from "./steps/NivelTeach";
+import { EligeNombre } from "./steps/EligeNombre";
+import { ColoresTeach } from "./steps/ColoresTeach";
+import { EligeColoresEstilo } from "./steps/EligeColoresEstilo";
+import { EligeEslogan } from "./steps/EligeEslogan";
+import { LogoConstructor } from "./steps/LogoConstructor";
+import { VistaPrevia } from "./steps/VistaPrevia";
+import { FinBloque } from "./steps/FinBloque";
+import { CheckCorto } from "./CheckCorto";
+import { NIVELES, COMPETENCIAS_BLOQUE_4, XP_FIN_BLOQUE_4 } from "./data";
+import type { ColorMarca, EstiloMarca, LogoForma } from "./data";
 
 const MODULE_NUMBER = 4;
-const DEFAULT_LESSON_ID = "s4-u1-a1";
+const CODIGO_RETO_FINAL = "s4-u1-a5";
+const INDICE_NOMBRE = 0;
+const INDICE_COLORES = 1;
+const INDICE_ESLOGAN = 2;
+
+type Fase =
+  | "reto"
+  | "nivel_teach"
+  | "aplicar_nombre"
+  | "colores_teach"
+  | "aplicar_colores"
+  | "aplicar_eslogan"
+  | "nivel_check"
+  | "reto_final_logo"
+  | "reto_final_vista"
+  | "fin_bloque";
+
+function initialStateFor(lessonId: string): { fase: Fase; index: number } {
+  if (lessonId === CODIGO_RETO_FINAL) {
+    return { fase: "reto_final_logo", index: NIVELES.length - 1 };
+  }
+
+  const i = NIVELES.findIndex((n) => n.codigo === lessonId);
+  if (i === -1) return { fase: "reto", index: 0 };
+  return { fase: "nivel_teach", index: i };
+}
 
 interface Module04PageProps {
   lessonId?: string;
 }
 
 export default function Module04Page({
-  lessonId = DEFAULT_LESSON_ID,
+  lessonId = "s4-u1-a1",
 }: Module04PageProps) {
   const router = useRouter();
+  const inicio = initialStateFor(lessonId);
+  const [fase, setFase] = useState<Fase>(inicio.fase);
+  const [nivelIndex, setNivelIndex] = useState(inicio.index);
 
-  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
-  const [sessionId, setSessionId] = useState<number | null>(null);
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, number[]>>({});
-  const [saving, setSaving] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-
-    async function loadEvaluation() {
-      setLoading(true);
-      setStep(0);
-      setAnswers({});
-
-      const data = await fetchLessonEvaluation(lessonId, MODULE_NUMBER);
-
-      if (!active) return;
-
-      if (data) {
-        setEvaluation(data);
-
-        const id = await startEvaluationSession(data.id);
-
-        if (active) {
-          setSessionId(id);
-        }
-      } else {
-        setEvaluation(null);
-        setSessionId(null);
-      }
-
-      setLoading(false);
+  async function markDone(code: string) {
+    try {
+      await saveCompletedLesson(code);
+    } catch (error) {
+      console.error("No se pudo guardar el avance:", error);
     }
+  }
 
-    loadEvaluation();
+  async function guardarNegocio(cambios: Parameters<typeof saveMiNegocio>[0]) {
+    try {
+      await saveMiNegocio(cambios);
+    } catch (error) {
+      console.error("No se pudo guardar tu negocio:", error);
+    }
+  }
 
-    return () => {
-      active = false;
-    };
-  }, [lessonId]);
+  function finishModule() {
+    router.push(`/modules01_06_complete/modulecomplete?lesson=${CODIGO_RETO_FINAL}`);
+  }
 
-  if (loading) {
+  if (fase === "reto") {
+    return <Reto onNext={() => setFase("nivel_teach")} />;
+  }
+
+  const nivel = NIVELES[nivelIndex];
+  const esUltimoNivel = nivelIndex === NIVELES.length - 1;
+
+  if (fase === "nivel_teach") {
     return (
-      <div className="grid min-h-screen place-items-center bg-background">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
-      </div>
+      <NivelTeach
+        nivel={nivel}
+        totalNiveles={NIVELES.length}
+        onNext={() => {
+          if (nivelIndex === INDICE_NOMBRE) return setFase("aplicar_nombre");
+          if (nivelIndex === INDICE_COLORES) return setFase("colores_teach");
+          if (nivelIndex === INDICE_ESLOGAN) return setFase("aplicar_eslogan");
+          setFase("nivel_check");
+        }}
+      />
     );
   }
 
-  if (!evaluation) {
-    return <EvaluationError onBack={() => router.push("/dashboard")} />;
+  if (fase === "aplicar_nombre") {
+    return (
+      <EligeNombre
+        onSaved={async (nombre: string) => {
+          await guardarNegocio({ nombreNegocio: nombre });
+          setFase("nivel_check");
+        }}
+      />
+    );
   }
 
-  const questions = evaluation.questions;
-  const question = questions[step];
-  const selected = answers[question.id] ?? [];
-
-  const total = questions.length;
-  const isLast = step === total - 1;
-
-  const hasSelected = selected.length > 0;
-  const questionHasCorrectOptions = hasCorrectOptions(question);
-
-  const currentAnswerIsCorrect = hasSelected
-    ? isAnswerCorrect(question, selected)
-    : false;
-
-  const canContinue = hasSelected && currentAnswerIsCorrect && !saving;
-
-  function toggle(optionId: number) {
-    const current = answers[question.id] ?? [];
-    const next = question.multiple ? toggleInList(current, optionId) : [optionId];
-
-    setAnswers({
-      ...answers,
-      [question.id]: next,
-    });
+  if (fase === "colores_teach") {
+    return <ColoresTeach onNext={() => setFase("aplicar_colores")} />;
   }
 
-  function back() {
-    if (step > 0) {
-      setStep(step - 1);
-      return;
-    }
-
-    router.push("/dashboard");
+  if (fase === "aplicar_colores") {
+    return (
+      <EligeColoresEstilo
+        onSaved={async (
+          colores: { primario: ColorMarca; secundario: ColorMarca },
+          estilo: EstiloMarca,
+        ) => {
+          await guardarNegocio({
+            colorPrimario: colores.primario.hex,
+            colorSecundario: colores.secundario.hex,
+            estiloMarca: estilo.id,
+          });
+          setFase("nivel_check");
+        }}
+      />
+    );
   }
 
-  async function next() {
-    if (!canContinue) return;
+  if (fase === "aplicar_eslogan") {
+    return (
+      <EligeEslogan
+        onSaved={async (eslogan: string) => {
+          await guardarNegocio({ eslogan });
+          setFase("nivel_check");
+        }}
+      />
+    );
+  }
 
-    if (!isLast) {
-      setStep(step + 1);
-      return;
-    }
+  if (fase === "nivel_check") {
+    return (
+      <CheckCorto
+        lessonId={nivel.codigo}
+        moduleNumber={MODULE_NUMBER}
+        onPass={async () => {
+          await markDone(nivel.codigo);
 
-    setSaving(true);
+          if (esUltimoNivel) {
+            setFase("reto_final_logo");
+            return;
+          }
 
-    const payload = questions.map((item) => ({
-      questionId: item.id,
-      optionIds: answers[item.id] ?? [],
-    }));
+          setNivelIndex(nivelIndex + 1);
+          setFase("nivel_teach");
+        }}
+      />
+    );
+  }
 
-    if (sessionId) {
-      await finishEvaluationSession(sessionId, payload, questions);
-    }
+  if (fase === "reto_final_logo") {
+    return (
+      <LogoConstructor
+        onSaved={async (icono: string, forma: LogoForma) => {
+          await guardarNegocio({ logoIcono: icono, logoForma: forma.id });
+          setFase("reto_final_vista");
+        }}
+      />
+    );
+  }
 
-    router.push(
-      `/modules01_06_complete/modulecomplete?lesson=${encodeURIComponent(
-        lessonId,
-      )}`,
+  if (fase === "reto_final_vista") {
+    return (
+      <VistaPrevia
+        onSaved={async (percepcion: string) => {
+          await guardarNegocio({ marcaPercepcion: percepcion });
+          setFase("fin_bloque");
+        }}
+      />
     );
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-background px-4 pb-6 pt-4 sm:px-6 lg:px-8">
-      <div className="mx-auto flex w-full max-w-xl flex-1 flex-col">
-        <OnboardingHeader
-          title={evaluation.name}
-          step={step}
-          total={total}
-          onBack={back}
-        />
-
-        <ProgressSegments total={total} current={step} />
-
-        <div className="mt-8 w-full sm:mt-10">
-          <QuestionCard
-            question={question}
-            selected={selected}
-            showResult={hasSelected && questionHasCorrectOptions}
-            answerIsCorrect={currentAnswerIsCorrect}
-            onToggle={toggle}
-          />
-        </div>
-
-        <div className="mt-auto w-full pt-8">
-          <button
-            type="button"
-            onClick={next}
-            disabled={!canContinue}
-            className="w-full rounded-2xl bg-primary px-6 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
-          >
-            {saving ? "Guardando..." : isLast ? "Terminar" : "Continuar"}
-          </button>
-        </div>
-      </div>
-    </main>
+    <FinBloque
+      insignias={NIVELES.map((n) => n.insignia)}
+      xp={XP_FIN_BLOQUE_4}
+      competencias={COMPETENCIAS_BLOQUE_4}
+      onNext={finishModule}
+    />
   );
-}
-
-function toggleInList(list: number[], value: number): number[] {
-  if (list.includes(value)) {
-    return list.filter((item) => item !== value);
-  }
-
-  return [...list, value];
 }

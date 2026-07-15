@@ -6,6 +6,7 @@ import { OnboardingHeader } from "./OnboardingHeader";
 import { ProgressSegments } from "./ProgressSegments";
 import { QuestionCard } from "./QuestionCard";
 import { EvaluationError } from "./EvaluationError";
+import { EvaluationLocked } from "./EvaluationLocked";
 import { ConfettiLayer } from "@/components/Module_Complete/ConfettiLayer";
 import { SplashScreen } from "@/components/Module_Complete/SplashScreen";
 import { StatsPanel } from "@/components/Module_Complete/StatsPanel";
@@ -18,11 +19,12 @@ import {
   startEvaluationSession,
   type Evaluation,
 } from "@/lib/evaluations";
+import { activityOrder, fetchCompletedCodes } from "@/lib/progress";
 
 /* Debe cubrir el fade-out del splash definido en globals.css (1.6 s de espera + 0.4 s). */
 const SPLASH_DURATION_MS = 3460;
 
-type Phase = "loading" | "quiz" | "splash" | "stats";
+type Phase = "loading" | "locked" | "quiz" | "splash" | "stats";
 
 export default function EvaluationPage() {
   const router = useRouter();
@@ -42,6 +44,19 @@ export default function EvaluationPage() {
       setPhase("loading");
       setStep(0);
       setAnswers({});
+
+      const completedCodes = await fetchCompletedCodes();
+
+      if (!active) return;
+
+      const courseComplete = activityOrder.every((id) =>
+        completedCodes.includes(id),
+      );
+
+      if (!courseComplete) {
+        setPhase("locked");
+        return;
+      }
 
       const data = await fetchFinalEvaluation();
 
@@ -81,6 +96,10 @@ export default function EvaluationPage() {
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
       </div>
     );
+  }
+
+  if (phase === "locked") {
+    return <EvaluationLocked onBack={() => router.push("/dashboard")} />;
   }
 
   if (!evaluation) {

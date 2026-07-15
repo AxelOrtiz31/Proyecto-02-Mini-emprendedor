@@ -35,7 +35,7 @@ export function LessonNode({ activity, offsetX }: LessonNodeProps) {
   const isCurrent = activity.status === "current";
 
   const baseCircle =
-    "relative flex h-20 w-20 items-center justify-center rounded-full transition-transform duration-200 ease-out enabled:hover:translate-y-0.5 active:translate-y-1 active:[box-shadow:0_2px_0_0_currentColor]";
+    "relative flex h-20 w-20 items-center justify-center rounded-full transition-transform duration-200 ease-out enabled:hover:translate-y-0.5 active:translate-y-1 active:[box-shadow:0_2px_0_0_currentColor] xl:h-24 xl:w-24";
 
   const stateClass = cn(
     activity.status === "completed" &&
@@ -51,6 +51,7 @@ export function LessonNode({ activity, offsetX }: LessonNodeProps) {
   return (
     <div
       className="relative flex flex-col items-center"
+      data-lesson-node
       style={{ transform: `translateX(calc(${offsetX} * var(--path-offset, 110px)))` }}
     >
       {isCurrent && <StartLabel />}
@@ -64,7 +65,7 @@ export function LessonNode({ activity, offsetX }: LessonNodeProps) {
           >
             <ActivityIcon
               activity={activity}
-              className={cn("h-9 w-9", isCurrent && "h-10 w-10")}
+              className={cn("h-9 w-9 xl:h-11 xl:w-11", isCurrent && "h-10 w-10 xl:h-12 xl:w-12")}
             />
             {activity.status === "completed" && activity.stars ? (
               <span className="absolute -bottom-2 right-0 flex items-center gap-0.5 rounded-full bg-card px-1.5 py-0.5 text-[10px] font-bold text-accent-foreground shadow-sm">
