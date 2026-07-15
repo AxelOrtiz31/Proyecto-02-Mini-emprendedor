@@ -1,188 +1,111 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { OnboardingHeader } from "@/components/Module_01/OnboardingHeader";
-import { ProgressSegments } from "@/components/Module_01/ProgressSegments";
-import { QuestionCard } from "@/components/Module_01/QuestionCard";
-import { EvaluationError } from "@/components/Module_01/EvaluationError";
-import {
-  fetchLessonEvaluation,
-  finishEvaluationSession,
-  hasCorrectOptions,
-  isAnswerCorrect,
-  startEvaluationSession,
-  type Evaluation,
-} from "@/lib/evaluations";
+import { saveCompletedLesson } from "@/lib/progress";
+import { saveMiNegocio } from "@/lib/negocio";
+import { Reto } from "./steps/Reto";
+import { NivelTeach } from "./steps/NivelTeach";
+import { IdeaNegocio } from "./steps/IdeaNegocio";
+import { FinBloque } from "./steps/FinBloque";
+import { CheckCorto } from "./CheckCorto";
+import { NIVELES, COMPETENCIAS_BLOQUE_2, XP_FIN_BLOQUE_2 } from "./data";
 
 const MODULE_NUMBER = 2;
-const DEFAULT_LESSON_ID = "s1-u2-a1";
+
+type Fase = "reto" | "nivel_teach" | "nivel_idea" | "nivel_check" | "fin_bloque";
+
+function initialIndexFor(lessonId: string): number {
+  const i = NIVELES.findIndex((n) => n.codigo === lessonId);
+  return i === -1 ? 0 : i;
+}
 
 interface Module02PageProps {
   lessonId?: string;
 }
 
 export default function Module02Page({
-  lessonId = DEFAULT_LESSON_ID,
+  lessonId = "s2-u1-a1",
 }: Module02PageProps) {
   const router = useRouter();
+  const startIndex = initialIndexFor(lessonId);
+  const [fase, setFase] = useState<Fase>(startIndex === 0 ? "reto" : "nivel_teach");
+  const [nivelIndex, setNivelIndex] = useState(startIndex);
 
-  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
-  const [sessionId, setSessionId] = useState<number | null>(null);
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, number[]>>({});
-  const [saving, setSaving] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-
-    async function loadEvaluation() {
-      setLoading(true);
-      setStep(0);
-      setAnswers({});
-
-      const data = await fetchLessonEvaluation(lessonId, MODULE_NUMBER);
-
-      if (!active) return;
-
-      if (data) {
-        setEvaluation(data);
-
-        const id = await startEvaluationSession(data.id);
-
-        if (active) {
-          setSessionId(id);
-        }
-      } else {
-        setEvaluation(null);
-        setSessionId(null);
-      }
-
-      setLoading(false);
+  async function markDone(code: string) {
+    try {
+      await saveCompletedLesson(code);
+    } catch (error) {
+      console.error("No se pudo guardar el avance:", error);
     }
+  }
 
-    loadEvaluation();
+  function finishModule() {
+    const ultimo = NIVELES[NIVELES.length - 1].codigo;
+    router.push(`/modules01_06_complete/modulecomplete?lesson=${ultimo}`);
+  }
 
-    return () => {
-      active = false;
-    };
-  }, [lessonId]);
+  if (fase === "reto") {
+    return <Reto onNext={() => setFase("nivel_teach")} />;
+  }
 
-  if (loading) {
+  const nivel = NIVELES[nivelIndex];
+  const esUltimoNivel = nivelIndex === NIVELES.length - 1;
+
+  if (fase === "nivel_teach") {
     return (
-      <div className="grid min-h-screen place-items-center bg-background">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
-      </div>
+      <NivelTeach
+        nivel={nivel}
+        totalNiveles={NIVELES.length}
+        onNext={() => setFase(esUltimoNivel ? "nivel_idea" : "nivel_check")}
+      />
     );
   }
 
-  if (!evaluation) {
-    return <EvaluationError onBack={() => router.push("/dashboard")} />;
+  if (fase === "nivel_idea") {
+    return (
+      <IdeaNegocio
+        onSaved={async (idea) => {
+          try {
+            await saveMiNegocio({
+              ideaNombre: idea.nombre,
+              ideaTipo: idea.tipo,
+              ideaAyuda: idea.ayuda,
+            });
+          } catch (error) {
+            console.error("No se pudo guardar tu idea:", error);
+          }
+          setFase("nivel_check");
+        }}
+      />
+    );
   }
 
-  const questions = evaluation.questions;
-  const question = questions[step];
-  const selected = answers[question.id] ?? [];
+  if (fase === "nivel_check") {
+    return (
+      <CheckCorto
+        lessonId={nivel.codigo}
+        moduleNumber={MODULE_NUMBER}
+        onPass={async () => {
+          if (esUltimoNivel) {
+            setFase("fin_bloque");
+            return;
+          }
 
-  const total = questions.length;
-  const isLast = step === total - 1;
-
-  const hasSelected = selected.length > 0;
-  const questionHasCorrectOptions = hasCorrectOptions(question);
-
-  const currentAnswerIsCorrect = hasSelected
-    ? isAnswerCorrect(question, selected)
-    : false;
-
-  const canContinue = hasSelected && currentAnswerIsCorrect && !saving;
-
-  function toggle(optionId: number) {
-    const current = answers[question.id] ?? [];
-    const next = question.multiple ? toggleInList(current, optionId) : [optionId];
-
-    setAnswers({
-      ...answers,
-      [question.id]: next,
-    });
-  }
-
-  function back() {
-    if (step > 0) {
-      setStep(step - 1);
-      return;
-    }
-
-    router.push("/dashboard");
-  }
-
-  async function next() {
-    if (!canContinue) return;
-
-    if (!isLast) {
-      setStep(step + 1);
-      return;
-    }
-
-    setSaving(true);
-
-    const payload = questions.map((item) => ({
-      questionId: item.id,
-      optionIds: answers[item.id] ?? [],
-    }));
-
-    if (sessionId) {
-      await finishEvaluationSession(sessionId, payload, questions);
-    }
-
-    router.push(
-      `/modules01_06_complete/modulecomplete?lesson=${encodeURIComponent(
-        lessonId,
-      )}`,
+          await markDone(nivel.codigo);
+          setNivelIndex(nivelIndex + 1);
+          setFase("nivel_teach");
+        }}
+      />
     );
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-background px-4 pb-6 pt-4 sm:px-6 lg:px-8">
-      <div className="mx-auto flex w-full max-w-xl flex-1 flex-col">
-        <OnboardingHeader
-          title={evaluation.name}
-          step={step}
-          total={total}
-          onBack={back}
-        />
-
-        <ProgressSegments total={total} current={step} />
-
-        <div className="mt-8 w-full sm:mt-10">
-          <QuestionCard
-            question={question}
-            selected={selected}
-            showResult={hasSelected && questionHasCorrectOptions}
-            answerIsCorrect={currentAnswerIsCorrect}
-            onToggle={toggle}
-          />
-        </div>
-
-        <div className="mt-auto w-full pt-8">
-          <button
-            type="button"
-            onClick={next}
-            disabled={!canContinue}
-            className="w-full rounded-2xl bg-primary px-6 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
-          >
-            {saving ? "Guardando..." : isLast ? "Terminar" : "Continuar"}
-          </button>
-        </div>
-      </div>
-    </main>
+    <FinBloque
+      insignias={NIVELES.map((n) => n.insignia)}
+      xp={XP_FIN_BLOQUE_2}
+      competencias={COMPETENCIAS_BLOQUE_2}
+      onNext={finishModule}
+    />
   );
-}
-
-function toggleInList(list: number[], value: number): number[] {
-  if (list.includes(value)) {
-    return list.filter((item) => item !== value);
-  }
-
-  return [...list, value];
 }

@@ -56,27 +56,35 @@ export const course: Section[] = [
         activities: [
           {
             id: "s1-u1-a1",
-            title: "¿Qué es un emprendedor?",
+            title: "Descubro qué es emprender",
             description:
-              "Responde unas preguntas rápidas para conocerte y personalizar tu camino.",
+              "Reconoce qué significa emprender y quién es un emprendedor.",
             kind: "lesson",
             status: "completed",
             route: "/modules01_06_complete/module01",
           },
           {
             id: "s1-u1-a2",
-            title: "Historias que inspiran",
+            title: "Comprendo por qué emprender",
             description:
-              "Conoce a niños y niñas que convirtieron sus ideas en negocios reales.",
+              "Descubre por qué las personas emprenden y cómo ayudan a los demás.",
             kind: "story",
             status: "current",
           },
           {
             id: "s1-u1-a3",
-            title: "Mi chispa emprendedora",
+            title: "Aplico mis ideas",
             description:
-              "Descubre qué habilidades emprendedoras ya tienes dentro de ti.",
-            kind: "challenge",
+              "Aplica el concepto de emprendimiento a situaciones cotidianas.",
+            kind: "practice",
+            status: "locked",
+          },
+          {
+            id: "s1-u1-a4",
+            title: "Pienso como emprendedor",
+            description:
+              "Toma decisiones como un pequeño emprendedor.",
+            kind: "boss",
             status: "locked",
           },
         ],
@@ -98,26 +106,34 @@ export const course: Section[] = [
         activities: [
           {
             id: "s2-u1-a1",
-            title: "Lluvia de ideas",
+            title: "Descubro mi idea de negocio",
             description:
-              "Genera muchas ideas divertidas sin miedo a equivocarte. ¡Aquí todo vale!",
+              "Comprende qué es una idea de negocio y cómo nace.",
             kind: "lesson",
             status: "locked",
           },
           {
             id: "s2-u1-a2",
-            title: "Elige tu mejor idea",
+            title: "Comprendo mi idea",
             description:
-              "Aprende a escoger la idea con más potencial para tu negocio.",
+              "Identifica si tu idea puede convertirse en un producto o en un servicio.",
             kind: "practice",
             status: "locked",
           },
           {
             id: "s2-u1-a3",
-            title: "Dibuja tu idea",
+            title: "Aplico mi idea",
             description:
-              "Convierte tu idea en un dibujo que cualquiera pueda entender.",
+              "Selecciona la mejor idea de negocio analizando diferentes opciones.",
             kind: "challenge",
+            status: "locked",
+          },
+          {
+            id: "s2-u1-a4",
+            title: "Creo mi idea de negocio",
+            description:
+              "Elige tu propia idea de negocio y justifica por qué puede funcionar.",
+            kind: "boss",
             status: "locked",
           },
         ],
@@ -140,27 +156,43 @@ export const course: Section[] = [
         activities: [
           {
             id: "s3-u1-a1",
-            title: "¿Qué es un cliente?",
+            title: "Descubro a mi cliente",
             description:
-              "Descubre quiénes son los clientes y por qué son tan importantes.",
+              "Comprende qué es un cliente y por qué es importante para un negocio.",
             kind: "lesson",
             status: "locked",
             route: "/modules01_06_complete/module03",
           },
           {
             id: "s3-u1-a2",
-            title: "Detective de clientes",
+            title: "Comprendo mi mercado meta",
             description:
-              "Investiga qué necesitan y qué les gusta a tus futuros clientes.",
-            kind: "practice",
+              "Comprende qué es el mercado meta y diferéncialo del público en general.",
+            kind: "lesson",
             status: "locked",
           },
           {
             id: "s3-u1-a3",
-            title: "Elige tu cliente ideal",
+            title: "Aplico lo que sé de mi cliente",
             description:
-              "Aplica lo aprendido: elige quién será el cliente principal de tu propio negocio.",
+              "Relaciona diferentes productos con el mercado meta adecuado.",
+            kind: "practice",
+            status: "locked",
+          },
+          {
+            id: "s3-u1-a4",
+            title: "Pienso como mi cliente",
+            description:
+              "Toma decisiones considerando las necesidades de tu cliente.",
             kind: "challenge",
+            status: "locked",
+          },
+          {
+            id: "s3-u1-a5",
+            title: "Conoce a tu cliente ideal",
+            description:
+              "El reto final: define quién, dónde y por qué es tu cliente ideal.",
+            kind: "boss",
             status: "locked",
           },
         ],
@@ -182,27 +214,43 @@ export const course: Section[] = [
         activities: [
           {
             id: "s4-u1-a1",
-            title: "Nombre de mi negocio",
+            title: "El nombre de mi negocio",
             description:
-              "Inventa un nombre pegajoso para tu negocio.",
+              "Comprende la importancia de elegir un nombre atractivo y fácil de recordar.",
             kind: "lesson",
             status: "locked",
-            route: "/modules01_06_complete/module04", 
+            route: "/modules01_06_complete/module04",
           },
           {
             id: "s4-u1-a2",
-            title: "Los colores de mi marca",
+            title: "El logotipo y los colores",
             description:
-              "Elige los colores que muestren la personalidad de tu negocio.",
+              "Reconoce la importancia del logotipo y los colores para identificar un negocio.",
             kind: "practice",
             status: "locked",
           },
           {
             id: "s4-u1-a3",
-            title: "Mi logo y vista previa",
+            title: "El eslogan",
             description:
-              "Crea el logo de tu negocio y descubre cómo se ve todo junto.",
+              "Comprende qué es un eslogan y cómo ayuda a comunicar una idea.",
+            kind: "lesson",
+            status: "locked",
+          },
+          {
+            id: "s4-u1-a4",
+            title: "Creo la identidad de mi negocio",
+            description:
+              "Integra el nombre, logotipo, colores y eslogan para construir tu marca.",
             kind: "challenge",
+            status: "locked",
+          },
+          {
+            id: "s4-u1-a5",
+            title: "Crea la identidad de tu negocio",
+            description:
+              "El reto final: arma tu logo y descubre cómo se ve tu marca completa.",
+            kind: "boss",
             status: "locked",
           },
         ],
@@ -212,39 +260,55 @@ export const course: Section[] = [
   {
     id: "s5",
     number: 5,
-    title: "¿Cuánto vale mi esfuerzo?",
+    title: "Decorando mi emprendimiento",
     status: "locked",
     robot: "/robot.json",
     units: [
       {
         id: "s5-u1",
         number: 1,
-        title: "¿Cuánto vale mi esfuerzo?",
-        subtitle: "Precios, costos y ganancias",
+        title: "Decorando mi emprendimiento",
+        subtitle: "El empaque de tu producto",
         activities: [
           {
             id: "s5-u1-a1",
-            title: "Costos y precios",
+            title: "¿Qué es un empaque?",
             description:
-              "Descubre cuánto cuesta crear tu producto y cuánto deberías cobrar.",
+              "Comprende qué es un empaque y por qué es importante para un producto.",
             kind: "lesson",
             status: "locked",
             route: "/modules01_06_complete/module05",
           },
           {
             id: "s5-u1-a2",
-            title: "Calcula tu ganancia",
+            title: "Diseño mi empaque",
             description:
-              "Aprende a calcular cuánto ganas con ejemplos muy sencillos.",
+              "Reconoce las características de un empaque atractivo y funcional.",
             kind: "practice",
             status: "locked",
           },
           {
             id: "s5-u1-a3",
-            title: "Ponle un precio justo",
+            title: "Empaques responsables con el planeta",
             description:
-              "Decide el precio de tu producto valorando tu tiempo y esfuerzo.",
+              "Comprende la importancia de utilizar materiales amigables con el medio ambiente.",
+            kind: "practice",
+            status: "locked",
+          },
+          {
+            id: "s5-u1-a4",
+            title: "Creo el empaque de mi producto",
+            description:
+              "Diseña un empaque que represente el negocio y satisfaga las necesidades del cliente.",
             kind: "challenge",
+            status: "locked",
+          },
+          {
+            id: "s5-u1-a5",
+            title: "Diseña el empaque de tu producto",
+            description:
+              "El reto final: elige color, material y elementos para el empaque de tu propio negocio.",
+            kind: "boss",
             status: "locked",
           },
         ],
@@ -254,39 +318,113 @@ export const course: Section[] = [
   {
     id: "s6",
     number: 6,
-    title: "¡A vender!",
+    title: "¿Cuánto vale mi esfuerzo?",
     status: "locked",
-    robot: "/live-chatbot.json",
-    robotSize: { base: 170, md: 240 },
+    robot: "/robot.json",
     units: [
       {
         id: "s6-u1",
         number: 1,
-        title: "¡A vender!",
-        subtitle: "Llegó el gran momento",
+        title: "¿Cuánto vale mi esfuerzo?",
+        subtitle: "Precios, costos y ganancias",
         activities: [
           {
             id: "s6-u1-a1",
-            title: "Mi discurso de venta",
+            title: "¿Qué es el costo?",
             description:
-              "Prepara qué vas a decir para convencer a tus primeros clientes.",
+              "Comprende qué es un costo y reconoce los materiales necesarios para elaborar un producto.",
             kind: "lesson",
             status: "locked",
             route: "/modules01_06_complete/module06",
           },
           {
             id: "s6-u1-a2",
-            title: "Ensaya tu venta",
+            title: "¿Qué es el precio?",
             description:
-              "Practica cómo presentar tu producto con confianza y alegría.",
+              "Comprende qué es el precio y cómo se establece.",
             kind: "practice",
             status: "locked",
           },
           {
             id: "s6-u1-a3",
-            title: "¡Gran día de ventas!",
+            title: "¿Qué es la ganancia?",
             description:
-              "Demuestra todo lo aprendido y realiza tu primera venta.",
+              "Comprende que la ganancia es el dinero que queda después de recuperar el costo.",
+            kind: "practice",
+            status: "locked",
+          },
+          {
+            id: "s6-u1-a4",
+            title: "Tomo decisiones como emprendedor",
+            description:
+              "Aplica los conceptos de costo, precio y ganancia para tomar decisiones sencillas.",
+            kind: "challenge",
+            status: "locked",
+          },
+          {
+            id: "s6-u1-a5",
+            title: "Calculo el precio de mi producto",
+            description:
+              "Calcula cuánto cuesta, cuánto venderás y cuánto ganarás con tu propio negocio.",
+            kind: "boss",
+            status: "locked",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "s7",
+    number: 7,
+    title: "¡A vender!",
+    status: "locked",
+    robot: "/live-chatbot.json",
+    robotSize: { base: 170, md: 240 },
+    units: [
+      {
+        id: "s7-u1",
+        number: 1,
+        title: "¡A vender!",
+        subtitle: "Llegó el gran momento",
+        activities: [
+          {
+            id: "s7-u1-a1",
+            title: "¿Qué es un pitch de ventas?",
+            description:
+              "Comprende qué es un pitch y por qué es importante al presentar un negocio.",
+            kind: "lesson",
+            status: "locked",
+            route: "/modules01_06_complete/module07",
+          },
+          {
+            id: "s7-u1-a2",
+            title: "Comunico mi emprendimiento",
+            description:
+              "Reconoce las características de una buena presentación de ventas.",
+            kind: "practice",
+            status: "locked",
+          },
+          {
+            id: "s7-u1-a3",
+            title: "Tu turno de vender",
+            description:
+              "Aplica lo aprendido para identificar la mejor manera de vender un producto.",
+            kind: "practice",
+            status: "locked",
+          },
+          {
+            id: "s7-u1-a4",
+            title: "Soy un emprendedor",
+            description:
+              "Integra todo lo aprendido para tomar decisiones como un verdadero emprendedor.",
+            kind: "challenge",
+            status: "locked",
+          },
+          {
+            id: "s7-u1-a5",
+            title: "Presenta tu emprendimiento",
+            description:
+              "El gran reto final: arma el resumen de tu negocio y tu pitch de ventas.",
             kind: "boss",
             status: "locked",
           },
