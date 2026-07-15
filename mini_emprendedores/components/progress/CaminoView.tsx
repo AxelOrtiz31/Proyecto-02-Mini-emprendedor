@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { TopBar } from "./TopBar";
 import { SectionSidebar } from "./SectionSidebar";
 import { SectionChips } from "./SectionChips";
@@ -10,6 +11,7 @@ import { MascotPanel } from "./MascotPanel";
 import { deriveCourse, fetchCompletedCodes, xpForCompleted } from "@/lib/progress";
 
 export function CaminoView() {
+  const router = useRouter();
   const [completedIds, setCompletedIds] = useState<string[] | null>(null);
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
@@ -117,6 +119,10 @@ export function CaminoView() {
   }, [sections]);
 
 
+  function handleStartFinalExam() {
+    router.push("/evaluation");
+  }
+
   function handleSelectSection(id: string) {
     setActiveSectionId(id);
     scrollingTo.current = id;
@@ -153,7 +159,9 @@ export function CaminoView() {
           <SectionChips
             sections={sections}
             activeSectionId={activeSection.id}
+            finalExamUnlocked={courseComplete}
             onSelect={handleSelectSection}
+            onStartFinalExam={handleStartFinalExam}
           />
         </div>
       </div>
@@ -162,7 +170,9 @@ export function CaminoView() {
         <SectionSidebar
           sections={sections}
           activeSectionId={activeSection.id}
+          finalExamUnlocked={courseComplete}
           onSelect={handleSelectSection}
+          onStartFinalExam={handleStartFinalExam}
         />
 
         <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">

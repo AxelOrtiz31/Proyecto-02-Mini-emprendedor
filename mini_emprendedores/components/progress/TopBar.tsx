@@ -9,6 +9,9 @@ import Link from "next/link";
 import { User, Trophy, MessageCircle } from "lucide-react";
 import { ChatModal } from "@/components/IA_Bot/ChatModal";
 
+import { speechTexts } from "@/audio/SpeechTexts";
+import { SpeakButton } from "@/components/SpeakButtonController";
+
 interface TopBarProps {
   streak: number;
   ideas: number;
@@ -71,9 +74,9 @@ export function TopBar({ streak, ideas, xp }: TopBarProps) {
             <User className="h-5 w-5" />
           </Link>
           <Link
-            href="/evaluation"
+            href="/achievements"
             className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            title="Examen final"
+            title="Logros"
           >
             <Trophy className="h-5 w-5" />
           </Link>
@@ -85,6 +88,7 @@ export function TopBar({ streak, ideas, xp }: TopBarProps) {
           >
             <MessageCircle className="h-5 w-5" />
           </button>
+          <SpeakButton text={speechTexts.dashboard} />
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
