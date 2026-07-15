@@ -9,10 +9,12 @@ import { UnitBanner } from "./UnitBanner";
 import { CoursePath } from "./CoursePath";
 import { MascotPanel } from "./MascotPanel";
 import { deriveCourse, fetchCompletedCodes, xpForCompleted } from "@/lib/progress";
+import { fetchStreakData } from "@/lib/streak";
 
 export function CaminoView() {
   const router = useRouter();
   const [completedIds, setCompletedIds] = useState<string[] | null>(null);
+  const [streak, setStreak] = useState(0);
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const scrollingTo = useRef<string | null>(null);
@@ -23,11 +25,15 @@ export function CaminoView() {
 
     async function loadProgress() {
       try {
-        const codes = await fetchCompletedCodes();
+        const [codes, streakData] = await Promise.all([
+          fetchCompletedCodes(),
+          fetchStreakData(),
+        ]);
 
         if (!active) return;
 
         setCompletedIds(codes);
+        setStreak(streakData.streak);
       } catch (error) {
         console.error("Error cargando progreso:", error);
 
@@ -152,7 +158,7 @@ export function CaminoView() {
 
   return (
     <div className="min-h-screen overflow-x-clip bg-background">
-      <TopBar streak={12} ideas={500} xp={xp} />
+      <TopBar streak={streak} ideas={500} xp={xp} />
 
       <div className="sticky top-16 z-30 bg-background/90 backdrop-blur lg:hidden">
         <div className="mx-auto max-w-7xl">
@@ -200,6 +206,7 @@ export function CaminoView() {
             currentSection={currentSection}
             nextSection={nextSection}
             courseComplete={courseComplete}
+            streak={streak}
           />
         </main>
 
@@ -208,6 +215,7 @@ export function CaminoView() {
           currentSection={currentSection}
           nextSection={nextSection}
           courseComplete={courseComplete}
+          streak={streak}
         />
       </div>
     </div>

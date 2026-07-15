@@ -1,7 +1,34 @@
-import React from 'react';
+'use client';
+
+import { useEffect, useState } from 'react';
 import styles from './PerfilPage.module.css';
+import { StreakWeekPanel } from './StreakWeekPanel';
+import { StreakBadgeCard } from './StreakBadgeCard';
+import { EMPTY_WEEK, fetchStreakData } from '@/lib/streak';
 
 export default function PerfilPage() {
+  const [streak, setStreak] = useState(0);
+  const [weekActivity, setWeekActivity] = useState<boolean[]>(EMPTY_WEEK);
+
+  useEffect(() => {
+    let active = true;
+
+    fetchStreakData()
+      .then((data) => {
+        if (!active) return;
+
+        setStreak(data.streak);
+        setWeekActivity(data.weekActivity);
+      })
+      .catch((error) => {
+        console.error('Error cargando racha:', error);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div className={styles.root}>
       {/* Capa del patrón de puntos */}
@@ -27,33 +54,7 @@ export default function PerfilPage() {
         </div>
 
         {/* PANEL DE RACHAS */}
-        <div className={styles.card}>
-          <h3 className={styles.subtitulo}>📅 Racha esta semana — 3 días 🔥</h3>
-          <div className={styles.gridDias}>
-            {[
-              { dia: 'L', activo: true },
-              { dia: 'M', activo: true },
-              { dia: 'M', activo: true },
-              { dia: 'J', activo: false },
-              { dia: 'V', activo: false },
-              { dia: 'S', activo: false },
-              { dia: 'D', activo: false },
-            ].map((item, idx) => (
-              <div key={idx} className="flex flex-col items-center gap-1.5">
-                <span className="text-gray-400 font-bold text-xs">{item.dia}</span>
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-base transition-all ${
-                    item.activo
-                      ? 'bg-[#fcd34d] text-white shadow-sm ring-4 ring-[#fef3c7]'
-                      : 'bg-[#f3f4f6] text-gray-300'
-                  }`}
-                >
-                  {item.activo ? '⭐' : ''}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <StreakWeekPanel streak={streak} weekActivity={weekActivity} />
 
         {/* SECCIÓN SUPERPODERES */}
         <div className="mb-6">
@@ -82,14 +83,7 @@ export default function PerfilPage() {
               </div>
             </div>
 
-            <div className={styles.card}>
-              <div className="flex flex-col items-center text-center justify-between min-h-[160px] h-full">
-                <span className="text-4xl mb-1">🔥</span>
-                <h4 className="font-bold text-[#1e1465] text-sm">Racha de 3 días</h4>
-                <p className="text-gray-400 text-xs px-1 mb-2">3 días seguidos</p>
-                <button className={styles.submitBtn}>Obtenida ✓</button>
-              </div>
-            </div>
+            <StreakBadgeCard streak={streak} />
 
             <div className={styles.card}>
               <div className="flex flex-col items-center text-center justify-between min-h-[160px] h-full opacity-50">
