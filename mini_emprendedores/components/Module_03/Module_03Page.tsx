@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { saveMiNegocio } from "@/lib/negocio";
-import { guardarPasoLeccion, leerPasoLeccion, borrarPasoLeccion } from "@/lib/lessonProgress";
+import { guardarPasoLeccion, leerPasoLeccion, borrarPasoLeccion, segundosDesde } from "@/lib/lessonProgress";
 import { SalirLeccion } from "@/components/shared/SalirLeccion";
 import { Reto } from "./steps/Reto";
 import { NivelTeach } from "./steps/NivelTeach";
@@ -42,6 +42,7 @@ export default function Module03Page({
   const inicio = initialStateFor(lessonId);
   const [fase, setFaseState] = useState<Fase>(inicio.fase);
   const [nivelIndex] = useState(inicio.index);
+  const [horaInicio] = useState(() => Date.now());
 
   useEffect(() => {
     const guardada = leerPasoLeccion(lessonId);
@@ -56,10 +57,15 @@ export default function Module03Page({
     setFaseState(nuevaFase);
   }
 
-  function terminarLeccion(code: string, insignia?: string) {
+  function terminarLeccion(code: string, insignia?: string, intentos?: number, xpBonus?: number) {
     borrarPasoLeccion(lessonId);
-    const params = new URLSearchParams({ lesson: code });
+    const params = new URLSearchParams({
+      lesson: code,
+      tiempo: String(segundosDesde(horaInicio)),
+      intentos: String(intentos ?? 1),
+    });
     if (insignia) params.set("insignia", insignia);
+    if (xpBonus) params.set("xpBonus", String(xpBonus));
     router.push(`/modules01_06_complete/modulecomplete?${params.toString()}`);
   }
 
@@ -86,7 +92,7 @@ export default function Module03Page({
         <CheckCorto
           lessonId={nivel.codigo}
           moduleNumber={MODULE_NUMBER}
-          onPass={async () => terminarLeccion(nivel.codigo, nivel.insignia)}
+          onPass={(intentos) => terminarLeccion(nivel.codigo, nivel.insignia, intentos)}
         />
       )}
 
@@ -118,7 +124,7 @@ export default function Module03Page({
           insignias={NIVELES.map((n) => n.insignia)}
           xp={XP_FIN_BLOQUE_3}
           competencias={COMPETENCIAS_BLOQUE_3}
-          onNext={() => terminarLeccion(CODIGO_RETO_FINAL)}
+          onNext={() => terminarLeccion(CODIGO_RETO_FINAL, undefined, undefined, XP_FIN_BLOQUE_3)}
         />
       )}
     </>

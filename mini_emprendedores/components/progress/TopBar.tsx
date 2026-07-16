@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Flame, Lightbulb, Star, LogOut } from "lucide-react";
+import { Flame, Star, Zap, LogOut } from "lucide-react";
 import { StatPill } from "./StatPill";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
@@ -14,11 +14,11 @@ import { SpeakButton } from "@/controllers/SpeakButtonController";
 
 interface TopBarProps {
   streak: number;
-  ideas: number;
+  estrellas: number;
   xp: number;
 }
 
-export function TopBar({ streak, ideas, xp }: TopBarProps) {
+export function TopBar({ streak, estrellas, xp }: TopBarProps) {
   const router = useRouter();
   const [cerrando, setCerrando] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
@@ -59,8 +59,8 @@ export function TopBar({ streak, ideas, xp }: TopBarProps) {
 
         <div className="flex items-center gap-1.5 sm:gap-3">
           <StatPill icon={Flame} value={streak} label="Racha" tone="primary" />
-          <StatPill icon={Lightbulb} value={ideas} label="Ideas" tone="accent" />
-          <StatPill icon={Star} value={xp} label="XP" tone="info" />
+          <StatPill icon={Star} value={estrellas} label="Estrellas" tone="accent" />
+          <StatPill icon={Zap} value={xp} label="XP" tone="info" />
         </div>
 
         {/* Acciones */}
@@ -76,7 +76,7 @@ export function TopBar({ streak, ideas, xp }: TopBarProps) {
           <Link
             href="/achievements"
             className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            title="Examen Final"
+            title="Logros"
           >
             <Trophy className="h-5 w-5" />
           </Link>

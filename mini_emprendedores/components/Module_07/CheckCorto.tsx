@@ -8,7 +8,7 @@ import { playSfx } from "@/audio/AudioManager";
 interface CheckCortoProps {
   lessonId: string;
   moduleNumber: number;
-  onPass: () => void;
+  onPass: (intentos: number) => void;
 }
 
 // Evaluación de cierre de lección: el alumno responde TODAS las preguntas,
@@ -42,7 +42,7 @@ export function CheckCorto({ lessonId, moduleNumber, onPass }: CheckCortoProps) 
         <button
           type="button"
           onClick={() => {
-            onPass();
+            onPass(1);
             playSfx("click");
           }}
           className="rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
@@ -90,12 +90,12 @@ export function CheckCorto({ lessonId, moduleNumber, onPass }: CheckCortoProps) 
     if (!todasRespondidas || enviando) return;
     setEnviando(true);
 
-    const aprobado = await submit();
+    const { aprobado, intentos } = await submit();
 
     setEnviando(false);
 
     if (aprobado) {
-      onPass();
+      onPass(intentos);
     } else {
       setFallo(true);
     }

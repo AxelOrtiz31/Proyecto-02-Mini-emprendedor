@@ -43,3 +43,9 @@ export function borrarPasoLeccion(lessonId: string): void {
     // no-op
   }
 }
+
+// Segundos transcurridos desde que se montó la lección (Date.now() al
+// iniciar). Se usa para guardar cuánto tardó el alumno en completarla.
+export function segundosDesde(inicioMs: number): number {
+  return Math.max(0, Math.round((Date.now() - inicioMs) / 1000));
+}
