@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { User, Trophy, MessageCircle } from "lucide-react";
 import { ChatModal } from "@/components/IA_Bot/ChatModal";
+import { StreakModal } from "@/components/streak/StreakModal";
 
 import { speechTexts } from "@/audio/SpeechTexts";
 import { SpeakButton } from "@/controllers/SpeakButtonController";
@@ -16,12 +17,15 @@ interface TopBarProps {
   streak: number;
   ideas: number;
   xp: number;
+  // Fechas de las lecciones completadas, para el calendario del modal de racha.
+  timestamps: string[];
 }
 
-export function TopBar({ streak, ideas, xp }: TopBarProps) {
+export function TopBar({ streak, ideas, xp, timestamps }: TopBarProps) {
   const router = useRouter();
   const [cerrando, setCerrando] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [streakOpen, setStreakOpen] = useState(false);
 
   async function handleCerrarSesion() {
     setCerrando(true);
@@ -58,7 +62,14 @@ export function TopBar({ streak, ideas, xp }: TopBarProps) {
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-3">
-          <StatPill icon={Flame} value={streak} label="Racha" tone="primary" />
+          <StatPill
+            icon={Flame}
+            value={streak}
+            label="Racha"
+            tone="primary"
+            onClick={() => setStreakOpen(true)}
+            title="Ver tu racha"
+          />
           <StatPill icon={Lightbulb} value={ideas} label="Ideas" tone="accent" />
           <StatPill icon={Star} value={xp} label="XP" tone="info" />
         </div>
@@ -110,7 +121,16 @@ export function TopBar({ streak, ideas, xp }: TopBarProps) {
         </div>
       </div>
     </header>
+    {/* Los modales van fuera del header: su backdrop-blur recortaría cualquier
+        position: fixed anidado a la franja de la barra. */}
     <ChatModal open={chatOpen} onClose={() => setChatOpen(false)} />
+    {streakOpen && (
+      <StreakModal
+        streak={streak}
+        timestamps={timestamps}
+        onClose={() => setStreakOpen(false)}
+      />
+    )}
     </>
   );
 }
