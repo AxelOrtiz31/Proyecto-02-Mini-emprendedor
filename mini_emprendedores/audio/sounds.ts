@@ -5,7 +5,7 @@ export const bgm = {
   home: new Howl({
     src: ["/audio/home.mp3"],
     loop: true,
-    volume: 0.01,
+    volume: 0.005,
   }),
 
   dashboard: new Howl({
