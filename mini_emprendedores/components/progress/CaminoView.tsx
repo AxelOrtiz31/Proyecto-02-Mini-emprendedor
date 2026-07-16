@@ -8,14 +8,13 @@ import { SectionChips } from "./SectionChips";
 import { UnitBanner } from "./UnitBanner";
 import { CoursePath } from "./CoursePath";
 import { MascotPanel } from "./MascotPanel";
-import { deriveCourse, fetchCompletedCodes, fetchXpTotal, estrellasForCompleted } from "@/lib/progress";
+import { deriveCourse, fetchCompletedCodes, xpForCompleted } from "@/lib/progress";
 import { fetchStreakData } from "@/lib/streak";
 
 export function CaminoView() {
   const router = useRouter();
   const [completedIds, setCompletedIds] = useState<string[] | null>(null);
   const [streak, setStreak] = useState(0);
-  const [xp, setXp] = useState(0);
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const scrollingTo = useRef<string | null>(null);
@@ -26,17 +25,15 @@ export function CaminoView() {
 
     async function loadProgress() {
       try {
-        const [codes, streakData, xpTotal] = await Promise.all([
+        const [codes, streakData] = await Promise.all([
           fetchCompletedCodes(),
           fetchStreakData(),
-          fetchXpTotal(),
         ]);
 
         if (!active) return;
 
         setCompletedIds(codes);
         setStreak(streakData.streak);
-        setXp(xpTotal);
       } catch (error) {
         console.error("Error cargando progreso:", error);
 
@@ -81,10 +78,10 @@ export function CaminoView() {
     return all.find((activity) => activity.status === "current")?.id ?? all[all.length - 1]?.id ?? null;
   }, [sections]);
 
-  const estrellas = useMemo(() => {
+  const xp = useMemo(() => {
     if (!completedIds) return 0;
 
-    return estrellasForCompleted(completedIds);
+    return xpForCompleted(completedIds);
   }, [completedIds]);
 
   useEffect(() => {
@@ -161,7 +158,7 @@ export function CaminoView() {
 
   return (
     <div className="min-h-screen overflow-x-clip bg-background">
-      <TopBar streak={streak} estrellas={estrellas} xp={xp} />
+      <TopBar streak={streak} ideas={500} xp={xp} />
 
       <div className="sticky top-16 z-30 bg-background/90 backdrop-blur lg:hidden">
         <div className="mx-auto max-w-7xl">

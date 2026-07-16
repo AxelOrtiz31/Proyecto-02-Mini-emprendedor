@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { LottiePlayer } from "./LottiePlayer";
 import { StatCard } from "./StatCard";
 import type { LessonStat } from "./types";
@@ -10,10 +9,9 @@ interface StatsPanelProps {
   claimLabel: string;
   onClaim: () => void;
   mascotSrc: string;
-  extra?: ReactNode;
 }
 
-export function StatsPanel({ heading, subtitle, stats, claimLabel, onClaim, mascotSrc, extra }: StatsPanelProps) {
+export function StatsPanel({ heading, subtitle, stats, claimLabel, onClaim, mascotSrc }: StatsPanelProps) {
   return (
     <section className="relative z-20 mx-auto flex min-h-screen w-full max-w-md animate-fade-in-up flex-col items-center justify-center gap-4 px-6 py-10">
       <div className="h-52 w-52 animate-mascot sm:h-60 sm:w-60">
@@ -25,8 +23,6 @@ export function StatsPanel({ heading, subtitle, stats, claimLabel, onClaim, masc
       <p className="text-center text-sm font-semibold text-muted-foreground sm:text-base">
         {subtitle}
       </p>
-
-      {extra}
 
       <div className="mt-2 grid w-full grid-cols-3 gap-2 sm:gap-3">
         {stats.map((stat, index) => (
