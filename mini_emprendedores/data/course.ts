@@ -395,6 +395,7 @@ export const course: Section[] = [
             kind: "lesson",
             status: "locked",
             route: "/modules01_06_complete/module07",
+            
           },
           {
             id: "s7-u1-a2",
