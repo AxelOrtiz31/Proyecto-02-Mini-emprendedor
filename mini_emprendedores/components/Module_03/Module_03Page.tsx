@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { saveCompletedLesson } from "@/lib/progress";
 import { saveMiNegocio } from "@/lib/negocio";
+import { guardarPasoLeccion, leerPasoLeccion, borrarPasoLeccion } from "@/lib/lessonProgress";
+import { SalirLeccion } from "@/components/shared/SalirLeccion";
 import { Reto } from "./steps/Reto";
 import { NivelTeach } from "./steps/NivelTeach";
 import { DetectiveJuego } from "./steps/DetectiveJuego";
@@ -18,6 +19,7 @@ const CODIGO_RETO_FINAL = "s3-u1-a5";
 const INDICE_NIVEL_PRACTICA = 2; // Nivel 11: incluye el juego de emparejar
 
 type Fase = "reto" | "nivel_teach" | "detective" | "nivel_check" | "reto_final" | "fin_bloque";
+const FASES_VALIDAS: Fase[] = ["reto", "nivel_teach", "detective", "nivel_check", "reto_final", "fin_bloque"];
 
 function initialStateFor(lessonId: string): { fase: Fase; index: number } {
   if (lessonId === CODIGO_RETO_FINAL) {
@@ -26,7 +28,7 @@ function initialStateFor(lessonId: string): { fase: Fase; index: number } {
 
   const i = NIVELES.findIndex((n) => n.codigo === lessonId);
   if (i === -1) return { fase: "reto", index: 0 };
-  return { fase: "nivel_teach", index: i };
+  return { fase: i === 0 ? "reto" : "nivel_teach", index: i };
 }
 
 interface Module03PageProps {
@@ -38,94 +40,87 @@ export default function Module03Page({
 }: Module03PageProps) {
   const router = useRouter();
   const inicio = initialStateFor(lessonId);
-  const [fase, setFase] = useState<Fase>(inicio.fase);
-  const [nivelIndex, setNivelIndex] = useState(inicio.index);
+  const [fase, setFaseState] = useState<Fase>(inicio.fase);
+  const [nivelIndex] = useState(inicio.index);
 
-  async function markDone(code: string) {
-    try {
-      await saveCompletedLesson(code);
-    } catch (error) {
-      console.error("No se pudo guardar el avance:", error);
+  useEffect(() => {
+    const guardada = leerPasoLeccion(lessonId);
+    if (guardada && FASES_VALIDAS.includes(guardada as Fase)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFaseState(guardada as Fase);
     }
+  }, [lessonId]);
+
+  function irA(nuevaFase: Fase) {
+    guardarPasoLeccion(lessonId, nuevaFase);
+    setFaseState(nuevaFase);
   }
 
-  function finishModule() {
-    router.push(`/modules01_06_complete/modulecomplete?lesson=${CODIGO_RETO_FINAL}`);
-  }
-
-  if (fase === "reto") {
-    return <Reto onNext={() => setFase("nivel_teach")} />;
+  function terminarLeccion(code: string, insignia?: string) {
+    borrarPasoLeccion(lessonId);
+    const params = new URLSearchParams({ lesson: code });
+    if (insignia) params.set("insignia", insignia);
+    router.push(`/modules01_06_complete/modulecomplete?${params.toString()}`);
   }
 
   const nivel = NIVELES[nivelIndex];
-  const esUltimoNivel = nivelIndex === NIVELES.length - 1;
   const esNivelPractica = nivelIndex === INDICE_NIVEL_PRACTICA;
 
-  if (fase === "nivel_teach") {
-    return (
-      <NivelTeach
-        nivel={nivel}
-        totalNiveles={NIVELES.length}
-        onNext={() => setFase(esNivelPractica ? "detective" : "nivel_check")}
-      />
-    );
-  }
-
-  if (fase === "detective") {
-    return <DetectiveJuego onDone={() => setFase("nivel_check")} />;
-  }
-
-  if (fase === "nivel_check") {
-    return (
-      <CheckCorto
-        lessonId={nivel.codigo}
-        moduleNumber={MODULE_NUMBER}
-        onPass={async () => {
-          await markDone(nivel.codigo);
-
-          if (esUltimoNivel) {
-            setFase("reto_final");
-            return;
-          }
-
-          setNivelIndex(nivelIndex + 1);
-          setFase("nivel_teach");
-        }}
-      />
-    );
-  }
-
-  if (fase === "reto_final") {
-    return (
-      <RetoFinal
-        onSaved={async ({ persona, necesita, lugares }: {
-          persona: ClientePersona;
-          necesita: string;
-          lugares: string;
-        }) => {
-          try {
-            await saveMiNegocio({
-              clienteId: persona.id,
-              clienteNombre: persona.nombre,
-              clienteEmoji: persona.emoji,
-              clienteNecesita: necesita,
-              clienteDondeEncontrar: lugares,
-            });
-          } catch (error) {
-            console.error("No se pudo guardar tu cliente:", error);
-          }
-          setFase("fin_bloque");
-        }}
-      />
-    );
-  }
-
   return (
-    <FinBloque
-      insignias={NIVELES.map((n) => n.insignia)}
-      xp={XP_FIN_BLOQUE_3}
-      competencias={COMPETENCIAS_BLOQUE_3}
-      onNext={finishModule}
-    />
+    <>
+      <SalirLeccion />
+
+      {fase === "reto" && <Reto onNext={() => irA("nivel_teach")} />}
+
+      {fase === "nivel_teach" && (
+        <NivelTeach
+          nivel={nivel}
+          totalNiveles={NIVELES.length}
+          onNext={() => irA(esNivelPractica ? "detective" : "nivel_check")}
+        />
+      )}
+
+      {fase === "detective" && <DetectiveJuego onDone={() => irA("nivel_check")} />}
+
+      {fase === "nivel_check" && (
+        <CheckCorto
+          lessonId={nivel.codigo}
+          moduleNumber={MODULE_NUMBER}
+          onPass={async () => terminarLeccion(nivel.codigo, nivel.insignia)}
+        />
+      )}
+
+      {fase === "reto_final" && (
+        <RetoFinal
+          onSaved={async ({ persona, necesita, lugares }: {
+            persona: ClientePersona;
+            necesita: string;
+            lugares: string;
+          }) => {
+            try {
+              await saveMiNegocio({
+                clienteId: persona.id,
+                clienteNombre: persona.nombre,
+                clienteEmoji: persona.emoji,
+                clienteNecesita: necesita,
+                clienteDondeEncontrar: lugares,
+              });
+            } catch (error) {
+              console.error("No se pudo guardar tu cliente:", error);
+            }
+            irA("fin_bloque");
+          }}
+        />
+      )}
+
+      {fase === "fin_bloque" && (
+        <FinBloque
+          insignias={NIVELES.map((n) => n.insignia)}
+          xp={XP_FIN_BLOQUE_3}
+          competencias={COMPETENCIAS_BLOQUE_3}
+          onNext={() => terminarLeccion(CODIGO_RETO_FINAL)}
+        />
+      )}
+    </>
   );
 }

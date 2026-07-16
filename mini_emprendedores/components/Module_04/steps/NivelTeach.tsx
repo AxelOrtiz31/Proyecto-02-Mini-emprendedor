@@ -34,7 +34,7 @@ export function NivelTeach({ nivel, totalNiveles, onNext }: NivelTeachProps) {
       </h1>
 
       <p className="max-w-sm rounded-2xl border-2 border-border bg-card px-5 py-4 text-sm font-bold text-foreground shadow-(--shadow-card) sm:text-base">
-        🤖 <span className="text-primary">EmprenBot dice:</span> &ldquo;
+        🤖 <span className="text-primary">Mentorix dice:</span> &ldquo;
         {nivel.emprenbot}&rdquo;
       </p>
 

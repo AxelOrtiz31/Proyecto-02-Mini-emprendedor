@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { saveCompletedLesson } from "@/lib/progress";
 import { saveMiNegocio } from "@/lib/negocio";
+import { guardarPasoLeccion, leerPasoLeccion, borrarPasoLeccion } from "@/lib/lessonProgress";
+import { SalirLeccion } from "@/components/shared/SalirLeccion";
 import { Reto } from "./steps/Reto";
 import { NivelTeach } from "./steps/NivelTeach";
 import { EligeNombre } from "./steps/EligeNombre";
@@ -35,6 +36,11 @@ type Fase =
   | "reto_final_vista"
   | "fin_bloque";
 
+const FASES_VALIDAS: Fase[] = [
+  "reto", "nivel_teach", "aplicar_nombre", "colores_teach", "aplicar_colores",
+  "aplicar_eslogan", "nivel_check", "reto_final_logo", "reto_final_vista", "fin_bloque",
+];
+
 function initialStateFor(lessonId: string): { fase: Fase; index: number } {
   if (lessonId === CODIGO_RETO_FINAL) {
     return { fase: "reto_final_logo", index: NIVELES.length - 1 };
@@ -42,7 +48,7 @@ function initialStateFor(lessonId: string): { fase: Fase; index: number } {
 
   const i = NIVELES.findIndex((n) => n.codigo === lessonId);
   if (i === -1) return { fase: "reto", index: 0 };
-  return { fase: "nivel_teach", index: i };
+  return { fase: i === 0 ? "reto" : "nivel_teach", index: i };
 }
 
 interface Module04PageProps {
@@ -54,15 +60,20 @@ export default function Module04Page({
 }: Module04PageProps) {
   const router = useRouter();
   const inicio = initialStateFor(lessonId);
-  const [fase, setFase] = useState<Fase>(inicio.fase);
-  const [nivelIndex, setNivelIndex] = useState(inicio.index);
+  const [fase, setFaseState] = useState<Fase>(inicio.fase);
+  const [nivelIndex] = useState(inicio.index);
 
-  async function markDone(code: string) {
-    try {
-      await saveCompletedLesson(code);
-    } catch (error) {
-      console.error("No se pudo guardar el avance:", error);
+  useEffect(() => {
+    const guardada = leerPasoLeccion(lessonId);
+    if (guardada && FASES_VALIDAS.includes(guardada as Fase)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFaseState(guardada as Fase);
     }
+  }, [lessonId]);
+
+  function irA(nuevaFase: Fase) {
+    guardarPasoLeccion(lessonId, nuevaFase);
+    setFaseState(nuevaFase);
   }
 
   async function guardarNegocio(cambios: Parameters<typeof saveMiNegocio>[0]) {
@@ -73,124 +84,104 @@ export default function Module04Page({
     }
   }
 
-  function finishModule() {
-    router.push(`/modules01_06_complete/modulecomplete?lesson=${CODIGO_RETO_FINAL}`);
-  }
-
-  if (fase === "reto") {
-    return <Reto onNext={() => setFase("nivel_teach")} />;
+  function terminarLeccion(code: string, insignia?: string) {
+    borrarPasoLeccion(lessonId);
+    const params = new URLSearchParams({ lesson: code });
+    if (insignia) params.set("insignia", insignia);
+    router.push(`/modules01_06_complete/modulecomplete?${params.toString()}`);
   }
 
   const nivel = NIVELES[nivelIndex];
-  const esUltimoNivel = nivelIndex === NIVELES.length - 1;
-
-  if (fase === "nivel_teach") {
-    return (
-      <NivelTeach
-        nivel={nivel}
-        totalNiveles={NIVELES.length}
-        onNext={() => {
-          if (nivelIndex === INDICE_NOMBRE) return setFase("aplicar_nombre");
-          if (nivelIndex === INDICE_COLORES) return setFase("colores_teach");
-          if (nivelIndex === INDICE_ESLOGAN) return setFase("aplicar_eslogan");
-          setFase("nivel_check");
-        }}
-      />
-    );
-  }
-
-  if (fase === "aplicar_nombre") {
-    return (
-      <EligeNombre
-        onSaved={async (nombre: string) => {
-          await guardarNegocio({ nombreNegocio: nombre });
-          setFase("nivel_check");
-        }}
-      />
-    );
-  }
-
-  if (fase === "colores_teach") {
-    return <ColoresTeach onNext={() => setFase("aplicar_colores")} />;
-  }
-
-  if (fase === "aplicar_colores") {
-    return (
-      <EligeColoresEstilo
-        onSaved={async (
-          colores: { primario: ColorMarca; secundario: ColorMarca },
-          estilo: EstiloMarca,
-        ) => {
-          await guardarNegocio({
-            colorPrimario: colores.primario.hex,
-            colorSecundario: colores.secundario.hex,
-            estiloMarca: estilo.id,
-          });
-          setFase("nivel_check");
-        }}
-      />
-    );
-  }
-
-  if (fase === "aplicar_eslogan") {
-    return (
-      <EligeEslogan
-        onSaved={async (eslogan: string) => {
-          await guardarNegocio({ eslogan });
-          setFase("nivel_check");
-        }}
-      />
-    );
-  }
-
-  if (fase === "nivel_check") {
-    return (
-      <CheckCorto
-        lessonId={nivel.codigo}
-        moduleNumber={MODULE_NUMBER}
-        onPass={async () => {
-          await markDone(nivel.codigo);
-
-          if (esUltimoNivel) {
-            setFase("reto_final_logo");
-            return;
-          }
-
-          setNivelIndex(nivelIndex + 1);
-          setFase("nivel_teach");
-        }}
-      />
-    );
-  }
-
-  if (fase === "reto_final_logo") {
-    return (
-      <LogoConstructor
-        onSaved={async (icono: string, forma: LogoForma) => {
-          await guardarNegocio({ logoIcono: icono, logoForma: forma.id });
-          setFase("reto_final_vista");
-        }}
-      />
-    );
-  }
-
-  if (fase === "reto_final_vista") {
-    return (
-      <VistaPrevia
-        onSaved={async (percepcion: string) => {
-          await guardarNegocio({ marcaPercepcion: percepcion });
-          setFase("fin_bloque");
-        }}
-      />
-    );
-  }
 
   return (
-    <FinBloque
-      insignias={NIVELES.map((n) => n.insignia)}
-      xp={XP_FIN_BLOQUE_4}
-      competencias={COMPETENCIAS_BLOQUE_4}
-      onNext={finishModule}
-    />
+    <>
+      <SalirLeccion />
+
+      {fase === "reto" && <Reto onNext={() => irA("nivel_teach")} />}
+
+      {fase === "nivel_teach" && (
+        <NivelTeach
+          nivel={nivel}
+          totalNiveles={NIVELES.length}
+          onNext={() => {
+            if (nivelIndex === INDICE_NOMBRE) return irA("aplicar_nombre");
+            if (nivelIndex === INDICE_COLORES) return irA("colores_teach");
+            if (nivelIndex === INDICE_ESLOGAN) return irA("aplicar_eslogan");
+            irA("nivel_check");
+          }}
+        />
+      )}
+
+      {fase === "aplicar_nombre" && (
+        <EligeNombre
+          onSaved={async (nombre: string) => {
+            await guardarNegocio({ nombreNegocio: nombre });
+            irA("nivel_check");
+          }}
+        />
+      )}
+
+      {fase === "colores_teach" && <ColoresTeach onNext={() => irA("aplicar_colores")} />}
+
+      {fase === "aplicar_colores" && (
+        <EligeColoresEstilo
+          onSaved={async (
+            colores: { primario: ColorMarca; secundario: ColorMarca },
+            estilo: EstiloMarca,
+          ) => {
+            await guardarNegocio({
+              colorPrimario: colores.primario.hex,
+              colorSecundario: colores.secundario.hex,
+              estiloMarca: estilo.id,
+            });
+            irA("nivel_check");
+          }}
+        />
+      )}
+
+      {fase === "aplicar_eslogan" && (
+        <EligeEslogan
+          onSaved={async (eslogan: string) => {
+            await guardarNegocio({ eslogan });
+            irA("nivel_check");
+          }}
+        />
+      )}
+
+      {fase === "nivel_check" && (
+        <CheckCorto
+          lessonId={nivel.codigo}
+          moduleNumber={MODULE_NUMBER}
+          onPass={async () => terminarLeccion(nivel.codigo, nivel.insignia)}
+        />
+      )}
+
+      {fase === "reto_final_logo" && (
+        <LogoConstructor
+          onSaved={async (icono: string, forma: LogoForma) => {
+            await guardarNegocio({ logoIcono: icono, logoForma: forma.id });
+            irA("reto_final_vista");
+          }}
+        />
+      )}
+
+      {fase === "reto_final_vista" && (
+        <VistaPrevia
+          onSaved={async (percepcion: string) => {
+            await guardarNegocio({ marcaPercepcion: percepcion });
+            irA("fin_bloque");
+          }}
+        />
+      )}
+
+      {fase === "fin_bloque" && (
+        <FinBloque
+          insignias={NIVELES.map((n) => n.insignia)}
+          xp={XP_FIN_BLOQUE_4}
+          competencias={COMPETENCIAS_BLOQUE_4}
+          onNext={() => terminarLeccion(CODIGO_RETO_FINAL)}
+        />
+      )}
+    </>
   );
 }

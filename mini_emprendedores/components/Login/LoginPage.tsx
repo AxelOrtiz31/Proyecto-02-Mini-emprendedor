@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { getOnboardingStatus, routeForStatus } from "@/lib/onboarding";
 import { cn } from "@/lib/utils";
 import { RobotBuddy, type RobotMood } from "./RobotBuddy";
 
@@ -46,8 +47,11 @@ export default function LoginPage() {
       return;
     }
 
+    // El alumno nuevo pasa primero por el test inicial y la selección de avatar.
+    const status = await getOnboardingStatus();
+
     setCargando(false);
-    router.push("/dashboard");
+    router.push(routeForStatus(status));
   }
 
   return (

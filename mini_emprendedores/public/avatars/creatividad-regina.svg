@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 420" role="img" aria-labelledby="title">
+  <title id="title">Avatar de Regina</title>
+  <defs>
+    <linearGradient id="shirt" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#D9A422"/>
+      <stop offset="1" stop-color="#F2C13D"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#27313B" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <ellipse cx="160" cy="388" rx="78" ry="18" fill="#27313B" opacity="0.16"/>
+
+  <g filter="url(#shadow)">
+    <path d="M116 322h38v54c0 12-10 21-21 21s-21-9-21-21z" fill="#27313B"/>
+    <path d="M166 322h38v54c0 12-10 21-21 21s-21-9-21-21z" fill="#27313B"/>
+    <path d="M102 372h57v23H96c-8 0-13-8-9-15 3-5 8-8 15-8z" fill="#FFFFFF" stroke="#27313B" stroke-width="6"/>
+    <path d="M176 372h42c7 0 12 3 15 8 4 7-1 15-9 15h-63v-23z" fill="#FFFFFF" stroke="#27313B" stroke-width="6"/>
+
+    <path d="M87 241c8-34 35-55 73-55s65 21 73 55l-12 94c-2 14-14 24-28 24h-66c-14 0-26-10-28-24z" fill="url(#shirt)" stroke="#27313B" stroke-width="7"/>
+    <path d="M112 260c27 14 69 14 96 0" fill="none" stroke="#FFFFFF" stroke-width="7" opacity="0.55" stroke-linecap="round"/>
+    <path d="M160 205v138" stroke="#FFFFFF" stroke-width="5" opacity="0.28"/>
+    <circle cx="160" cy="252" r="5" fill="#FFFFFF" opacity="0.85"/>
+    <circle cx="160" cy="281" r="5" fill="#FFFFFF" opacity="0.85"/>
+
+    <path d="M97 247c-26 14-34 45-17 68 8 10 20 13 30 6l13-10-14-61z" fill="#E4B18A" stroke="#27313B" stroke-width="7"/>
+    <path d="M223 247c26 14 34 45 17 68-8 10-20 13-30 6l-13-10 14-61z" fill="#E4B18A" stroke="#27313B" stroke-width="7"/>
+
+    <path d="M88 116c0-62 32-95 72-95s72 33 72 95v50c0 46-32 77-72 77s-72-31-72-77z" fill="#27313B" stroke="#27313B" stroke-width="7"/>
+      <path d="M89 138c-9 36-7 70 6 96 5 11 19 12 25 1-9-23-13-54-10-90z" fill="#27313B" stroke="#27313B" stroke-width="7" stroke-linejoin="round"/>
+      <path d="M231 138c9 36 7 70-6 96-5 11-19 12-25 1 9-23 13-54 10-90z" fill="#27313B" stroke="#27313B" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M103 118c0-45 24-72 57-72s57 27 57 72v44c0 38-25 63-57 63s-57-25-57-63z" fill="#E4B18A" stroke="#27313B" stroke-width="7"/>
+    <path d="M106 119c10-45 34-68 71-68 15 0 29 5 40 14-13-28-34-44-57-44-40 0-72 33-72 95v31c4-11 10-20 18-28z" fill="#27313B"/>
+
+    <path d="M123 139c9-8 21-8 30 0" fill="none" stroke="#27313B" stroke-width="6" stroke-linecap="round"/>
+    <path d="M167 139c9-8 21-8 30 0" fill="none" stroke="#27313B" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="139" cy="153" rx="6" ry="8" fill="#27313B"/>
+    <ellipse cx="181" cy="153" rx="6" ry="8" fill="#27313B"/>
+      <path d="M130 147l-6-5M190 147l6-5" stroke="#27313B" stroke-width="4" stroke-linecap="round"/>
+    <path d="M143 188c10 9 24 9 34 0" fill="none" stroke="#27313B" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="117" cy="176" r="10" fill="#FFFFFF" opacity="0.22"/>
+    <circle cx="203" cy="176" r="10" fill="#FFFFFF" opacity="0.22"/>
+
+    <g transform="translate(222 246) rotate(14)">
+      <path d="M0 18L11 -10l11 28z" fill="#E4B18A" stroke="#27313B" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M7 0l4-10 4 10z" fill="#27313B"/>
+      <rect x="0" y="18" width="22" height="62" rx="4" fill="#F2C13D" stroke="#27313B" stroke-width="5"/>
+      <path d="M11 20v58" stroke="#D9A422" stroke-width="5" opacity="0.7"/>
+      <rect x="0" y="80" width="22" height="16" rx="6" fill="#EE7A33" stroke="#27313B" stroke-width="5"/>
+    </g>
+  </g>
+</svg>
