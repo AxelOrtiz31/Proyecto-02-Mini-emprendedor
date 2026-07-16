@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useEvaluacion } from "./useEvaluacion";
 import { QuestionCard } from "./QuestionCard";
+import { playSfx } from "@/audio/AudioManager";
 
 interface CheckCortoProps {
   lessonId: string;
@@ -40,7 +41,10 @@ export function CheckCorto({ lessonId, moduleNumber, onPass }: CheckCortoProps) 
       <div className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center gap-6 px-4 text-center">
         <button
           type="button"
-          onClick={onPass}
+          onClick={() => {
+            onPass();
+            playSfx("click");
+          }}
           className="rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
         >
           Continuar →
@@ -67,6 +71,7 @@ export function CheckCorto({ lessonId, moduleNumber, onPass }: CheckCortoProps) 
           onClick={() => {
             setFallo(false);
             setIndex(0);
+            playSfx("click");
           }}
           className="rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
         >
@@ -107,7 +112,10 @@ export function CheckCorto({ lessonId, moduleNumber, onPass }: CheckCortoProps) 
           <button
             key={p.id}
             type="button"
-            onClick={() => setIndex(i)}
+            onClick={() => {
+              setIndex(i);
+              playSfx("opciones");
+            }}
             aria-label={`Pregunta ${i + 1}`}
             className={`h-2.5 w-2.5 rounded-full transition-colors ${
               i === index
@@ -134,7 +142,10 @@ export function CheckCorto({ lessonId, moduleNumber, onPass }: CheckCortoProps) 
         {index > 0 && (
           <button
             type="button"
-            onClick={() => setIndex(index - 1)}
+            onClick={() => {
+              playSfx("click");
+              setIndex(index - 1);
+            }}
             className="rounded-2xl border-2 border-border bg-card px-5 py-4 font-display text-sm font-extrabold text-foreground shadow-(--shadow-card) transition-transform active:translate-y-1"
           >
             ← Atrás
@@ -144,7 +155,10 @@ export function CheckCorto({ lessonId, moduleNumber, onPass }: CheckCortoProps) 
         {esUltima ? (
           <button
             type="button"
-            onClick={enviar}
+            onClick={() => {
+              playSfx("click");
+              enviar();
+            }}
             disabled={!todasRespondidas || enviando}
             className="flex-1 rounded-2xl bg-primary px-6 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
           >
@@ -153,7 +167,10 @@ export function CheckCorto({ lessonId, moduleNumber, onPass }: CheckCortoProps) 
         ) : (
           <button
             type="button"
-            onClick={() => setIndex(index + 1)}
+            onClick={() => {
+              playSfx("opciones");
+              setIndex(index + 1);
+            }}
             className="flex-1 rounded-2xl bg-primary px-6 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
           >
             Siguiente →

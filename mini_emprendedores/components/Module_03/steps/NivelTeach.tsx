@@ -1,6 +1,7 @@
 "use client";
 
 import type { Nivel } from "../data";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
 
 interface NivelTeachProps {
   nivel: Nivel;
@@ -19,8 +20,17 @@ export function NivelTeach({ nivel, totalNiveles, onNext }: NivelTeachProps) {
         {nivel.emoji}
       </span>
 
-      <h1 className="max-w-sm font-display text-xl font-extrabold text-foreground sm:text-2xl">
-        {nivel.titulo}
+      <h1 className="max-w-sm font-display text-2xl font-extrabold text-foreground sm:text-2xl flex items-center gap-3">
+        <SpeakButton
+          text={`
+            ${nivel.titulo}
+
+            EmprenBot dice:
+              ${nivel.emprenbot}
+              ${nivel.explicacion}
+          `}
+        />
+        <span>{nivel.titulo}</span>
       </h1>
 
       <p className="max-w-sm rounded-2xl border-2 border-border bg-card px-5 py-4 text-sm font-bold text-foreground shadow-(--shadow-card) sm:text-base">

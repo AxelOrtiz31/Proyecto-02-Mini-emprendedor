@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fetchMiNegocio } from "@/lib/negocio";
+import { playSfx } from "@/audio/AudioManager";
 
 interface FinCursoProps {
   insignias: string[];
@@ -67,7 +68,10 @@ export function FinCurso({ insignias, competencias, onNext }: FinCursoProps) {
 
       <button
         type="button"
-        onClick={onNext}
+        onClick={() => {
+          playSfx("click");
+          onNext();
+        }}
         className="mt-2 rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
       >
         Finalizar →
