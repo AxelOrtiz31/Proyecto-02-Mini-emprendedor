@@ -188,6 +188,46 @@ export async function fetchFinalEvaluation(): Promise<Evaluation | null> {
   return mapEvaluation(data[0]);
 }
 
+export async function fetchInitialEvaluation(): Promise<Evaluation | null> {
+  const { data, error } = await supabase
+    .from("evaluaciones")
+    .select(
+      `id, nombre, instrucciones,
+       preguntas_evaluacion (
+         id,
+         texto,
+         multiple,
+         orden,
+         opciones_respuesta (
+           id,
+           etiqueta,
+           emoji,
+           valor,
+           orden,
+           es_correcta
+         )
+       )`,
+    )
+    .eq("tipo", "inicial")
+    .eq("activa", true)
+    .limit(1)
+    .returns<EvaluationRow[]>();
+
+  if (error) {
+    console.error("Error cargando test inicial:", error.message);
+    return null;
+  }
+
+  if (!data || data.length === 0) {
+    console.error(
+      "No hay ninguna evaluación activa con tipo 'inicial'. Ejecuta seed_test_inicial.sql en el SQL Editor de Supabase.",
+    );
+    return null;
+  }
+
+  return mapEvaluation(data[0]);
+}
+
 export async function startEvaluationSession(
   evaluationId: number,
 ): Promise<number | null> {

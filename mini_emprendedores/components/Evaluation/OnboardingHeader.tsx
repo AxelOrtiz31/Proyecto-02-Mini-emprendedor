@@ -7,6 +7,7 @@ interface OnboardingHeaderProps {
   step: number;
   total: number;
   onBack: () => void;
+  eyebrow?: string;
 }
 
 export function OnboardingHeader({
@@ -14,6 +15,7 @@ export function OnboardingHeader({
   step,
   total,
   onBack,
+  eyebrow = "Examen final",
 }: OnboardingHeaderProps) {
   return (
     <div className="mx-auto flex w-full max-w-xl items-center gap-3">
@@ -28,7 +30,7 @@ export function OnboardingHeader({
 
       <div className="min-w-0 flex-1">
         <p className="text-xs font-black uppercase tracking-wider text-primary">
-          Examen final
+          {eyebrow}
         </p>
 
         <p className="truncate font-display text-sm font-extrabold text-foreground sm:text-base">
