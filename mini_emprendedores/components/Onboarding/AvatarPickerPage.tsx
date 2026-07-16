@@ -111,11 +111,11 @@ export default function AvatarPickerPage() {
         </p>
 
         <h1 className="mt-2 text-center font-display text-3xl font-extrabold text-foreground sm:text-4xl">
-          Elige tu compañero
+          Elige tu avatar
         </h1>
 
         <p className="mt-2 text-center text-sm font-semibold text-muted-foreground">
-          Estos tres avatares comparten tu superpoder. ¡Escoge al que te acompañará!
+          Selecciona a tu primer compañero. Estos tres comparten tu superpoder.
         </p>
 
         {saveError && (

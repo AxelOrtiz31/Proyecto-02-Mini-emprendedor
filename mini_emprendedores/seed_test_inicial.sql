@@ -132,22 +132,24 @@ BEGIN
 END $$;
 
 -- ============================================================
--- C. Los 12 avatares (3 por habilidad)
+-- C. Los 12 avatares (3 por habilidad, estilo chibi v3)
+-- Si la base ya tenía los avatares viejos (Leo, Valentina...),
+-- correr update_avatares_v3.sql: migra las filas en su mismo id.
 -- ============================================================
 
 INSERT INTO public.avatares (nombre, url_imagen, habilidad, activo) VALUES
-  ('Leo',       '/avatars/liderazgo-leo.svg',           'liderazgo',            true),
-  ('Valentina', '/avatars/liderazgo-valentina.svg',     'liderazgo',            true),
-  ('Diego',     '/avatars/liderazgo-diego.svg',         'liderazgo',            true),
-  ('Frida',     '/avatars/creatividad-frida.svg',       'creatividad',          true),
-  ('Mateo',     '/avatars/creatividad-mateo.svg',       'creatividad',          true),
-  ('Regina',    '/avatars/creatividad-regina.svg',      'creatividad',          true),
-  ('Santiago',  '/avatars/trabajo-equipo-santiago.svg', 'trabajo_equipo',       true),
-  ('Camila',    '/avatars/trabajo-equipo-camila.svg',   'trabajo_equipo',       true),
-  ('Emiliano',  '/avatars/trabajo-equipo-emiliano.svg', 'trabajo_equipo',       true),
-  ('Sofía',     '/avatars/resolucion-sofia.svg',        'resolucion_problemas', true),
-  ('Sebastián', '/avatars/resolucion-sebastian.svg',    'resolucion_problemas', true),
-  ('Ximena',    '/avatars/resolucion-ximena.svg',       'resolucion_problemas', true)
+  ('Balam',  '/avatars/liderazgo-balam.svg',      'liderazgo',            true),
+  ('Ixchel', '/avatars/liderazgo-ixchel.svg',     'liderazgo',            true),
+  ('Kinich', '/avatars/liderazgo-kinich.svg',     'liderazgo',            true),
+  ('Itzel',  '/avatars/creatividad-itzel.svg',    'creatividad',          true),
+  ('Dzul',   '/avatars/creatividad-dzul.svg',     'creatividad',          true),
+  ('Sasil',  '/avatars/creatividad-sasil.svg',    'creatividad',          true),
+  ('Yaax',   '/avatars/trabajo-equipo-yaax.svg',  'trabajo_equipo',       true),
+  ('Nicté',  '/avatars/trabajo-equipo-nicte.svg', 'trabajo_equipo',       true),
+  ('Canek',  '/avatars/trabajo-equipo-canek.svg', 'trabajo_equipo',       true),
+  ('Kaan',   '/avatars/resolucion-kaan.svg',      'resolucion_problemas', true),
+  ('Nahil',  '/avatars/resolucion-nahil.svg',     'resolucion_problemas', true),
+  ('Xook',   '/avatars/resolucion-xook.svg',      'resolucion_problemas', true)
 ON CONFLICT (nombre) DO UPDATE
   SET url_imagen = EXCLUDED.url_imagen,
       habilidad  = EXCLUDED.habilidad,
