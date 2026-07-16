@@ -175,7 +175,7 @@ function NextSectionCard({
           Eres todo un mini emprendedor
         </div>
         <div className="text-sm opacity-90">
-          Terminaste las 6 secciones. Puedes repasar cualquier lección cuando quieras.
+          Terminaste las 7 secciones. Puedes repasar cualquier lección cuando quieras.
         </div>
       </div>
     );

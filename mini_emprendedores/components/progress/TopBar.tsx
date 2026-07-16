@@ -6,7 +6,7 @@ import { Flame, Lightbulb, Star, LogOut } from "lucide-react";
 import { StatPill } from "./StatPill";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import { User, ClipboardCheck, MessageCircle } from "lucide-react";
+import { User, Trophy, MessageCircle } from "lucide-react";
 import { ChatModal } from "@/components/IA_Bot/ChatModal";
 
 import { speechTexts } from "@/audio/SpeechTexts";
@@ -78,7 +78,7 @@ export function TopBar({ streak, ideas, xp }: TopBarProps) {
             className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             title="Examen Final"
           >
-            <ClipboardCheck className="h-5 w-5" />
+            <Trophy className="h-5 w-5" />
           </Link>
           <button
             type="button"

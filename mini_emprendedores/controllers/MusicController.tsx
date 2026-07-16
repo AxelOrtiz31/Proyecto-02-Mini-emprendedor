@@ -28,8 +28,28 @@ export default function MusicController() {
       return;
     }
 
-    if (pathname.startsWith("/final_exam")) {
-      playMusic("final_exam");
+    if (pathname.startsWith("/evaluacion")) {
+      playMusic("evaluacion");
+      return;
+    }
+
+    if (pathname.startsWith("/evaluation")) {
+      playMusic("evaluacion");
+      return;
+    }
+
+    if (pathname.startsWith("/profile")) {
+      playMusic("profile");
+      return;
+    }
+
+    if (pathname.startsWith("/achievements")) {
+      playMusic("achievements");
+      return;
+    }
+
+    if (pathname.startsWith("/modulecomplete")) {
+      playMusic("module_complete");
       return;
     }
 

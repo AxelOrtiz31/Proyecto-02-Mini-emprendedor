@@ -3,7 +3,7 @@
 import { playSfx } from "@/audio/AudioManager";
 
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  sound?: "click" | "urururu";
+  sound?: "click" | "urururu" | "opciones";
 };
 
 export default function SoundButtonController({

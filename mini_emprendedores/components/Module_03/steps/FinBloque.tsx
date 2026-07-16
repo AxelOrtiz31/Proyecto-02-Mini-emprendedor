@@ -1,4 +1,5 @@
 "use client";
+import { playSfx } from "@/audio/AudioManager";
 
 interface FinBloqueProps {
   insignias: string[];
@@ -39,7 +40,10 @@ export function FinBloque({ insignias, xp, competencias, onNext }: FinBloqueProp
 
       <button
         type="button"
-        onClick={onNext}
+        onClick={() => {
+          playSfx("click");
+          onNext();
+        }}
         className="mt-2 rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
       >
         Continuar →
