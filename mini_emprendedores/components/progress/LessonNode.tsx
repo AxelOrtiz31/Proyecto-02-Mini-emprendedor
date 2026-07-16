@@ -15,6 +15,7 @@ import type { Activity } from "@/data/course";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { ActivityPopover } from "./ActivityPopover";
+import { playSfx } from "@/audio/AudioManager";
 
 const kindIcon: Record<Activity["kind"], LucideIcon> = {
   lesson: Star,
@@ -62,6 +63,7 @@ export function LessonNode({ activity, offsetX }: LessonNodeProps) {
             disabled={isLocked}
             className={cn(baseCircle, stateClass, isCurrent && "animate-node-bounce")}
             aria-label={activity.title}
+            onClick={() => playSfx("nodos")}
           >
             <ActivityIcon
               activity={activity}

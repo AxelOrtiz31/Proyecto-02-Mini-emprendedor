@@ -61,4 +61,9 @@ export const sfx = {
     src: ["/audio/opciones.mp3"],
     volume: 0.05,
   }),
+
+  nodos: new Howl({
+    src: ["/audio/nodos.mp3"],
+    volume: 0.05,
+  }),
 };
