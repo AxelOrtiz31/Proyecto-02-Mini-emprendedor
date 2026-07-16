@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { guardarPasoLeccion, leerPasoLeccion, borrarPasoLeccion } from "@/lib/lessonProgress";
+import { guardarPasoLeccion, leerPasoLeccion, borrarPasoLeccion, segundosDesde } from "@/lib/lessonProgress";
 import { SalirLeccion } from "@/components/shared/SalirLeccion";
 import { Reto } from "./steps/Reto";
 import { Historia } from "./steps/Historia";
@@ -38,6 +38,8 @@ export default function Module01Page({
   const router = useRouter();
   const nivelIndex = initialIndexFor(lessonId);
   const [fase, setFaseState] = useState<Fase>(() => faseDefecto(nivelIndex));
+  const [inicio] = useState(() => Date.now());
+  const [intentosFinales, setIntentosFinales] = useState(1);
 
   useEffect(() => {
     const guardada = leerPasoLeccion(lessonId);
@@ -58,10 +60,15 @@ export default function Module01Page({
   // compartida de recompensas (XP, estrellas e insignia si aplica). Esa
   // pantalla es la que guarda el avance real (progreso_lecciones) al
   // reclamar la XP, así que aquí no hace falta guardarlo dos veces.
-  function terminarLeccion(code: string, insignia?: string) {
+  function terminarLeccion(code: string, insignia?: string, intentos?: number, xpBonus?: number) {
     borrarPasoLeccion(lessonId);
-    const params = new URLSearchParams({ lesson: code });
+    const params = new URLSearchParams({
+      lesson: code,
+      tiempo: String(segundosDesde(inicio)),
+      intentos: String(intentos ?? intentosFinales),
+    });
     if (insignia) params.set("insignia", insignia);
+    if (xpBonus) params.set("xpBonus", String(xpBonus));
     router.push(`/modules01_06_complete/modulecomplete?${params.toString()}`);
   }
 
@@ -88,13 +95,14 @@ export default function Module01Page({
         <CheckCorto
           lessonId={nivel.codigo}
           moduleNumber={MODULE_NUMBER}
-          onPass={async () => {
+          onPass={(intentos) => {
             if (esUltimoNivel) {
+              setIntentosFinales(intentos);
               irA("fin_bloque");
               return;
             }
 
-            terminarLeccion(nivel.codigo, nivel.insignia);
+            terminarLeccion(nivel.codigo, nivel.insignia, intentos);
           }}
         />
       )}
@@ -104,7 +112,7 @@ export default function Module01Page({
           insignias={NIVELES.map((n) => n.insignia)}
           xp={XP_FIN_BLOQUE_1}
           competencias={COMPETENCIAS_BLOQUE_1}
-          onNext={() => terminarLeccion(nivel.codigo)}
+          onNext={() => terminarLeccion(nivel.codigo, nivel.insignia, intentosFinales, XP_FIN_BLOQUE_1)}
         />
       )}
     </>

@@ -4,27 +4,61 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import { calculateStreak, formatStreakDays } from "@/lib/streak";
+import { fetchInsignias } from "@/lib/insignias";
+import { fetchMiNegocio, type MiNegocio } from "@/lib/negocio";
+import { course } from "@/data/course";
 
 interface Profile {
   nombre: string;
   apellido: string;
   edad: number | null;
   avatar_url?: string;
+  ultimaSesion: string | null;
+  habilidadDominante: string | null;
 }
 
 interface ProgressStats {
   totalLecciones: number;
   totalXp: number;
   totalEstrellas: number;
+  totalInsignias: number;
+  tiempoTotalSegundos: number;
+  modulosCompletados: number;
+  totalModulos: number;
   racha: number;
   moduloActual: string | null;
   moduloNumero: number | null;
+}
+
+const HABILIDAD_LABEL: Record<string, string> = {
+  liderazgo: "Liderazgo",
+  creatividad: "Creatividad",
+  trabajo_equipo: "Trabajo en equipo",
+  resolucion_problemas: "Resolución de problemas",
+};
+
+function formatearTiempoTotal(segundos: number): string {
+  if (segundos <= 0) return "Sin registrar aún";
+  const horas = Math.floor(segundos / 3600);
+  const minutos = Math.floor((segundos % 3600) / 60);
+  if (horas > 0) return `${horas} h ${minutos} min`;
+  return `${minutos} min`;
+}
+
+function formatearFecha(fecha: string | null): string {
+  if (!fecha) return "Sin registrar";
+  return new Date(fecha).toLocaleDateString("es-MX", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState<ProgressStats | null>(null);
+  const [negocio, setNegocio] = useState<MiNegocio | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,7 +77,7 @@ export default function ProfilePage() {
         // 2. Obtener perfil (sin insertar, solo consultar)
         const { data: perfil, error: perfilError } = await supabase
           .from("perfiles")
-          .select("nombre, apellido, edad, avatar_id")
+          .select("nombre, apellido, edad, avatar_id, ultima_sesion, habilidad_dominante")
           .eq("id", user.id)
           .maybeSingle();
 
@@ -58,6 +92,8 @@ export default function ProfilePage() {
             apellido: "",
             edad: null,
             avatar_id: null,
+            ultima_sesion: null,
+            habilidad_dominante: null,
           };
         }
 
@@ -80,12 +116,14 @@ export default function ProfilePage() {
           apellido: profileData.apellido || "",
           edad: profileData.edad || null,
           avatar_url: avatarUrl,
+          ultimaSesion: profileData.ultima_sesion ?? null,
+          habilidadDominante: profileData.habilidad_dominante ?? null,
         });
 
         // 4. Estadísticas de progreso
         const { data: progreso, error: progError } = await supabase
           .from("progreso_lecciones")
-          .select("completada_en, xp_obtenido, estrellas, codigo_leccion")
+          .select("completada_en, xp_obtenido, estrellas, codigo_leccion, tiempo_segundos")
           .eq("alumno_id", user.id)
           .eq("estado", "completada")
           .order("completada_en", { ascending: false });
@@ -98,6 +136,25 @@ export default function ProfilePage() {
         const totalLecciones = completadas.length;
         const totalXp = completadas.reduce((sum, p) => sum + p.xp_obtenido, 0);
         const totalEstrellas = completadas.reduce((sum, p) => sum + p.estrellas, 0);
+        const tiempoTotalSegundos = completadas.reduce(
+          (sum, p) => sum + (p.tiempo_segundos || 0),
+          0,
+        );
+
+        // Insignias reales
+        const insignias = await fetchInsignias();
+
+        // Negocio creado
+        const negocioData = await fetchMiNegocio();
+        setNegocio(negocioData);
+
+        // Módulos completados: todas sus actividades están en `completadas`.
+        const codigosCompletados = new Set(completadas.map((p) => p.codigo_leccion));
+        const modulosCompletados = course.filter((section) =>
+          section.units
+            .flatMap((unit) => unit.activities)
+            .every((activity) => codigosCompletados.has(activity.id)),
+        ).length;
 
         // Módulo actual
         let moduloActual: string | null = null;
@@ -130,13 +187,17 @@ export default function ProfilePage() {
           totalLecciones,
           totalXp,
           totalEstrellas,
+          totalInsignias: insignias.length,
+          tiempoTotalSegundos,
+          modulosCompletados,
+          totalModulos: course.length,
           racha,
           moduloActual,
           moduloNumero,
         });
-      } catch (err: any) {
+      } catch (err) {
         console.error("Error cargando perfil:", err);
-        setError(err.message || "Error al cargar el perfil");
+        setError(err instanceof Error ? err.message : "Error al cargar el perfil");
       } finally {
         setLoading(false);
       }
@@ -197,15 +258,40 @@ export default function ProfilePage() {
             <p className="mt-1 text-sm font-semibold text-muted-foreground">
               {user?.email}
             </p>
+            <p className="mt-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+              Último acceso: {formatearFecha(profile.ultimaSesion)}
+            </p>
+            {profile.habilidadDominante && HABILIDAD_LABEL[profile.habilidadDominante] && (
+              <p className="mt-1 text-xs font-bold uppercase tracking-wide text-primary">
+                ⭐ Habilidad dominante: {HABILIDAD_LABEL[profile.habilidadDominante]}
+              </p>
+            )}
           </div>
         </div>
 
-        {/* Estadísticas */}
+        {/* Estadísticas principales */}
         <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <StatCard label="Lecciones" value={stats.totalLecciones} icon="📚" color="bg-blue-100 text-blue-700" />
           <StatCard label="XP" value={stats.totalXp} icon="⭐" color="bg-yellow-100 text-yellow-700" />
           <StatCard label="Estrellas" value={stats.totalEstrellas} icon="🌟" color="bg-green-100 text-green-700" />
           <StatCard label="Racha" value={formatStreakDays(stats.racha)} icon="🔥" color="bg-red-100 text-red-700" />
+        </div>
+
+        {/* Estadísticas adicionales */}
+        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <StatCard label="Insignias" value={stats.totalInsignias} icon="🏅" color="bg-purple-100 text-purple-700" />
+          <StatCard
+            label="Tiempo total"
+            value={formatearTiempoTotal(stats.tiempoTotalSegundos)}
+            icon="⏱️"
+            color="bg-orange-100 text-orange-700"
+          />
+          <StatCard
+            label="Módulos"
+            value={`${stats.modulosCompletados}/${stats.totalModulos}`}
+            icon="🗺️"
+            color="bg-teal-100 text-teal-700"
+          />
         </div>
 
         {/* Módulo actual */}
@@ -222,6 +308,32 @@ export default function ProfilePage() {
             </p>
           )}
         </div>
+
+        {/* Negocio creado */}
+        {negocio?.nombreNegocio && (
+          <div
+            className="mt-6 flex items-center gap-4 rounded-3xl border-4 p-6 shadow-(--shadow-card)"
+            style={{
+              borderColor: negocio.colorPrimario ?? undefined,
+              backgroundColor: negocio.colorPrimario ? `${negocio.colorPrimario}15` : undefined,
+            }}
+          >
+            <span className="text-4xl">{negocio.logoIcono ?? "🏪"}</span>
+            <div>
+              <h2 className="font-display text-sm font-extrabold uppercase tracking-wider text-muted-foreground">
+                Mi negocio
+              </h2>
+              <p className="font-display text-xl font-extrabold text-foreground">
+                {negocio.nombreNegocio}
+              </p>
+              {negocio.eslogan && (
+                <p className="text-sm font-semibold italic text-muted-foreground">
+                  &ldquo;{negocio.eslogan}&rdquo;
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Botón volver */}
         <div className="mt-8 flex justify-center">

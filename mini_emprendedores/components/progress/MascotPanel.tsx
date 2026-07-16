@@ -7,6 +7,7 @@ import { getTipOfTheDay } from "@/data/tips";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import { formatStreakDays } from "@/lib/streak";
+import { fetchInsignias, type Insignia } from "@/lib/insignias";
 import { playSfx } from "@/audio/AudioManager";
 
 interface MascotPanelProps {
@@ -36,7 +37,12 @@ export function MascotPanel({
 }: MascotPanelProps) {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [insignias, setInsignias] = useState<Insignia[]>([]);
   const isSidebar = variant === "sidebar";
+
+  useEffect(() => {
+    fetchInsignias().then(setInsignias);
+  }, []);
 
   useEffect(() => {
     async function loadProfile() {
@@ -132,13 +138,31 @@ export function MascotPanel({
             Logros recientes
           </div>
           <ul className="mt-3 space-y-2">
-            <Achievement title="Primera actividad" subtitle="Completaste tu primera lección" tone="success" />
             <Achievement
               title={`Racha de ${formatStreakDays(streak)}`}
               subtitle={streak > 0 ? "¡Sigue así!" : "Completa una lección hoy"}
               tone="primary"
             />
-            <Achievement title="Cazador de ideas" subtitle="3 estrellas en bonus" tone="accent" />
+            {insignias.length === 0 ? (
+              <li className="text-xs font-semibold text-muted-foreground">
+                Aún no tienes insignias. ¡Completa una lección para ganar tu primera!
+              </li>
+            ) : (
+              insignias
+                .slice(0, 3)
+                .map((insignia) => (
+                  <Achievement
+                    key={insignia.codigoLeccion}
+                    title={insignia.nombre}
+                    subtitle={
+                      insignia.moduloNumero
+                        ? `Módulo ${insignia.moduloNumero}`
+                        : "Insignia obtenida"
+                    }
+                    tone="accent"
+                  />
+                ))
+            )}
           </ul>
         </div>
 
