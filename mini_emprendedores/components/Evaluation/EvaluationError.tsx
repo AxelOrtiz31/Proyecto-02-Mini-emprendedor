@@ -2,14 +2,20 @@
 
 interface EvaluationErrorProps {
   onBack: () => void;
+  title?: string;
+  actionLabel?: string;
 }
 
-export function EvaluationError({ onBack }: EvaluationErrorProps) {
+export function EvaluationError({
+  onBack,
+  title = "No pudimos cargar el examen final",
+  actionLabel = "Volver al camino",
+}: EvaluationErrorProps) {
   return (
     <main className="grid min-h-screen place-items-center bg-background px-6 text-center">
       <div className="max-w-sm">
         <p className="font-display text-xl font-extrabold text-foreground">
-          No pudimos cargar el examen final
+          {title}
         </p>
         <p className="mt-2 text-sm font-semibold text-muted-foreground">
           Revisa tu conexión e inténtalo de nuevo en un momento.
@@ -19,7 +25,7 @@ export function EvaluationError({ onBack }: EvaluationErrorProps) {
           onClick={onBack}
           className="mt-6 rounded-2xl bg-primary px-6 py-3 font-display text-sm font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
         >
-          Volver al camino
+          {actionLabel}
         </button>
       </div>
     </main>

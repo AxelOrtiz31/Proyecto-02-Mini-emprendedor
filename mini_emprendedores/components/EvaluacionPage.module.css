@@ -1,0 +1,164 @@
+.root {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(160deg, #fdf6e3 0%, #f0f4ff 60%, #e8f5f0 100%);
+  position: relative;
+  overflow-x: hidden;
+  font-family: "Nunito", "Poppins", system-ui, sans-serif;
+  padding: 3rem 2rem;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.dotGrid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, #c8d0e0 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.contentWrapper {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Barra de Progreso por Pasos */
+.progressContainer {
+  display: flex;
+  width: 100%;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.progressStep {
+  flex: 1;
+  height: 10px;
+  border-radius: 10px;
+  background-color: #e8e8f0;
+  transition: background-color 0.3s ease;
+}
+
+.progressStepActive {
+  background-color: #6d5ddb;
+}
+
+/* Bloque de la Pregunta Principal */
+.preguntaCard {
+  background: #fff;
+  border: 1.5px solid #e8e8f0;
+  border-radius: 24px;
+  padding: 2.5rem 1.5rem;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.02);
+  margin-bottom: 2rem;
+}
+
+.preguntaTexto {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #1e1465;
+  margin: 0;
+}
+
+/* Contenedor de Opciones */
+.opcionesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 520px) {
+  .opcionesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Estilos individuales por botón (Simulando la imagen) */
+.opcionBtn {
+  background: #fff;
+  border: 2px solid #e8e8f0;
+  border-radius: 20px;
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.opcionBtn:hover {
+  transform: translateY(-3px);
+}
+
+.opcionVerde:hover { border-color: #34d399; background-color: #f0fdf4; }
+.opcionAmarilla:hover { border-color: #fbbf24; background-color: #fffbeb; }
+.opcionRoja:hover { border-color: #f87171; background-color: #fef2f2; }
+
+.emoji {
+  font-size: 3rem;
+}
+
+.opcionLabel {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.labelVerde { color: #059669; }
+.labelAmarillo { color: #d97706; }
+.labelRojo { color: #dc2626; }
+
+/* Texto de pie "Pregunta X de Y" */
+.footerText {
+  font-size: 1rem;
+  color: #6b6b8a;
+  font-weight: 700;
+}
+
+/* Mascot Area */
+.mascotArea {
+  align-self: flex-end;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.bubble {
+  background: #fff;
+  border: 1.5px solid #e8e8f0;
+  border-radius: 18px 18px 4px 18px;
+  padding: 0.65rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #3a3a5c;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  max-width: 240px;
+}
+
+.mascot {
+  font-size: 4rem;
+  animation: floatBounce 3s ease-in-out infinite;
+}
+
+@keyframes floatBounce {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}

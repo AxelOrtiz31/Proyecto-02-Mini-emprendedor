@@ -1,5 +1,5 @@
 export type StatTone = "primary" | "success" | "info";
-export type StatIcon = "zap" | "target" | "timer";
+export type StatIcon = "zap" | "target" | "timer" | "star" | "trophy";
 
 export interface LessonStat {
   id: string;

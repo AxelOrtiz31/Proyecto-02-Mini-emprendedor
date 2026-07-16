@@ -6,6 +6,7 @@ import type { Section } from "@/data/course";
 import { getTipOfTheDay } from "@/data/tips";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
+import { formatStreakDays } from "@/lib/streak";
 import { playSfx } from "@/audio/AudioManager";
 
 interface MascotPanelProps {
@@ -16,6 +17,8 @@ interface MascotPanelProps {
   nextSection?: Section | null;
   // true cuando todas las secciones están completadas.
   courseComplete?: boolean;
+  // Racha actual del alumno (días consecutivos con actividad).
+  streak?: number;
 }
 
 interface ProfileData {
@@ -29,6 +32,7 @@ export function MascotPanel({
   currentSection,
   nextSection,
   courseComplete = false,
+  streak = 0,
 }: MascotPanelProps) {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -129,7 +133,11 @@ export function MascotPanel({
           </div>
           <ul className="mt-3 space-y-2">
             <Achievement title="Primera actividad" subtitle="Completaste tu primera lección" tone="success" />
-            <Achievement title="Racha de 12 días" subtitle="¡Sigue así!" tone="primary" />
+            <Achievement
+              title={`Racha de ${formatStreakDays(streak)}`}
+              subtitle={streak > 0 ? "¡Sigue así!" : "Completa una lección hoy"}
+              tone="primary"
+            />
             <Achievement title="Cazador de ideas" subtitle="3 estrellas en bonus" tone="accent" />
           </ul>
         </div>
