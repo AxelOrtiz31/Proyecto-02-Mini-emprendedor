@@ -11,14 +11,20 @@ export const bgm = {
   dashboard: new Howl({
     src: ["/audio/dashboard.mp3"],
     loop: true,
-    volume: 0.01,
+    volume: 0.005,
   }),
 
   levels: new Howl({
     src: ["/audio/levels.mp3"],
     loop: true,
-    volume: 0.01,
+    volume: 0.005,
   })
+
+  // final_exam: new Howl({
+  //   src: ["/audio/final_exam.mp3"],
+  //   loop: true,
+  //   volume: 0.005,
+  // })
 };
 
 // Sonidos de efectos

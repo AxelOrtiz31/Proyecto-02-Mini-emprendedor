@@ -28,6 +28,11 @@ export default function MusicController() {
       return;
     }
 
+    if (pathname.startsWith("/final_exam")) {
+      playMusic("final_exam");
+      return;
+    }
+
   }, [pathname]);
 
   return null;

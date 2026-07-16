@@ -1,4 +1,6 @@
 "use client";
+import { speechTexts } from "@/audio/SpeechTexts";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
 
 export function Historia({ onNext }: { onNext: () => void }) {
   return (
@@ -11,8 +13,10 @@ export function Historia({ onNext }: { onNext: () => void }) {
         💫
       </span>
 
-      <h1 className="max-w-sm font-display text-xl font-extrabold text-foreground sm:text-2xl">
-        Ana y sus pulseras
+
+      <h1 className="max-w-sm font-display text-2xl font-extrabold text-foreground sm:text-3xl flex items-center gap-3">
+        <SpeakButton text={speechTexts.nivel01_modulo01_historia} />
+        <span>Ana y sus pulseras</span>
       </h1>
 
       <p className="max-w-sm text-sm font-semibold text-muted-foreground sm:text-base">

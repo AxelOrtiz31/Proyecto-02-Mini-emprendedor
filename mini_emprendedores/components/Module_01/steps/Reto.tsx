@@ -1,4 +1,6 @@
 "use client";
+import { speechTexts } from "@/audio/SpeechTexts";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
 
 export function Reto({ onNext }: { onNext: () => void }) {
   return (
@@ -11,8 +13,10 @@ export function Reto({ onNext }: { onNext: () => void }) {
         🚀
       </span>
 
-      <h1 className="max-w-sm font-display text-2xl font-extrabold text-foreground sm:text-3xl">
-        ¿Qué es emprender?
+      
+      <h1 className="max-w-sm font-display text-2xl font-extrabold text-foreground sm:text-3xl flex items-center gap-3">
+        <SpeakButton text={speechTexts.nivel01_modulo01_reto} />
+        <span>¿Qué es emprender?</span>
       </h1>
 
       <p className="max-w-sm text-sm font-semibold text-muted-foreground sm:text-base">
