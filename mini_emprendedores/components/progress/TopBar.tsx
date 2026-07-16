@@ -10,7 +10,7 @@ import { User, Trophy, MessageCircle } from "lucide-react";
 import { ChatModal } from "@/components/IA_Bot/ChatModal";
 
 import { speechTexts } from "@/audio/SpeechTexts";
-import { SpeakButton } from "@/components/SpeakButtonController";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
 
 interface TopBarProps {
   streak: number;
@@ -76,7 +76,7 @@ export function TopBar({ streak, ideas, xp }: TopBarProps) {
           <Link
             href="/achievements"
             className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            title="Logros"
+            title="Examen Final"
           >
             <Trophy className="h-5 w-5" />
           </Link>

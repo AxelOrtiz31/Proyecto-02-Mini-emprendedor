@@ -38,29 +38,9 @@ export default async function LessonPage({ params }: LessonPageProps) {
 }
 
 function getModuleRouteFromLessonId(lessonId: string) {
-  if (lessonId.startsWith("s1-u1")) {
-    return `/modules01_06_complete/module01?lesson=${lessonId}`;
-  }
+  const match = lessonId.match(/^s(\d+)-u1/);
+  if (!match) return null;
 
-  if (lessonId.startsWith("s2-u1")) {
-    return `/modules01_06_complete/module02?lesson=${lessonId}`;
-  }
-
-  if (lessonId.startsWith("s3-u1")) {
-    return `/modules01_06_complete/module03?lesson=${lessonId}`;
-  }
-
-  if (lessonId.startsWith("s4-u1")) {
-    return `/modules01_06_complete/module04?lesson=${lessonId}`;
-  }
-
-  if (lessonId.startsWith("s5-u1")) {
-    return `/modules01_06_complete/module05?lesson=${lessonId}`;
-  }
-
-  if (lessonId.startsWith("s6-u1")) {
-    return `/modules01_06_complete/module06?lesson=${lessonId}`;
-  }
-
-  return null;
+  const numeroModulo = match[1].padStart(2, "0");
+  return `/modules01_06_complete/module${numeroModulo}?lesson=${lessonId}`;
 }
