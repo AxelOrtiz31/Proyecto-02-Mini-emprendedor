@@ -556,6 +556,8 @@ CREATE TABLE avatares (
   nombre NVARCHAR(255) NOT NULL UNIQUE,
   url_imagen NVARCHAR(MAX) NOT NULL,
   activo BIT NOT NULL DEFAULT 1,
+  habilidad NVARCHAR(50) NULL
+    CHECK (habilidad IN ('liderazgo', 'creatividad', 'trabajo_equipo', 'resolucion_problemas')),
   CONSTRAINT PK_avatares PRIMARY KEY (id)
 );
 GO
@@ -614,6 +616,8 @@ CREATE TABLE perfiles (
       CHECK (rol IN ('alumno', 'tutor', 'maestro', 'admin')),
   alias NVARCHAR(255) NULL,
   grado_escolar NVARCHAR(255) NULL,
+  habilidad_dominante NVARCHAR(50) NULL
+    CHECK (habilidad_dominante IN ('liderazgo', 'creatividad', 'trabajo_equipo', 'resolucion_problemas')),
   fecha_registro DATETIME NOT NULL DEFAULT GETDATE(),
   activo BIT NOT NULL DEFAULT 1,
   CONSTRAINT PK_perfiles PRIMARY KEY (id),
