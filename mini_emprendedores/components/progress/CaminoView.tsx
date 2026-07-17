@@ -8,22 +8,13 @@ import { SectionChips } from "./SectionChips";
 import { UnitBanner } from "./UnitBanner";
 import { CoursePath } from "./CoursePath";
 import { MascotPanel } from "./MascotPanel";
-import { deriveCourse, fetchCompletedCodes, fetchXpTotal, estrellasForCompleted } from "@/lib/progress";
-import { calculateStreak, fetchCompletionTimestamps } from "@/lib/streak";
-import { playMusic } from "@/audio/AudioManager";
+import { deriveCourse, fetchCompletedCodes, xpForCompleted } from "@/lib/progress";
+import { fetchStreakData } from "@/lib/streak";
 
 export function CaminoView() {
   const router = useRouter();
-
-  useEffect(() => {
-    playMusic("dashboard");
-  }, []);
-
   const [completedIds, setCompletedIds] = useState<string[] | null>(null);
-  // Las fechas de las lecciones completadas alimentan la racha y el calendario
-  // del modal, así que se guardan enteras en vez de solo el número de racha.
-  const [timestamps, setTimestamps] = useState<string[]>([]);
-  const [xp, setXp] = useState(0);
+  const [streak, setStreak] = useState(0);
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const scrollingTo = useRef<string | null>(null);
@@ -34,17 +25,15 @@ export function CaminoView() {
 
     async function loadProgress() {
       try {
-        const [codes, completionTimes, xpTotal] = await Promise.all([
+        const [codes, streakData] = await Promise.all([
           fetchCompletedCodes(),
-          fetchCompletionTimestamps(),
-          fetchXpTotal(),
+          fetchStreakData(),
         ]);
 
         if (!active) return;
 
         setCompletedIds(codes);
-        setTimestamps(completionTimes);
-        setXp(xpTotal);
+        setStreak(streakData.streak);
       } catch (error) {
         console.error("Error cargando progreso:", error);
 
@@ -62,8 +51,6 @@ export function CaminoView() {
   }, []);
 
   const loaded = completedIds !== null;
-
-  const streak = useMemo(() => calculateStreak(timestamps), [timestamps]);
 
   const sections = useMemo(() => {
     if (!loaded) return [];
@@ -171,7 +158,7 @@ export function CaminoView() {
 
   return (
     <div className="min-h-screen overflow-x-clip bg-background">
-      <TopBar streak={streak} estrellas={estrellas} xp={xp} timestamps={timestamps} />
+      <TopBar streak={streak} ideas={500} xp={xp} />
 
       <div className="sticky top-16 z-30 bg-background/90 backdrop-blur lg:hidden">
         <div className="mx-auto max-w-7xl">

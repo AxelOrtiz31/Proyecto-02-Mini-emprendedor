@@ -5,14 +5,7 @@ import { useRouter } from "next/navigation";
 import { ConfettiLayer } from "./ConfettiLayer";
 import { SplashScreen } from "./SplashScreen";
 import { StatsPanel } from "./StatsPanel";
-import { saveCompletedLesson, XP_PER_ACTIVITY, ESTRELLAS_PER_ACTIVITY } from "@/lib/progress";
-import {
-  canShowStreakCelebration,
-  fetchStreakData,
-  markStreakCelebrationShown,
-  type StreakData,
-} from "@/lib/streak";
-import { StreakCelebration } from "@/components/streak/StreakCelebration";
+import { saveCompletedLesson, XP_PER_ACTIVITY } from "@/lib/progress";
 import type { LessonStat } from "./types";
 
 /* Debe cubrir el fade-out del splash definido en globals.css (1.6 s de espera + 0.4 s). */
@@ -30,8 +23,7 @@ const MENSAJES_MENTORIX: { heading: string; subtitle: string }[] = [
 
 export default function ModuleCompletePage() {
   const router = useRouter();
-  const [phase, setPhase] = useState<"splash" | "stats" | "streak">("splash");
-  const [streakData, setStreakData] = useState<StreakData | null>(null);
+  const [phase, setPhase] = useState<"splash" | "stats">("splash");
   const [insignia, setInsignia] = useState<string | null>(null);
   const [mensajeIndex] = useState(() => Math.floor(Math.random() * MENSAJES_MENTORIX.length));
 
@@ -56,59 +48,18 @@ export default function ModuleCompletePage() {
   ];
 
   // Al reclamar XP se guarda la lección recibida por query (?lesson=) como
-  // completada para el usuario -junto con el tiempo invertido, los intentos,
-  // el bono de XP por terminar el módulo (si aplica), y la insignia ganada
-  // (si aplica)-, lo que desbloquea la siguiente lección. Si es la primera
-  // lección del día se celebra la racha antes de volver al camino.
+  // completada para el usuario, lo que desbloquea la siguiente, y se vuelve al camino.
   async function handleClaim() {
-    const params = new URLSearchParams(window.location.search);
-    const lessonId = params.get("lesson");
-
-    try {
-      if (lessonId) {
-        const tiempoParam = params.get("tiempo");
-        const intentosParam = params.get("intentos");
-        const insigniaParam = params.get("insignia");
-        const xpBonusParam = params.get("xpBonus");
-
-        await saveCompletedLesson(lessonId, {
-          tiempoSegundos: tiempoParam ? Number(tiempoParam) : undefined,
-          intentos: intentosParam ? Number(intentosParam) : undefined,
-          insignia: insigniaParam ?? undefined,
-          moduloNumero: moduloNumeroDeCodigo(lessonId),
-          xpBonus: xpBonusParam ? Number(xpBonusParam) : undefined,
-        });
-      }
-    } catch (error) {
-      console.error("Error guardando la lección:", error);
-      router.push("/dashboard");
-      return;
+    const lessonId = new URLSearchParams(window.location.search).get("lesson");
+    if (lessonId) {
+      await saveCompletedLesson(lessonId);
     }
-
-    if (!canShowStreakCelebration()) {
-      router.push("/dashboard");
-      return;
-    }
-
-    const data = await fetchStreakData();
-
-    // Con la lección recién guardada la racha no puede ser 0: si lo es, la
-    // lectura falló y es mejor callarse que enseñar un número equivocado.
-    if (data.streak === 0) {
-      router.push("/dashboard");
-      return;
-    }
-
-    markStreakCelebrationShown();
-    setStreakData(data);
-    setPhase("streak");
+    router.push("/dashboard");
   }
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-background">
-      {/* La celebración cubre la pantalla con un fondo opaco: el confeti solo
-          gastaría animación por detrás. */}
-      {phase !== "streak" && <ConfettiLayer />}
+      <ConfettiLayer />
       {phase === "splash" && (
         <SplashScreen
           title="¡Lección completada!"
@@ -124,22 +75,6 @@ export default function ModuleCompletePage() {
           claimLabel="Reclamar XP"
           onClaim={handleClaim}
           mascotSrc="/cloud-robotics.json"
-        />
-      )}
-      {phase === "streak" && streakData && (
-        <StreakCelebration
-          streak={streakData.streak}
-          weekActivity={streakData.weekActivity}
-          mascotSrc="/cloud-robotics.json"
-          onContinue={() => router.push("/dashboard")}
-        />
-      )}
-      {phase === "streak" && streakData && (
-        <StreakCelebration
-          streak={streakData.streak}
-          weekActivity={streakData.weekActivity}
-          mascotSrc="/cloud-robotics.json"
-          onContinue={() => router.push("/dashboard")}
         />
       )}
     </main>
