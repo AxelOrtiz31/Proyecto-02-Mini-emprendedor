@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   fetchLessonEvaluation,
   finishEvaluationSession,
@@ -11,27 +11,15 @@ import {
   type EvaluationQuestion,
 } from "@/lib/evaluations";
 
-export interface ResultadoEnvio {
-  aprobado: boolean;
-  intentos: number;
-}
-
 // Encapsula el flujo "responde todo -> envía -> califica" que usan las
 // evaluaciones de cierre de lección. El alumno puede cambiar sus respuestas
 // libremente hasta que llama a submit(). Si falla, se abre una sesión nueva
 // para el reintento y las respuestas se reinician.
-//
-// intentos se cuenta con una ref (no con estado): submit() necesita
-// devolver el número de intento ACTUAL de inmediato, y el estado de React
-// no se actualiza sino hasta el siguiente render, así que leerlo justo
-// después de actualizarlo daría el valor anterior (el típico bug de
-// "closure obsoleto").
 export function useEvaluacion(lessonId: string, moduleNumber: number) {
   const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [answers, setAnswers] = useState<Record<number, number[]>>({});
   const [loading, setLoading] = useState(true);
-  const intentosRef = useRef(0);
 
   useEffect(() => {
     let active = true;
@@ -39,7 +27,6 @@ export function useEvaluacion(lessonId: string, moduleNumber: number) {
     async function load() {
       setLoading(true);
       setAnswers({});
-      intentosRef.current = 0;
 
       const data = await fetchLessonEvaluation(lessonId, moduleNumber);
       if (!active) return;
@@ -69,12 +56,9 @@ export function useEvaluacion(lessonId: string, moduleNumber: number) {
     });
   }
 
-  // Devuelve si se aprobó y el número de intento que se acaba de usar.
-  async function submit(): Promise<ResultadoEnvio> {
-    intentosRef.current += 1;
-    const intentos = intentosRef.current;
-
-    if (!evaluation) return { aprobado: false, intentos };
+  // Devuelve true si todas las preguntas calificables se respondieron bien.
+  async function submit(): Promise<boolean> {
+    if (!evaluation) return false;
 
     const preguntas = evaluation.questions;
     const payload = preguntas.map((p) => ({
@@ -96,7 +80,7 @@ export function useEvaluacion(lessonId: string, moduleNumber: number) {
       setSessionId(nuevaSesion);
     }
 
-    return { aprobado, intentos };
+    return aprobado;
   }
 
   return { loading, evaluation, answers, toggleOption, submit };

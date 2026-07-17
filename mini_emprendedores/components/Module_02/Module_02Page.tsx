@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { saveMiNegocio } from "@/lib/negocio";
-import { guardarPasoLeccion, leerPasoLeccion, borrarPasoLeccion, segundosDesde } from "@/lib/lessonProgress";
+import { guardarPasoLeccion, leerPasoLeccion, borrarPasoLeccion } from "@/lib/lessonProgress";
 import { SalirLeccion } from "@/components/shared/SalirLeccion";
 import { Reto } from "./steps/Reto";
 import { NivelTeach } from "./steps/NivelTeach";
@@ -36,8 +36,6 @@ export default function Module02Page({
   const router = useRouter();
   const nivelIndex = initialIndexFor(lessonId);
   const [fase, setFaseState] = useState<Fase>(() => faseDefecto(nivelIndex));
-  const [inicio] = useState(() => Date.now());
-  const [intentosFinales, setIntentosFinales] = useState(1);
 
   useEffect(() => {
     const guardada = leerPasoLeccion(lessonId);
@@ -52,15 +50,10 @@ export default function Module02Page({
     setFaseState(nuevaFase);
   }
 
-  function terminarLeccion(code: string, insignia?: string, intentos?: number, xpBonus?: number) {
+  function terminarLeccion(code: string, insignia?: string) {
     borrarPasoLeccion(lessonId);
-    const params = new URLSearchParams({
-      lesson: code,
-      tiempo: String(segundosDesde(inicio)),
-      intentos: String(intentos ?? intentosFinales),
-    });
+    const params = new URLSearchParams({ lesson: code });
     if (insignia) params.set("insignia", insignia);
-    if (xpBonus) params.set("xpBonus", String(xpBonus));
     router.push(`/modules01_06_complete/modulecomplete?${params.toString()}`);
   }
 
@@ -102,14 +95,13 @@ export default function Module02Page({
         <CheckCorto
           lessonId={nivel.codigo}
           moduleNumber={MODULE_NUMBER}
-          onPass={(intentos) => {
+          onPass={async () => {
             if (esUltimoNivel) {
-              setIntentosFinales(intentos);
               irA("fin_bloque");
               return;
             }
 
-            terminarLeccion(nivel.codigo, nivel.insignia, intentos);
+            terminarLeccion(nivel.codigo, nivel.insignia);
           }}
         />
       )}
@@ -119,7 +111,7 @@ export default function Module02Page({
           insignias={NIVELES.map((n) => n.insignia)}
           xp={XP_FIN_BLOQUE_2}
           competencias={COMPETENCIAS_BLOQUE_2}
-          onNext={() => terminarLeccion(nivel.codigo, nivel.insignia, intentosFinales, XP_FIN_BLOQUE_2)}
+          onNext={() => terminarLeccion(nivel.codigo)}
         />
       )}
     </>
