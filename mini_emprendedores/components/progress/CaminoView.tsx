@@ -8,15 +8,22 @@ import { SectionChips } from "./SectionChips";
 import { UnitBanner } from "./UnitBanner";
 import { CoursePath } from "./CoursePath";
 import { MascotPanel } from "./MascotPanel";
-import { deriveCourse, fetchCompletedCodes, xpForCompleted } from "@/lib/progress";
+import { deriveCourse, fetchCompletedCodes, fetchXpTotal, estrellasForCompleted } from "@/lib/progress";
 import { calculateStreak, fetchCompletionTimestamps } from "@/lib/streak";
+import { playMusic } from "@/audio/AudioManager";
 
 export function CaminoView() {
   const router = useRouter();
+
+  useEffect(() => {
+    playMusic("dashboard");
+  }, []);
+
   const [completedIds, setCompletedIds] = useState<string[] | null>(null);
   // Las fechas de las lecciones completadas alimentan la racha y el calendario
   // del modal, así que se guardan enteras en vez de solo el número de racha.
   const [timestamps, setTimestamps] = useState<string[]>([]);
+  const [xp, setXp] = useState(0);
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const scrollingTo = useRef<string | null>(null);
@@ -27,15 +34,17 @@ export function CaminoView() {
 
     async function loadProgress() {
       try {
-        const [codes, completionTimes] = await Promise.all([
+        const [codes, completionTimes, xpTotal] = await Promise.all([
           fetchCompletedCodes(),
           fetchCompletionTimestamps(),
+          fetchXpTotal(),
         ]);
 
         if (!active) return;
 
         setCompletedIds(codes);
         setTimestamps(completionTimes);
+        setXp(xpTotal);
       } catch (error) {
         console.error("Error cargando progreso:", error);
 
@@ -162,7 +171,7 @@ export function CaminoView() {
 
   return (
     <div className="min-h-screen overflow-x-clip bg-background">
-      <TopBar streak={streak} ideas={500} xp={xp} timestamps={timestamps} />
+      <TopBar streak={streak} estrellas={estrellas} xp={xp} timestamps={timestamps} />
 
       <div className="sticky top-16 z-30 bg-background/90 backdrop-blur lg:hidden">
         <div className="mx-auto max-w-7xl">
