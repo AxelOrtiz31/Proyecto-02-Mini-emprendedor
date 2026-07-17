@@ -10,9 +10,14 @@ import { CoursePath } from "./CoursePath";
 import { MascotPanel } from "./MascotPanel";
 import { deriveCourse, fetchCompletedCodes, fetchXpTotal, estrellasForCompleted } from "@/lib/progress";
 import { fetchStreakData } from "@/lib/streak";
+import { playMusic } from "@/audio/AudioManager";
 
 export function CaminoView() {
   const router = useRouter();
+
+  useEffect(() => {
+    playMusic("dashboard");
+  }, []);
   const [completedIds, setCompletedIds] = useState<string[] | null>(null);
   const [streak, setStreak] = useState(0);
   const [xp, setXp] = useState(0);

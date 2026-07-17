@@ -2,17 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Flame, Star, Zap, LogOut } from "lucide-react";
+import { Flame, Star, Zap, LogOut, User, Trophy, MessageCircle, Volume2, VolumeX } from "lucide-react";
 import { StatPill } from "./StatPill";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import { User, Trophy, MessageCircle } from "lucide-react";
 import { ChatModal } from "@/components/IA_Bot/ChatModal";
-
-import { speechTexts } from "@/audio/SpeechTexts";
-import { SpeakButton } from "@/controllers/SpeakButtonController";
-
-import { Volume2, VolumeX } from "lucide-react";
 import { toggleMusic, isMusicMuted } from "@/audio/AudioManager";
 
 interface TopBarProps {
@@ -55,39 +49,17 @@ export function TopBar({ streak, estrellas, xp }: TopBarProps) {
               className="h-9 w-9"
             />
 
-        <div className="flex items-center gap-1.5 sm:gap-3">
-          <StatPill icon={Flame} value={streak} label="Racha" tone="primary" />
-          <StatPill icon={Star} value={estrellas} label="Estrellas" tone="accent" />
-          <StatPill icon={Zap} value={xp} label="XP" tone="info" />
-        </div>
+            <span className="hidden font-display text-xl font-extrabold sm:inline-block">
+              <span className="text-foreground">Emprende</span>
+              <span className="text-primary">Kids</span>
+            </span>
+          </div>
 
-        {/* Acciones */}
-        <div className="flex items-center gap-2">
-          {/* Botones de navegación */}
-          <Link
-            href="/profile"
-            className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            title="Perfil"
-          >
-            <User className="h-5 w-5" />
-          </Link>
-          <Link
-            href="/achievements"
-            className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            title="Logros"
-          >
-            <Trophy className="h-5 w-5" />
-          </Link>
-          <button
-            type="button"
-            onClick={() => setChatOpen(true)}
-            className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            title="Chatbot"
-          >
-            <MessageCircle className="h-5 w-5" />
-          </button>
-          <SpeakButton text={speechTexts.dashboard} />
-        </div>
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            <StatPill icon={Flame} value={streak} label="Racha" tone="primary" />
+            <StatPill icon={Star} value={estrellas} label="Estrellas" tone="accent" />
+            <StatPill icon={Zap} value={xp} label="XP" tone="info" />
+          </div>
 
           {/* Acciones */}
           <div className="flex items-center gap-2">
@@ -102,7 +74,7 @@ export function TopBar({ streak, estrellas, xp }: TopBarProps) {
             <Link
               href="/achievements"
               className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              title="Examen Final"
+              title="Logros"
             >
               <Trophy className="h-5 w-5" />
             </Link>
