@@ -13,6 +13,9 @@ import { StreakModal } from "@/components/streak/StreakModal";
 import { speechTexts } from "@/audio/SpeechTexts";
 import { SpeakButton } from "@/controllers/SpeakButtonController";
 
+import { Volume2, VolumeX } from "lucide-react";
+import { toggleMusic, isMusicMuted } from "@/audio/AudioManager";
+
 interface TopBarProps {
   streak: number;
   ideas: number;
@@ -26,6 +29,7 @@ export function TopBar({ streak, ideas, xp, timestamps }: TopBarProps) {
   const [cerrando, setCerrando] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [streakOpen, setStreakOpen] = useState(false);
+  const [muted, setMuted] = useState(isMusicMuted());
 
   async function handleCerrarSesion() {
     setCerrando(true);
@@ -100,6 +104,21 @@ export function TopBar({ streak, ideas, xp, timestamps }: TopBarProps) {
             <MessageCircle className="h-5 w-5" />
           </button>
           <SpeakButton text={speechTexts.dashboard} />
+          <button
+            type="button"
+            onClick={() => {
+              toggleMusic();
+              setMuted(isMusicMuted());
+            }}
+            className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            title={muted ? "Activar música" : "Silenciar música"}
+          >
+            {muted ? (
+              <VolumeX className="h-5 w-5" />
+            ) : (
+              <Volume2 className="h-5 w-5" />
+            )}
+          </button>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">

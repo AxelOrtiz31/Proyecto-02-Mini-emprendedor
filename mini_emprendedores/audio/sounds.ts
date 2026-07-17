@@ -5,43 +5,43 @@ export const bgm = {
   home: new Howl({
     src: ["/audio/home.mp3"],
     loop: true,
-    volume: 0.005,
+    volume: 0.0075,
   }),
 
   dashboard: new Howl({
     src: ["/audio/dashboard.mp3"],
     loop: true,
-    volume: 0.005,
+    volume: 0.0075,
   }),
 
   levels: new Howl({
     src: ["/audio/levels.mp3"],
     loop: true,
-    volume: 0.005,
+    volume: 0.0075,
   }),
 
   evaluacion: new Howl({
     src: ["/audio/evaluacion.mp3"],
     loop: true,
-    volume: 0.005,
+    volume: 0.0075,
   }),
 
   profile: new Howl({
     src: ["/audio/profile.mp3"],
     loop: true,
-    volume: 0.005,
+    volume: 0.0075,
   }),
 
   achievements: new Howl({
     src: ["/audio/achievements.mp3"],
     loop: true,
-    volume: 0.005,
+    volume: 0.0075,
   }),
 
   module_complete: new Howl({
     src: ["/audio/victory.mp3"],
     loop: true,
-    volume: 0.005,
+    volume: 0.0075,
   }),
 };
 
@@ -59,6 +59,11 @@ export const sfx = {
 
   opciones: new Howl({
     src: ["/audio/opciones.mp3"],
-    volume: 0.05,
+    volume: 0.04,
+  }),
+
+  nodos: new Howl({
+    src: ["/audio/nodos.mp3"],
+    volume: 0.04,
   }),
 };
