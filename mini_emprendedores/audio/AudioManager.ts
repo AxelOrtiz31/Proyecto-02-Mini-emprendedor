@@ -1,22 +1,46 @@
+import { Howl } from "howler";
 import { bgm, sfx } from "./sounds";
 
-let currentMusic: any = null;
+let currentMusic: Howl | null = null;
 let currentTrack: keyof typeof bgm | null = null;
+let musicMuted = false;
 
 export function playMusic(track: keyof typeof bgm) {
-  if (currentTrack === track) return;
+  if (currentTrack === track) {
+    if (!musicMuted) currentMusic?.play();
+    return;
+  }
 
   currentMusic?.stop();
 
   currentMusic = bgm[track];
   currentTrack = track;
 
-  currentMusic.play();
+  if (!musicMuted) {
+    currentMusic.play();
+  }
 }
 
 export function stopMusic() {
   currentMusic?.stop();
   currentTrack = null;
+}
+
+// Silencia/activa la música sin importar si ya hay una pista cargada: el
+// botón siempre debe reflejar y aplicar el estado correctamente, incluso
+// antes de que playMusic() se haya llamado por primera vez.
+export function toggleMusic() {
+  musicMuted = !musicMuted;
+
+  if (musicMuted) {
+    currentMusic?.pause();
+  } else {
+    currentMusic?.play();
+  }
+}
+
+export function isMusicMuted() {
+  return musicMuted;
 }
 
 export function playSfx(sound: keyof typeof sfx) {

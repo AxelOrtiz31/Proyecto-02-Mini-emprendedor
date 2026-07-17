@@ -23,7 +23,37 @@ export default function MusicController() {
       return;
     }
 
-    if (pathname.startsWith("/modules01_06_complete")) {
+    if (pathname.startsWith("/modules01_06_complete/module01")) {
+      playMusic("levels");
+      return;
+    }
+
+    if (pathname.startsWith("/modules01_06_complete/module02")) {
+      playMusic("levels");
+      return;
+    }
+
+    if (pathname.startsWith("/modules01_06_complete/module03")) {
+      playMusic("levels");
+      return;
+    }
+
+    if (pathname.startsWith("/modules01_06_complete/module04")) {
+      playMusic("levels");
+      return;
+    }
+
+    if (pathname.startsWith("/modules01_06_complete/module05")) {
+      playMusic("levels");
+      return;
+    }
+
+    if (pathname.startsWith("/modules01_06_complete/module06")) {
+      playMusic("levels");
+      return;
+    }
+
+    if (pathname.startsWith("/modules01_06_complete/module07")) {
       playMusic("levels");
       return;
     }
@@ -48,7 +78,7 @@ export default function MusicController() {
       return;
     }
 
-    if (pathname.startsWith("/modulecomplete")) {
+    if (pathname.startsWith("/modules01_06_complete/modulecomplete")) {
       playMusic("module_complete");
       return;
     }
