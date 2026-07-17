@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ConfettiLayer } from "./ConfettiLayer";
 import { SplashScreen } from "./SplashScreen";
 import { StatsPanel } from "./StatsPanel";
-import { saveCompletedLesson, XP_PER_ACTIVITY, ESTRELLAS_PER_ACTIVITY } from "@/lib/progress";
+import { saveCompletedLesson, XP_PER_ACTIVITY } from "@/lib/progress";
 import {
   canShowStreakCelebration,
   fetchStreakData,
@@ -56,28 +56,14 @@ export default function ModuleCompletePage() {
   ];
 
   // Al reclamar XP se guarda la lección recibida por query (?lesson=) como
-  // completada para el usuario -junto con el tiempo invertido, los intentos,
-  // el bono de XP por terminar el módulo (si aplica), y la insignia ganada
-  // (si aplica)-, lo que desbloquea la siguiente lección. Si es la primera
+  // completada para el usuario, lo que desbloquea la siguiente. Si es la primera
   // lección del día se celebra la racha antes de volver al camino.
   async function handleClaim() {
-    const params = new URLSearchParams(window.location.search);
-    const lessonId = params.get("lesson");
+    const lessonId = new URLSearchParams(window.location.search).get("lesson");
 
     try {
       if (lessonId) {
-        const tiempoParam = params.get("tiempo");
-        const intentosParam = params.get("intentos");
-        const insigniaParam = params.get("insignia");
-        const xpBonusParam = params.get("xpBonus");
-
-        await saveCompletedLesson(lessonId, {
-          tiempoSegundos: tiempoParam ? Number(tiempoParam) : undefined,
-          intentos: intentosParam ? Number(intentosParam) : undefined,
-          insignia: insigniaParam ?? undefined,
-          moduloNumero: moduloNumeroDeCodigo(lessonId),
-          xpBonus: xpBonusParam ? Number(xpBonusParam) : undefined,
-        });
+        await saveCompletedLesson(lessonId);
       }
     } catch (error) {
       console.error("Error guardando la lección:", error);
@@ -124,14 +110,6 @@ export default function ModuleCompletePage() {
           claimLabel="Reclamar XP"
           onClaim={handleClaim}
           mascotSrc="/cloud-robotics.json"
-        />
-      )}
-      {phase === "streak" && streakData && (
-        <StreakCelebration
-          streak={streakData.streak}
-          weekActivity={streakData.weekActivity}
-          mascotSrc="/cloud-robotics.json"
-          onContinue={() => router.push("/dashboard")}
         />
       )}
       {phase === "streak" && streakData && (
