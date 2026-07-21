@@ -1,4 +1,5 @@
 # Proyecto-02-Mini-emprendedor
+
 Taller de niños acerca del emprendimiento.
 
 Link al repositorio en Figma con los mockups:
@@ -17,25 +18,31 @@ Link al levantamiento de requerimientos y manual de usuario:
 https://docs.google.com/document/d/1Aaw5mjwTWogRvFLcTIDflDeSx00q7BRUehI0lWUyJwE/edit?usp=sharing
 
 ## Pasos rapidos para iniciar el proyecto
+
 Copear el repositorio a tu PC
+
 ```bash
 git clone https://github.com/AxelOrtiz31/Proyecto-02-Mini-emprendedor.git
 ```
 
 Recibir los cambios de otros
+
 ```bash
 git pull
 ```
 
 Recibir los cambios de la rama principal (origin main)
+
 ```bash
 git pull origin main
 ```
 
+para ver que sow
+
 Para más información lea la parte de mas abajo (▀̿Ĺ̯▀̿ ̿)
 
-
 ## Actividad Git
+
 Este es el commit de Axel
 
 Este es el commit de Kevin
@@ -51,6 +58,7 @@ Este es el commit de Erik
 Este es el commit de Elsy
 
 ## Instalacion de Node.js
+
 Node.js es un entorno de ejecución para JavaScript que permite ejecutar código fuera del navegador.
 Es necesario para ejecutar Next en la PC.
 
@@ -65,6 +73,7 @@ npm --version
 ```
 
 ## Crear proyecto con Next.js
+
 Next.js es un framework basado en React (biblioteca de JS) que facilita crear aplicaciones web completas y optimizadas.
 
 Comandos para crear app e iniciarla:
@@ -76,7 +85,9 @@ npm run dev
 ```
 
 ## Guia rapida del framework Next
+
 Carpetas y archivos:
+
 1. .next → Archivos generados por la compilación.
 2. app → Páginas, layouts y rutas de la aplicación.
 3. components → Componentes reutilizables (se usan en app).
@@ -87,20 +98,23 @@ Carpetas y archivos:
 8. package.json → Configuración, scripts y dependencias del proyecto.
 9. controllers → Procesa solicitudes.
 
-
 ## Dependencias instaladas
+
 Supabase:
+
 ```bash
 npm install @supabase/supabase-js
 npm install howler
 ```
 
 Para instalar las dependencias agrega esto a package.json en "dependencies":
+
 ```
 "@supabase/supabase-js": "^2.108.2",
 ```
 
 Comandos para usar npm, si no se especifica una libreria despues el comando tendra un comportamiento global:
+
 ```bash
 npm install
 npm uninstall
@@ -108,7 +122,9 @@ npm update
 ```
 
 ### Comandos para solucionar errores
+
 Si el proyecto tiene errores con las dependencias, next, etc, y al arrancar te salen errores, ejecuta los siguientes comandos, si tienes Windows:
+
 ```bash
 rmdir /s /q .next
 rmdir /s /q node_modules
@@ -119,6 +135,7 @@ npm run dev
 ```
 
 Si tienes Mac:
+
 ```bash
 rm -rf .next
 rm -rf node_modules
@@ -131,6 +148,7 @@ npm run dev
 ## Guía rápida para colaborar en el proyecto
 
 ### 1. Clonar el repositorio
+
 Clona el repositorio en tu máquina local:
 
 ```bash
