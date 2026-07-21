@@ -2,6 +2,7 @@
 
 import type { Nivel } from "../data";
 import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { playSfx } from "@/audio/AudioManager";
 
 interface NivelTeachProps {
   nivel: Nivel;
@@ -25,7 +26,7 @@ export function NivelTeach({ nivel, totalNiveles, onNext }: NivelTeachProps) {
           text={`
             ${nivel.titulo}
 
-            EmprenBot dice:
+            Mentorix dice:
               ${nivel.emprenbot}
               ${nivel.explicacion}
           `}
@@ -44,7 +45,10 @@ export function NivelTeach({ nivel, totalNiveles, onNext }: NivelTeachProps) {
 
       <button
         type="button"
-        onClick={onNext}
+        onClick={() => {
+          onNext();
+          playSfx("click");
+        }}
         className="mt-2 rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
       >
         Ya entendí →

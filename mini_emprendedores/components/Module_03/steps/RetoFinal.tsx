@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { fetchMiNegocio } from "@/lib/negocio";
 import { CLIENTE_PERSONAS, LUGARES_CLIENTE, type ClientePersona } from "../data";
+import { speechTexts } from "@/audio/SpeechTexts";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { playSfx } from "@/audio/AudioManager";
 
 interface RetoFinalProps {
   onSaved: (datos: {
@@ -55,8 +58,9 @@ export function RetoFinal({ onSaved }: RetoFinalProps) {
         Reto final · Conoce a tu cliente ideal
       </span>
 
-      <h1 className="mt-4 max-w-sm font-display text-xl font-extrabold text-foreground sm:text-2xl">
-        {ideaNombre ? `¿Quién comprará "${ideaNombre}"?` : "¿Quién será tu cliente?"}
+      <h1 className="max-w-sm font-display text-2xl font-extrabold text-foreground sm:text-3xl flex items-center gap-3">
+        <SpeakButton text={speechTexts.nivel01_modulo03_retoFinal} />
+        <span>{ideaNombre ? `¿Quién comprará "${ideaNombre}"?` : "¿Quién será tu cliente?"}</span>
       </h1>
 
       <p className="mt-2 text-xs font-extrabold uppercase tracking-wide text-muted-foreground">
@@ -112,7 +116,10 @@ export function RetoFinal({ onSaved }: RetoFinalProps) {
 
       <button
         type="button"
-        onClick={confirmar}
+        onClick={() => {
+          confirmar();
+          playSfx("click");
+        }}
         disabled={!listo || guardando}
         className="mt-8 w-full max-w-sm rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
       >

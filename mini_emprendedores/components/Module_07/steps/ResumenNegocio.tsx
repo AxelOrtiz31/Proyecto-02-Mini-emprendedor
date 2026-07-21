@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fetchMiNegocio, type MiNegocio } from "@/lib/negocio";
+import { playSfx } from "@/audio/AudioManager";
 
 interface ResumenNegocioProps {
   onNext: () => void;
@@ -67,7 +68,10 @@ export function ResumenNegocio({ onNext }: ResumenNegocioProps) {
 
       <button
         type="button"
-        onClick={onNext}
+        onClick={() => {
+          onNext();
+          playSfx("click");
+        }}
         className="mt-8 w-full max-w-sm rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
       >
         Continuar →

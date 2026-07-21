@@ -204,3 +204,25 @@ git reset --hard ORIG_HEAD
 ```bash
 git merge --abort
 ```
+
+### Extras. Comandos que pueden ser utiles
+
+Para checar la rama en la que estas:
+```bash
+git branch
+```
+
+Para cambiar de rama localmente:
+```bash
+git checkout rama
+```
+
+Para actualizar las referencias de las ramas remotas localmente:
+```bash
+git fetch
+```
+
+Ver el status:
+```bash
+git status
+```

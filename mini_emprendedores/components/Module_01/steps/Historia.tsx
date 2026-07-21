@@ -1,6 +1,7 @@
 "use client";
 import { speechTexts } from "@/audio/SpeechTexts";
 import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { playSfx } from "@/audio/AudioManager";
 
 export function Historia({ onNext }: { onNext: () => void }) {
   return (
@@ -13,27 +14,28 @@ export function Historia({ onNext }: { onNext: () => void }) {
         💫
       </span>
 
-
       <h1 className="max-w-sm font-display text-2xl font-extrabold text-foreground sm:text-3xl flex items-center gap-3">
         <SpeakButton text={speechTexts.nivel01_modulo01_historia} />
         <span>Ana y sus pulseras</span>
       </h1>
 
       <p className="max-w-sm text-sm font-semibold text-muted-foreground sm:text-base">
-        Ana notó que a sus compañeros de escuela les encantaban las pulseras
-        de colores. En vez de solo desearlas, decidió crearlas ella misma y
+        Ana notó que a sus compañeros de escuela les encantaban las pulseras de
+        colores. En vez de solo desearlas, decidió crearlas ella misma y
         venderlas. 🎨
       </p>
 
       <p className="max-w-sm rounded-2xl border-2 border-border bg-card px-5 py-4 text-sm font-bold text-foreground shadow-(--shadow-card) sm:text-base">
-        Ana tuvo una idea, y trabajó para hacerla realidad. Eso es
-        exactamente lo que hace un{" "}
-        <span className="text-primary">emprendedor</span>. 🚀
+        Ana tuvo una idea, y trabajó para hacerla realidad. Eso es exactamente
+        lo que hace un <span className="text-primary">emprendedor</span>. 🚀
       </p>
 
       <button
         type="button"
-        onClick={onNext}
+        onClick={() => {
+          onNext();
+          playSfx("click");
+        }}
         className="mt-2 rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
       >
         Continuar →

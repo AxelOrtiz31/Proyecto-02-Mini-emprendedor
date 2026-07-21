@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { DETECTIVE_PARES } from "../data";
+import { speechTexts } from "@/audio/SpeechTexts";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { playSfx } from "@/audio/AudioManager";
 
 interface DetectiveJuegoProps {
   onDone: () => void;
@@ -42,8 +45,9 @@ export function DetectiveJuego({ onDone }: DetectiveJuegoProps) {
           Práctica · Detective de clientes
         </span>
 
-        <h1 className="mt-4 text-center font-display text-xl font-extrabold text-foreground sm:text-2xl">
-          Une cada negocio con su cliente ideal
+        <h1 className="max-w-sm font-display text-2xl font-extrabold text-foreground sm:text-3xl flex items-center gap-3">
+          <SpeakButton text={speechTexts.nivel01_modulo03_detective} />
+          <span>Une cada negocio con su cliente ideal</span>
         </h1>
 
         <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4">
@@ -99,7 +103,10 @@ export function DetectiveJuego({ onDone }: DetectiveJuegoProps) {
         <div className="mt-auto w-full pt-8">
           <button
             type="button"
-            onClick={onDone}
+            onClick={() => {
+              onDone();
+              playSfx("click");
+            }}
             disabled={!completo}
             className="w-full rounded-2xl bg-primary px-6 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
           >
