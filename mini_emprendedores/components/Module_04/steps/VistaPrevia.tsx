@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import { fetchMiNegocio, type MiNegocio } from "@/lib/negocio";
 import { LOGO_FORMAS } from "../data";
 
+import { speechTexts } from "@/audio/SpeechTexts";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { playSfx } from "@/audio/AudioManager";
+
 interface VistaPreviaProps {
   onSaved: (percepcion: string) => void;
 }
@@ -41,7 +45,8 @@ export function VistaPrevia({ onSaved }: VistaPreviaProps) {
       </span>
 
       <h1 className="mt-4 font-display text-lg font-extrabold text-foreground sm:text-xl">
-        ¡Así se ve tu negocio!
+        <SpeakButton text={speechTexts.nivel01_modulo04_vistaPrevia} />
+        <span>¡Así se ve tu negocio!</span>
       </h1>
 
       <div
@@ -90,7 +95,10 @@ export function VistaPrevia({ onSaved }: VistaPreviaProps) {
 
       <button
         type="button"
-        onClick={confirmar}
+        onClick={() => {
+          confirmar();
+          playSfx("click");
+        }}
         disabled={!percepcion.trim() || guardando}
         className="mt-8 w-full max-w-sm rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
       >

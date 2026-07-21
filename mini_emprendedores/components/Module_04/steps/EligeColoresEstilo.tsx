@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { COLORES_MARCA, ESTILOS_MARCA, type ColorMarca, type EstiloMarca } from "../data";
 
+import { speechTexts } from "@/audio/SpeechTexts";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { playSfx } from "@/audio/AudioManager";
+
 interface EligeColoresEstiloProps {
   onSaved: (colores: { primario: ColorMarca; secundario: ColorMarca }, estilo: EstiloMarca) => void;
 }
@@ -47,7 +51,8 @@ export function EligeColoresEstilo({ onSaved }: EligeColoresEstiloProps) {
         </span>
 
         <h1 className="mt-4 font-display text-lg font-extrabold text-foreground sm:text-xl">
-          Elige 2 colores para tu marca
+          <SpeakButton text={speechTexts.nivel01_modulo04_eligeColores} />
+          <span>Elige 2 colores para tu marca</span>
         </h1>
 
         <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-6">
@@ -109,7 +114,10 @@ export function EligeColoresEstilo({ onSaved }: EligeColoresEstiloProps) {
         <div className="mt-8 w-full">
           <button
             type="button"
-            onClick={confirmar}
+            onClick={() => {
+              confirmar();
+              playSfx("click");
+            }}
             disabled={!listo || guardando}
             className="w-full rounded-2xl bg-primary px-6 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
           >

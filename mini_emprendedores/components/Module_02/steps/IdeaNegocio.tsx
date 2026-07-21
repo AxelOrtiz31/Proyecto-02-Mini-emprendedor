@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { speechTexts } from "@/audio/SpeechTexts";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { playSfx } from "@/audio/AudioManager";
 
 interface IdeaNegocioProps {
   onSaved: (idea: { nombre: string; tipo: "producto" | "servicio"; ayuda: string }) => void;
@@ -26,8 +29,9 @@ export function IdeaNegocio({ onSaved }: IdeaNegocioProps) {
         Aplícalo: mi primera idea de negocio
       </span>
 
-      <h1 className="mt-4 max-w-sm font-display text-xl font-extrabold text-foreground sm:text-2xl">
-        ¡Crea tu propia idea!
+      <h1 className="max-w-sm font-display text-2xl font-extrabold text-foreground sm:text-3xl flex items-center gap-3">
+        <SpeakButton text={speechTexts.nivel01_modulo02_ideaNegocio} />
+        <span>M¡Crea tu propia idea!</span>
       </h1>
 
       <div className="mt-6 w-full max-w-sm text-left">
@@ -87,7 +91,10 @@ export function IdeaNegocio({ onSaved }: IdeaNegocioProps) {
 
       <button
         type="button"
-        onClick={confirmar}
+        onClick={() => {
+          confirmar();
+          playSfx("click");
+        }}
         disabled={!listo || guardando}
         className="mt-8 w-full max-w-sm rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
       >

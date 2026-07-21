@@ -1,6 +1,7 @@
 "use client";
 import { speechTexts } from "@/audio/SpeechTexts";
 import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { playSfx } from "@/audio/AudioManager";
 
 export function Reto({ onNext }: { onNext: () => void }) {
   return (
@@ -27,7 +28,10 @@ export function Reto({ onNext }: { onNext: () => void }) {
 
       <button
         type="button"
-        onClick={onNext}
+        onClick={() => {
+          onNext();
+          playSfx("click");
+        }}
         className="mt-2 rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
       >
         ¡Descúbrelo! →

@@ -3,6 +3,7 @@
 import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { EvaluationOption } from "@/lib/evaluations";
+import { playSfx } from "@/audio/AudioManager";
 
 interface OptionButtonProps {
   option: EvaluationOption;
@@ -23,7 +24,10 @@ export function OptionButton({
   return (
     <button
       type="button"
-      onClick={() => onToggle(option.id)}
+      onClick={() => {
+        onToggle(option.id);
+        playSfx("respuestas");
+      }}
       className={cn(
         "grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border-2 bg-card px-4 py-4 text-left transition-all active:translate-y-0.5 sm:px-5 sm:py-5",
         !selected && !showCorrect && "border-border shadow-(--shadow-card)",

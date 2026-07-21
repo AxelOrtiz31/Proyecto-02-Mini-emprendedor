@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import { fetchMiNegocio } from "@/lib/negocio";
 import { MATERIALES_EMPAQUE, ELEMENTOS_IMPRESOS, type MaterialEmpaque } from "../data";
 
+import { speechTexts } from "@/audio/SpeechTexts";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { playSfx } from "@/audio/AudioManager";
+
 interface DisenoEmpaqueProps {
   onSaved: (datos: {
     color: string;
@@ -62,7 +66,8 @@ export function DisenoEmpaque({ onSaved }: DisenoEmpaqueProps) {
       </span>
 
       <h1 className="mt-4 max-w-sm font-display text-xl font-extrabold text-foreground sm:text-2xl">
-        {ideaNombre ? `El empaque de "${ideaNombre}"` : "El empaque de tu producto"}
+        <SpeakButton text={speechTexts.nivel01_modulo05_disenoEmpaque} />
+        <span>{ideaNombre ? `El empaque de "${ideaNombre}"` : "El empaque de tu producto"}</span>
       </h1>
 
       <p className="mt-2 text-xs font-extrabold uppercase tracking-wide text-muted-foreground">
@@ -137,7 +142,10 @@ export function DisenoEmpaque({ onSaved }: DisenoEmpaqueProps) {
 
       <button
         type="button"
-        onClick={confirmar}
+        onClick={() => {
+          confirmar();
+          playSfx("click");
+        }}
         disabled={!listo || guardando}
         className="mt-8 w-full max-w-sm rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
       >

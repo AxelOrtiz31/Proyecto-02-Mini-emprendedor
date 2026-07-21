@@ -1,5 +1,9 @@
 "use client";
 
+import { speechTexts } from "@/audio/SpeechTexts";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { playSfx } from "@/audio/AudioManager";
+
 interface RetoProps {
   onNext: () => void;
 }
@@ -15,8 +19,9 @@ export function Reto({ onNext }: RetoProps) {
         🎨
       </span>
 
-      <h1 className="max-w-sm font-display text-2xl font-extrabold text-foreground sm:text-3xl">
-        ¡Le doy color a mi negocio!
+      <h1 className="max-w-sm font-display text-2xl font-extrabold text-foreground sm:text-3xl flex items-center gap-3">
+        <SpeakButton text={speechTexts.nivel01_modulo04_reto} />
+        <span>¡Le doy color a mi negocio!</span>
       </h1>
 
       <p className="max-w-sm text-sm font-semibold text-muted-foreground sm:text-base">
@@ -26,7 +31,10 @@ export function Reto({ onNext }: RetoProps) {
 
       <button
         type="button"
-        onClick={onNext}
+        onClick={() => {
+          onNext();
+          playSfx("click");
+        }}
         className="mt-2 rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
       >
         ¡Vamos a crearla! →

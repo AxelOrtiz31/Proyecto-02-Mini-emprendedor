@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { fetchMiNegocio } from "@/lib/negocio";
 
+import { speechTexts } from "@/audio/SpeechTexts";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { playSfx } from "@/audio/AudioManager";
+
 interface EligeNombreProps {
   onSaved: (nombre: string) => void;
 }
@@ -41,8 +45,9 @@ export function EligeNombre({ onSaved }: EligeNombreProps) {
         Aplícalo a tu negocio
       </span>
 
-      <h1 className="max-w-sm font-display text-xl font-extrabold text-foreground sm:text-2xl">
-        ¿Cómo se llamará tu negocio?
+      <h1 className="max-w-sm font-display text-2xl font-extrabold text-foreground sm:text-3xl flex items-center gap-3">
+        <SpeakButton text={speechTexts.nivel01_modulo04_comoSeLlamaTuNegocio} />
+        <span>¿Cómo se llamará tu negocio?</span>
       </h1>
 
       {cliente && (
@@ -61,7 +66,10 @@ export function EligeNombre({ onSaved }: EligeNombreProps) {
 
       <button
         type="button"
-        onClick={confirmar}
+        onClick={() => {
+          confirmar();
+          playSfx("click");
+        }}
         disabled={!nombre.trim() || guardando}
         className="mt-2 w-full max-w-sm rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
       >
