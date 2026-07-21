@@ -91,10 +91,10 @@ export function CaminoView() {
     return all.find((activity) => activity.status === "current")?.id ?? all[all.length - 1]?.id ?? null;
   }, [sections]);
 
-  const xp = useMemo(() => {
+  const estrellas = useMemo(() => {
     if (!completedIds) return 0;
 
-    return xpForCompleted(completedIds);
+    return estrellasForCompleted(completedIds);
   }, [completedIds]);
 
   useEffect(() => {
