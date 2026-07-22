@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fetchMiNegocio, type MiNegocio } from "@/lib/negocio";
+import { LogoBadge } from "@/components/shared/LogoBadge";
 import { playSfx } from "@/audio/AudioManager";
 
 interface ResumenNegocioProps {
@@ -38,7 +39,13 @@ export function ResumenNegocio({ onNext }: ResumenNegocioProps) {
           backgroundColor: `${negocio?.colorPrimario ?? "#FFD93D"}15`,
         }}
       >
-        <span className="text-4xl">{negocio?.logoIcono ?? "⭐"}</span>
+        <LogoBadge
+          icono={negocio?.logoIcono ?? "⭐"}
+          color={negocio?.colorPrimario ?? "#FFD93D"}
+          formaId={negocio?.logoForma ?? "circulo"}
+          size={64}
+          className="text-3xl"
+        />
         <h2 className="font-display text-lg font-extrabold text-foreground">
           {negocio?.nombreNegocio ?? "Mi negocio"}
         </h2>
