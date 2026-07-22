@@ -55,8 +55,6 @@ export function TestQuiz({
           <QuestionCard
             question={question}
             selected={selected}
-            showResult={false}
-            answerIsCorrect={false}
             onToggle={(optionId) => onToggle(question.id, optionId)}
           />
         </div>

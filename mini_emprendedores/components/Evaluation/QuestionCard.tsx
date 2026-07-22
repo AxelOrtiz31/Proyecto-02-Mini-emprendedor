@@ -7,16 +7,15 @@ import { SpeakButton } from "@/controllers/SpeakButtonController";
 interface QuestionCardProps {
   question: EvaluationQuestion;
   selected: number[];
-  showResult: boolean;
-  answerIsCorrect: boolean;
   onToggle: (optionId: number) => void;
 }
 
+// Durante el examen final solo se marca la opción elegida: nunca se indica
+// si la respuesta es correcta o incorrecta. La calificación ocurre hasta que
+// el alumno envía toda la evaluación.
 export function QuestionCard({
   question,
   selected,
-  showResult,
-  answerIsCorrect,
   onToggle,
 }: QuestionCardProps) {
   return (
@@ -39,7 +38,6 @@ export function QuestionCard({
           {question.text}
         </h1>
       </div>
-      
 
       {question.multiple && (
         <p className="mt-3 text-center text-sm font-bold text-muted-foreground">
@@ -53,25 +51,10 @@ export function QuestionCard({
             key={option.id}
             option={option}
             selected={selected.includes(option.id)}
-            showResult={showResult}
             onToggle={onToggle}
           />
         ))}
       </div>
-
-      {showResult && (
-        <div
-          className={
-            answerIsCorrect
-              ? "mt-5 rounded-2xl border-2 border-success/40 bg-success/10 px-4 py-3 text-sm font-extrabold text-success"
-              : "mt-5 rounded-2xl border-2 border-primary/30 bg-primary/10 px-4 py-3 text-sm font-extrabold text-primary"
-          }
-        >
-          {answerIsCorrect
-            ? "¡Correcto! Puedes continuar."
-            : "Aún no es la respuesta correcta. Intenta elegir otra opción."}
-        </div>
-      )}
     </div>
   );
 }

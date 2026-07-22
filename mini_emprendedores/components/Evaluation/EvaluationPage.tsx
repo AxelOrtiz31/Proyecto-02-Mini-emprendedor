@@ -13,8 +13,7 @@ import { SplashScreen } from "@/components/Module_Complete/SplashScreen";
 import {
   fetchFinalEvaluation,
   finishEvaluationSession,
-  hasCorrectOptions,
-  isAnswerCorrect,
+  isEvaluationPassed,
   startEvaluationSession,
   type Evaluation,
 } from "@/lib/evaluations";
@@ -202,9 +201,7 @@ export default function EvaluationPage() {
       await finishEvaluationSession(sessionId, payload, preguntas);
     }
 
-    const aprobado = preguntas
-      .filter(hasCorrectOptions)
-      .every((p) => isAnswerCorrect(p, answers[p.id] ?? []));
+    const aprobado = isEvaluationPassed(preguntas, answers);
 
     if (!aprobado) {
       setEnviando(false);
@@ -244,8 +241,6 @@ export default function EvaluationPage() {
           <QuestionCard
             question={pregunta}
             selected={seleccion}
-            showResult={false}
-            answerIsCorrect={false}
             onToggle={toggle}
           />
         </div>

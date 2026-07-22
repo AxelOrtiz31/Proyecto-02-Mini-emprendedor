@@ -177,6 +177,8 @@ export async function fetchFinalEvaluation(): Promise<Evaluation | null> {
     )
     .eq("tipo", "final")
     .eq("activa", true)
+    // Si quedara más de un examen final activo, siempre gana el más reciente.
+    .order("id", { ascending: false })
     .limit(1)
     .returns<EvaluationRow[]>();
 
@@ -317,6 +319,24 @@ function valueForOption(
 
 export function hasCorrectOptions(question: EvaluationQuestion): boolean {
   return question.options.some((option) => option.isCorrect);
+}
+
+// Una evaluación se aprueba solo si TODAS las preguntas que tienen respuesta
+// correcta configurada están bien contestadas. Si ninguna pregunta tiene
+// respuesta correcta en la base de datos, la evaluación está mal configurada:
+// se reprueba en lugar de aprobar en silencio (un `every` sobre una lista
+// vacía devuelve true, y eso dejaba pasar cualquier respuesta).
+export function isEvaluationPassed(
+  questions: EvaluationQuestion[],
+  answers: Record<number, number[]>,
+): boolean {
+  const scoredQuestions = questions.filter(hasCorrectOptions);
+
+  if (scoredQuestions.length === 0) return false;
+
+  return scoredQuestions.every((question) =>
+    isAnswerCorrect(question, answers[question.id] ?? []),
+  );
 }
 
 export function isAnswerCorrect(
