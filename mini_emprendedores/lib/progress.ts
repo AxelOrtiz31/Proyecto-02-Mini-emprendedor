@@ -223,3 +223,41 @@ export function deriveCourse(completedIds: string[]): Section[] {
 export function estrellasForCompleted(completedIds: string[]): number {
   return completedIds.length * ESTRELLAS_PER_ACTIVITY;
 }
+
+// Se llama solo al aprobar la Evaluación Final (no al terminar el Módulo
+// 7): es lo que realmente habilita el diploma. Si ya estaba marcado, no
+// pisa la fecha original.
+export async function marcarCursoCompletado(): Promise<string> {
+  const userId = await getCurrentUserId();
+
+  if (!userId) {
+    throw new Error("Necesitas iniciar sesión.");
+  }
+
+  const { data: existing, error: fetchError } = await supabase
+    .from("perfiles")
+    .select("curso_completado_en")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (fetchError) {
+    throw new Error(fetchError.message);
+  }
+
+  if (existing?.curso_completado_en) {
+    return existing.curso_completado_en;
+  }
+
+  const ahora = new Date().toISOString();
+
+  const { error: updateError } = await supabase
+    .from("perfiles")
+    .update({ curso_completado_en: ahora })
+    .eq("id", userId);
+
+  if (updateError) {
+    throw new Error(updateError.message);
+  }
+
+  return ahora;
+}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { fetchMiNegocio } from "@/lib/negocio";
 import { LOGO_ICONOS, LOGO_FORMAS, type LogoForma } from "../data";
+import { LogoBadge } from "@/components/shared/LogoBadge";
 
 import { speechTexts } from "@/audio/SpeechTexts";
 import { SpeakButton } from "@/controllers/SpeakButtonController";
@@ -51,15 +52,13 @@ export function LogoConstructor({ onSaved }: LogoConstructorProps) {
         <span>Crea el logo de tu negocio</span>
       </h1>
 
-      <div
-        className="mt-6 grid h-28 w-28 place-items-center border-4 border-border text-5xl shadow-(--shadow-node)"
-        style={{
-          backgroundColor: colorPrimario,
-          borderRadius: forma?.radius ?? "9999px",
-        }}
-      >
-        {icono ?? "❔"}
-      </div>
+      <LogoBadge
+        icono={icono ?? "❔"}
+        color={colorPrimario}
+        formaId={forma?.id ?? "circulo"}
+        size={112}
+        className="mt-6 text-5xl"
+      />
 
       <p className="mt-3 text-xs font-bold text-muted-foreground">
         1. Elige un ícono

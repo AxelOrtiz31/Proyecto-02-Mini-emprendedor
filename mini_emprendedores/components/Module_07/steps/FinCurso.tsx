@@ -30,7 +30,7 @@ export function FinCurso({ insignias, competencias, onNext }: FinCursoProps) {
       </span>
 
       <h1 className="max-w-sm font-display text-2xl font-extrabold text-foreground sm:text-3xl">
-        ¡Lo lograste!
+        ¡Terminaste todas las lecciones!
       </h1>
 
       <p className="max-w-sm text-sm font-semibold text-muted-foreground sm:text-base">
@@ -52,13 +52,10 @@ export function FinCurso({ insignias, competencias, onNext }: FinCursoProps) {
 
       <div className="flex flex-col items-center gap-2 rounded-2xl border-2 border-success/40 bg-success/10 px-6 py-4">
         <p className="font-display text-base font-extrabold text-success">
-          👑 Copa EmprendeKids IA
-        </p>
-        <p className="font-display text-base font-extrabold text-success">
-          🥇 Diploma Digital de Pequeño Emprendedor
-        </p>
-        <p className="font-display text-base font-extrabold text-success">
           ⭐ +1000 XP
+        </p>
+        <p className="text-xs font-semibold text-success">
+          Ahora falta tu última misión: la Evaluación Final
         </p>
       </div>
 
@@ -74,7 +71,7 @@ export function FinCurso({ insignias, competencias, onNext }: FinCursoProps) {
         }}
         className="mt-2 rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
       >
-        Finalizar →
+        Ir a mi Evaluación Final →
       </button>
     </main>
   );

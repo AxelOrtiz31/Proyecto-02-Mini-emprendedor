@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fetchMiNegocio, type MiNegocio } from "@/lib/negocio";
-import { LOGO_FORMAS } from "../data";
+import { LogoBadge } from "@/components/shared/LogoBadge";
 
 import { speechTexts } from "@/audio/SpeechTexts";
 import { SpeakButton } from "@/controllers/SpeakButtonController";
@@ -27,7 +27,6 @@ export function VistaPrevia({ onSaved }: VistaPreviaProps) {
     };
   }, []);
 
-  const forma = LOGO_FORMAS.find((f) => f.id === negocio?.logoForma) ?? LOGO_FORMAS[0];
   const colorPrimario = negocio?.colorPrimario ?? "#FFD93D";
   const colorSecundario = negocio?.colorSecundario ?? "#4FACFE";
 
@@ -53,12 +52,13 @@ export function VistaPrevia({ onSaved }: VistaPreviaProps) {
         className="mt-4 flex w-full max-w-xs flex-col items-center gap-3 rounded-3xl border-4 px-6 py-8 shadow-(--shadow-card)"
         style={{ borderColor: colorPrimario, backgroundColor: `${colorPrimario}15` }}
       >
-        <div
-          className="grid h-20 w-20 place-items-center border-4 border-border text-4xl shadow-(--shadow-node)"
-          style={{ backgroundColor: colorPrimario, borderRadius: forma.radius }}
-        >
-          {negocio?.logoIcono ?? "⭐"}
-        </div>
+        <LogoBadge
+          icono={negocio?.logoIcono ?? "⭐"}
+          color={colorPrimario}
+          formaId={negocio?.logoForma ?? "circulo"}
+          size={80}
+          className="text-4xl"
+        />
 
         <h2 className="font-display text-xl font-extrabold text-foreground">
           {negocio?.nombreNegocio ?? "Mi negocio"}
