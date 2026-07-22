@@ -15,7 +15,14 @@ export function ActivityPopover({ activity }: ActivityPopoverProps) {
   const isLocked = activity.status === "locked";
 
   return (
-    <PopoverContent className="w-80 p-0" sideOffset={16}>
+    <PopoverContent
+      className="w-80 p-0"
+      sideOffset={16}
+      // Sin esto, al abrir, Radix enfoca el contenido y el navegador desplaza la
+      // página unos píxeles; ese scroll cerraría el popover de inmediato (ver el
+      // listener de scroll en LessonNode) y además da un salto molesto.
+      onOpenAutoFocus={(event) => event.preventDefault()}
+    >
       <div
         className={cn(
           "rounded-t-xl px-5 py-4",

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Book,
   Check,
@@ -34,6 +35,29 @@ interface LessonNodeProps {
 export function LessonNode({ activity, offsetX }: LessonNodeProps) {
   const isLocked = activity.status === "locked";
   const isCurrent = activity.status === "current";
+  const [open, setOpen] = useState(false);
+
+  // El popover queda anclado al nodo: al desplazar el camino lo seguiría hasta
+  // taparse con otras secciones. Se cierra cuando el usuario hace scroll para que
+  // no se quede flotando, sobre todo en móvil.
+  //
+  // Se escuchan los gestos reales (rueda y arrastre táctil) en vez del evento
+  // "scroll": al abrir, el navegador desplaza unos píxeles el nodo enfocado y ese
+  // scroll programático cerraría el popover al instante; un gesto del usuario no.
+  useEffect(() => {
+    if (!open) return;
+
+    const close = () => setOpen(false);
+    window.addEventListener("wheel", close, { passive: true });
+    window.addEventListener("touchmove", close, { passive: true });
+    window.addEventListener("resize", close);
+
+    return () => {
+      window.removeEventListener("wheel", close);
+      window.removeEventListener("touchmove", close);
+      window.removeEventListener("resize", close);
+    };
+  }, [open]);
 
   const baseCircle =
     "relative flex h-20 w-20 items-center justify-center rounded-full transition-transform duration-200 ease-out enabled:hover:translate-y-0.5 active:translate-y-1 active:[box-shadow:0_2px_0_0_currentColor] xl:h-24 xl:w-24";
@@ -56,7 +80,7 @@ export function LessonNode({ activity, offsetX }: LessonNodeProps) {
       style={{ transform: `translateX(calc(${offsetX} * var(--path-offset, 110px)))` }}
     >
       {isCurrent && <StartLabel />}
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
             type="button"
