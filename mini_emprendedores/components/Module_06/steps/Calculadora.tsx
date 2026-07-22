@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { fetchMiNegocio } from "@/lib/negocio";
 
+import { speechTexts } from "@/audio/SpeechTexts";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { playSfx } from "@/audio/AudioManager";
+
 interface CalculadoraProps {
   onSaved: (datos: { costo: number; precio: number; estrategia: string }) => void;
 }
@@ -44,7 +48,8 @@ export function Calculadora({ onSaved }: CalculadoraProps) {
       </span>
 
       <h1 className="mt-4 max-w-sm font-display text-xl font-extrabold text-foreground sm:text-2xl">
-        {ideaNombre ? `Hagamos cuentas para "${ideaNombre}"` : "Hagamos las cuentas de tu negocio"}
+        <SpeakButton text={speechTexts.nivel01_modulo06_calculo} />
+        <span>{ideaNombre ? `Hagamos cuentas para "${ideaNombre}"` : "Hagamos las cuentas de tu negocio"} </span>
       </h1>
 
       <div className="mt-6 w-full max-w-sm text-left">
@@ -106,7 +111,10 @@ export function Calculadora({ onSaved }: CalculadoraProps) {
 
       <button
         type="button"
-        onClick={confirmar}
+        onClick={() => {
+          confirmar();
+          playSfx("click");
+        }}
         disabled={!listo || guardando}
         className="mt-8 w-full max-w-sm rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
       >

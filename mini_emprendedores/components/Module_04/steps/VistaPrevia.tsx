@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { fetchMiNegocio, type MiNegocio } from "@/lib/negocio";
-import { LOGO_FORMAS } from "../data";
+import { LogoBadge } from "@/components/shared/LogoBadge";
+
+import { speechTexts } from "@/audio/SpeechTexts";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { playSfx } from "@/audio/AudioManager";
 
 interface VistaPreviaProps {
   onSaved: (percepcion: string) => void;
@@ -23,7 +27,6 @@ export function VistaPrevia({ onSaved }: VistaPreviaProps) {
     };
   }, []);
 
-  const forma = LOGO_FORMAS.find((f) => f.id === negocio?.logoForma) ?? LOGO_FORMAS[0];
   const colorPrimario = negocio?.colorPrimario ?? "#FFD93D";
   const colorSecundario = negocio?.colorSecundario ?? "#4FACFE";
 
@@ -41,19 +44,21 @@ export function VistaPrevia({ onSaved }: VistaPreviaProps) {
       </span>
 
       <h1 className="mt-4 font-display text-lg font-extrabold text-foreground sm:text-xl">
-        ¡Así se ve tu negocio!
+        <SpeakButton text={speechTexts.nivel01_modulo04_vistaPrevia} />
+        <span>¡Así se ve tu negocio!</span>
       </h1>
 
       <div
         className="mt-4 flex w-full max-w-xs flex-col items-center gap-3 rounded-3xl border-4 px-6 py-8 shadow-(--shadow-card)"
         style={{ borderColor: colorPrimario, backgroundColor: `${colorPrimario}15` }}
       >
-        <div
-          className="grid h-20 w-20 place-items-center border-4 border-border text-4xl shadow-(--shadow-node)"
-          style={{ backgroundColor: colorPrimario, borderRadius: forma.radius }}
-        >
-          {negocio?.logoIcono ?? "⭐"}
-        </div>
+        <LogoBadge
+          icono={negocio?.logoIcono ?? "⭐"}
+          color={colorPrimario}
+          formaId={negocio?.logoForma ?? "circulo"}
+          size={80}
+          className="text-4xl"
+        />
 
         <h2 className="font-display text-xl font-extrabold text-foreground">
           {negocio?.nombreNegocio ?? "Mi negocio"}
@@ -90,7 +95,10 @@ export function VistaPrevia({ onSaved }: VistaPreviaProps) {
 
       <button
         type="button"
-        onClick={confirmar}
+        onClick={() => {
+          confirmar();
+          playSfx("click");
+        }}
         disabled={!percepcion.trim() || guardando}
         className="mt-8 w-full max-w-sm rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
       >

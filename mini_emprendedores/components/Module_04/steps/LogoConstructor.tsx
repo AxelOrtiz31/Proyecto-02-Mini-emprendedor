@@ -3,6 +3,11 @@
 import { useEffect, useState } from "react";
 import { fetchMiNegocio } from "@/lib/negocio";
 import { LOGO_ICONOS, LOGO_FORMAS, type LogoForma } from "../data";
+import { LogoBadge } from "@/components/shared/LogoBadge";
+
+import { speechTexts } from "@/audio/SpeechTexts";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { playSfx } from "@/audio/AudioManager";
 
 interface LogoConstructorProps {
   onSaved: (icono: string, forma: LogoForma) => void;
@@ -43,18 +48,17 @@ export function LogoConstructor({ onSaved }: LogoConstructorProps) {
       </span>
 
       <h1 className="mt-4 font-display text-lg font-extrabold text-foreground sm:text-xl">
-        Crea el logo de tu negocio
+        <SpeakButton text={speechTexts.nivel01_modulo04_logoConstructor} />
+        <span>Crea el logo de tu negocio</span>
       </h1>
 
-      <div
-        className="mt-6 grid h-28 w-28 place-items-center border-4 border-border text-5xl shadow-(--shadow-node)"
-        style={{
-          backgroundColor: colorPrimario,
-          borderRadius: forma?.radius ?? "9999px",
-        }}
-      >
-        {icono ?? "❔"}
-      </div>
+      <LogoBadge
+        icono={icono ?? "❔"}
+        color={colorPrimario}
+        formaId={forma?.id ?? "circulo"}
+        size={112}
+        className="mt-6 text-5xl"
+      />
 
       <p className="mt-3 text-xs font-bold text-muted-foreground">
         1. Elige un ícono
@@ -94,7 +98,10 @@ export function LogoConstructor({ onSaved }: LogoConstructorProps) {
 
       <button
         type="button"
-        onClick={confirmar}
+        onClick={() => {
+          confirmar();
+          playSfx("click");
+        }}
         disabled={!listo || guardando}
         className="mt-8 w-full max-w-sm rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
       >

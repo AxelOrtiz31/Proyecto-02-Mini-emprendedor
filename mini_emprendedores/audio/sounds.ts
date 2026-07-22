@@ -41,7 +41,7 @@ export const bgm = {
   module_complete: new Howl({
     src: ["/audio/victory.mp3"],
     loop: true,
-    volume: 0.0075,
+    volume: 0.01,
   }),
 };
 
@@ -64,6 +64,11 @@ export const sfx = {
 
   nodos: new Howl({
     src: ["/audio/nodos.mp3"],
+    volume: 0.04,
+  }),
+
+  respuestas: new Howl({
+    src: ["/audio/respuestas.mp3"],
     volume: 0.04,
   }),
 };

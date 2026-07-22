@@ -25,7 +25,7 @@ export function NivelTeach({ nivel, totalNiveles, onNext }: NivelTeachProps) {
           text={`
             ${nivel.titulo}
 
-            EmprenBot dice:
+            Mentorix dice:
               ${nivel.emprenbot}
               ${nivel.explicacion}
           `}

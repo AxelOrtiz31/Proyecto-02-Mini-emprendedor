@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { fetchMiNegocio, type MiNegocio } from "@/lib/negocio";
+import { LogoBadge } from "@/components/shared/LogoBadge";
+import { playSfx } from "@/audio/AudioManager";
 
 interface ResumenNegocioProps {
   onNext: () => void;
@@ -37,7 +39,13 @@ export function ResumenNegocio({ onNext }: ResumenNegocioProps) {
           backgroundColor: `${negocio?.colorPrimario ?? "#FFD93D"}15`,
         }}
       >
-        <span className="text-4xl">{negocio?.logoIcono ?? "⭐"}</span>
+        <LogoBadge
+          icono={negocio?.logoIcono ?? "⭐"}
+          color={negocio?.colorPrimario ?? "#FFD93D"}
+          formaId={negocio?.logoForma ?? "circulo"}
+          size={64}
+          className="text-3xl"
+        />
         <h2 className="font-display text-lg font-extrabold text-foreground">
           {negocio?.nombreNegocio ?? "Mi negocio"}
         </h2>
@@ -67,7 +75,10 @@ export function ResumenNegocio({ onNext }: ResumenNegocioProps) {
 
       <button
         type="button"
-        onClick={onNext}
+        onClick={() => {
+          onNext();
+          playSfx("click");
+        }}
         className="mt-8 w-full max-w-sm rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
       >
         Continuar →

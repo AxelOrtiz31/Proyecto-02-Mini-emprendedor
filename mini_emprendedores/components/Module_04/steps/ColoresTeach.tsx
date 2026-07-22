@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { COLORES_MARCA } from "../data";
 
+import { speechTexts } from "@/audio/SpeechTexts";
+import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { playSfx } from "@/audio/AudioManager";
+
 interface ColoresTeachProps {
   onNext: () => void;
 }
@@ -18,6 +22,7 @@ export function ColoresTeach({ onNext }: ColoresTeachProps) {
         Los colores cuentan una historia
       </span>
 
+      <SpeakButton text={speechTexts.nivel01_modulo04_colores} />
       <div
         className="flex w-full max-w-xs flex-col items-center gap-3 rounded-3xl border-2 border-border px-6 py-8 shadow-(--shadow-card)"
         style={{ backgroundColor: `${color.hex}22` }}
@@ -50,7 +55,14 @@ export function ColoresTeach({ onNext }: ColoresTeachProps) {
 
       <button
         type="button"
-        onClick={() => (esUltimo ? onNext() : setIndex(index + 1))}
+        onClick={() => {
+          if (esUltimo) {
+            onNext();
+          } else {
+            setIndex(index + 1);
+          }
+          playSfx("click");
+        }}
         className="w-full max-w-xs rounded-2xl bg-primary px-8 py-4 font-display text-base font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
       >
         {esUltimo ? "Elegir mis colores →" : "Siguiente color →"}

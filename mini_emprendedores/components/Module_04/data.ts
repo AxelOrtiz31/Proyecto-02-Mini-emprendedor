@@ -110,12 +110,22 @@ export const LOGO_ICONOS: string[] = ["⭐", "🌟", "🍪", "🎨", "🌱", "�
 export interface LogoForma {
   id: string;
   nombre: string;
-  radius: string;
+  clipPath: string;
 }
 
 export const LOGO_FORMAS: LogoForma[] = [
-  { id: "circulo", nombre: "Círculo", radius: "9999px" },
-  { id: "cuadrado", nombre: "Cuadrado", radius: "1rem" },
-  { id: "escudo", nombre: "Escudo", radius: "2.5rem 2.5rem 2.5rem 0.5rem" },
-  { id: "nube", nombre: "Nube", radius: "2.5rem 2.5rem 0.5rem 2.5rem" },
+  { id: "circulo", nombre: "Círculo", clipPath: "circle(50% at 50% 50%)" },
+  { id: "cuadrado", nombre: "Cuadrado", clipPath: "inset(0% round 18%)" },
+  {
+    id: "escudo",
+    nombre: "Escudo",
+    clipPath: "polygon(50% 0%, 100% 15%, 100% 55%, 50% 100%, 0% 55%, 0% 15%)",
+  },
+  {
+    id: "nube",
+    nombre: "Nube",
+    // La nube no usa clip-path (una sola figura no da la silueta correcta);
+    // se arma en LogoBadge combinando varios círculos.
+    clipPath: "none",
+  },
 ];
