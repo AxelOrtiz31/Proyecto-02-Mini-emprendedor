@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Flame, Star, Zap, LogOut, User, Trophy, MessageCircle, Volume2, VolumeX } from "lucide-react";
 import { StatPill } from "./StatPill";
+import { TopBarMenu } from "./TopBarMenu";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { ChatModal } from "@/components/IA_Bot/ChatModal";
@@ -40,17 +41,22 @@ export function TopBar({ streak, estrellas, xp, timestamps }: TopBarProps) {
     router.refresh();
   }
 
+  function handleToggleMusic() {
+    toggleMusic();
+    setMuted(isMusicMuted());
+  }
+
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-border bg-card/85 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-4 md:px-8 xl:max-w-360">
-          <div className="flex items-center gap-2">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-1 px-2 py-3 sm:gap-4 sm:px-4 md:px-8 xl:max-w-360">
+          <div className="flex shrink-0 items-center gap-2">
             <img
               src="/caelus.svg"
               alt="EmprendeKids"
               width={36}
               height={36}
-              className="h-9 w-9"
+              className="h-9 w-9 shrink-0"
             />
 
             <span className="hidden font-display text-xl font-extrabold sm:inline-block">
@@ -59,7 +65,7 @@ export function TopBar({ streak, estrellas, xp, timestamps }: TopBarProps) {
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-3">
+          <div className="flex items-center gap-1 sm:gap-3">
             <StatPill
               icon={Flame}
               value={streak}
@@ -72,9 +78,8 @@ export function TopBar({ streak, estrellas, xp, timestamps }: TopBarProps) {
             <StatPill icon={Zap} value={xp} label="XP" tone="info" />
           </div>
 
-          {/* Acciones */}
-          <div className="flex items-center gap-2">
-            {/* Botones de navegación */}
+          {/* Perfil y Logros: sueltos solo en escritorio; en móvil van en el menú. */}
+          <div className="hidden items-center gap-2 lg:flex">
             <Link
               href="/profile"
               className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -89,6 +94,10 @@ export function TopBar({ streak, estrellas, xp, timestamps }: TopBarProps) {
             >
               <Trophy className="h-5 w-5" />
             </Link>
+          </div>
+
+          {/* Chat y música: siempre visibles, también en móvil. */}
+          <div className="flex items-center gap-1 sm:gap-2">
             <button
               type="button"
               onClick={() => setChatOpen(true)}
@@ -99,10 +108,7 @@ export function TopBar({ streak, estrellas, xp, timestamps }: TopBarProps) {
             </button>
             <button
               type="button"
-              onClick={() => {
-                toggleMusic();
-                setMuted(isMusicMuted());
-              }}
+              onClick={handleToggleMusic}
               className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               title={muted ? "Activar música" : "Silenciar música"}
             >
@@ -114,7 +120,13 @@ export function TopBar({ streak, estrellas, xp, timestamps }: TopBarProps) {
             </button>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Menú compacto: en móvil agrupa Perfil, Logros y Cerrar sesión para
+              que la barra no se desborde. En escritorio se oculta. */}
+          <div className="lg:hidden">
+            <TopBarMenu cerrando={cerrando} onCerrarSesion={handleCerrarSesion} />
+          </div>
+
+          <div className="hidden items-center gap-2 sm:gap-3 lg:flex">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-display text-sm font-extrabold text-primary-foreground shadow-sm">
               LM
             </div>
