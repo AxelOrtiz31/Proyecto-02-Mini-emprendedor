@@ -5,37 +5,37 @@ export const bgm = {
   home: new Howl({
     src: ["/audio/home.mp3"],
     loop: true,
-    volume: 0.0075,
+    volume: 0.0090,
   }),
 
   dashboard: new Howl({
     src: ["/audio/dashboard.mp3"],
     loop: true,
-    volume: 0.0075,
+    volume: 0.0080,
   }),
 
   levels: new Howl({
     src: ["/audio/levels.mp3"],
     loop: true,
-    volume: 0.0075,
+    volume: 0.0080,
   }),
 
   evaluacion: new Howl({
     src: ["/audio/evaluacion.mp3"],
     loop: true,
-    volume: 0.0075,
+    volume: 0.0080,
   }),
 
   profile: new Howl({
     src: ["/audio/profile.mp3"],
     loop: true,
-    volume: 0.0075,
+    volume: 0.0080,
   }),
 
   achievements: new Howl({
     src: ["/audio/achievements.mp3"],
     loop: true,
-    volume: 0.0075,
+    volume: 0.0080,
   }),
 
   module_complete: new Howl({
