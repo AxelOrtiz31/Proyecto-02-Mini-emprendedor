@@ -6,18 +6,42 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Cake,
+  Check,
   Eye,
   EyeOff,
+  GraduationCap,
   Lock,
   Mail,
   Minus,
   Plus,
+  Presentation,
+  Search,
   User,
   Users,
+  X,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { RobotBuddy, type RobotMood } from "@/components/Login/RobotBuddy";
+
+type Rol = "alumno" | "maestro";
+
+type Grupo = {
+  id: string;
+  nombre: string;
+};
+
+// TODO(BD): reemplazar esta lista por una búsqueda real contra la base de
+// datos (por ejemplo una consulta a Supabase que filtre por `busquedaGrupo`).
+// Por ahora es un mock para poder armar la interfaz.
+const GRUPOS_MOCK: Grupo[] = [
+  { id: "g1", nombre: "3° A - Primaria Juárez" },
+  { id: "g2", nombre: "4° B - Primaria Juárez" },
+  { id: "g3", nombre: "5° A - Colegio Nueva Era" },
+  { id: "g4", nombre: "6° C - Colegio Nueva Era" },
+  { id: "g5", nombre: "2° A - Instituto Aurora" },
+  { id: "g6", nombre: "1° B - Instituto Aurora" },
+];
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -36,6 +60,17 @@ export default function RegisterPage() {
   // Campo con foco y celebración: definen el estado del robot y su burbuja.
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [celebrando, setCelebrando] = useState(false);
+
+  // Rol (alumno / maestro) y su/sus grupo(s).
+  const [rol, setRol] = useState<Rol | null>(null);
+  const [busquedaGrupo, setBusquedaGrupo] = useState("");
+  const [mostrarListaGrupos, setMostrarListaGrupos] = useState(false);
+  const [grupoAlumno, setGrupoAlumno] = useState<Grupo | null>(null);
+  const [gruposMaestro, setGruposMaestro] = useState<Grupo[]>([]);
+
+  const grupoFiltrados = GRUPOS_MOCK.filter((g) =>
+    g.nombre.toLowerCase().includes(busquedaGrupo.trim().toLowerCase()),
+  );
 
   const mood: RobotMood = celebrando
     ? "happy"
@@ -61,6 +96,12 @@ export default function RegisterPage() {
         return "Prometo no ver tu contraseña 🙈";
       case "edad":
         return "¿Cuántos años tienes?";
+      case "rol":
+        return "¿Eres alumno o maestro?";
+      case "grupo":
+        return rol === "maestro"
+          ? "Busca y elige tus grupos"
+          : "Busca tu grupo";
       default:
         return "¡Vas a ser un gran emprendedor!";
     }
@@ -74,8 +115,38 @@ export default function RegisterPage() {
     setFocusedField("edad");
     setForm((prev) => ({
       ...prev,
-      edad: Math.min(18, Math.max(5, prev.edad + delta)),
+      edad: Math.min(12, Math.max(10, prev.edad + delta)),
     }));
+  }
+
+  function elegirRol(nuevoRol: Rol) {
+    setRol(nuevoRol);
+    // Al cambiar de rol reiniciamos la selección de grupo(s) para evitar
+    // mandar datos que ya no aplican (p. ej. varios grupos si pasa a alumno).
+    setGrupoAlumno(null);
+    setGruposMaestro([]);
+    setBusquedaGrupo("");
+    setCamposError((prev) => ({ ...prev, rol: "", grupo: "" }));
+  }
+
+  function seleccionarGrupoAlumno(grupo: Grupo) {
+    setGrupoAlumno(grupo);
+    setBusquedaGrupo("");
+    setMostrarListaGrupos(false);
+    setCamposError((prev) => ({ ...prev, grupo: "" }));
+  }
+
+  function toggleGrupoMaestro(grupo: Grupo) {
+    setGruposMaestro((prev) =>
+      prev.some((g) => g.id === grupo.id)
+        ? prev.filter((g) => g.id !== grupo.id)
+        : [...prev, grupo],
+    );
+    setCamposError((prev) => ({ ...prev, grupo: "" }));
+  }
+
+  function quitarGrupoMaestro(id: string) {
+    setGruposMaestro((prev) => prev.filter((g) => g.id !== id));
   }
 
   function validar() {
@@ -85,6 +156,11 @@ export default function RegisterPage() {
     if (!form.correo.trim()) errores.correo = "El correo es obligatorio";
     if (!form.contrasena) errores.contrasena = "La contraseña es obligatoria";
     else if (form.contrasena.length < 6) errores.contrasena = "Mínimo 6 caracteres";
+    if (!rol) errores.rol = "Elige si eres alumno o maestro";
+    if (rol === "alumno" && !grupoAlumno)
+      errores.grupo = "Busca y selecciona tu grupo";
+    if (rol === "maestro" && gruposMaestro.length === 0)
+      errores.grupo = "Selecciona al menos un grupo";
     return errores;
   }
 
@@ -109,6 +185,11 @@ export default function RegisterPage() {
           nombre: form.nombre,
           apellido: form.apellido,
           edad: form.edad,
+          rol,
+          // TODO(BD): una vez conectada la búsqueda real, aquí viajarán los
+          // ids reales del/los grupo(s) elegidos.
+          grupo_id: rol === "alumno" ? grupoAlumno?.id ?? null : null,
+          grupos_ids: rol === "maestro" ? gruposMaestro.map((g) => g.id) : [],
         },
       },
     });
@@ -270,6 +351,169 @@ export default function RegisterPage() {
                 </button>
               </div>
             </div>
+
+            {/* Tipo de cuenta: alumno o maestro */}
+            <div>
+              <p className="mb-2 pl-1 text-sm font-bold text-foreground">
+                ¿Eres alumno o maestro?
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => elegirRol("alumno")}
+                  onFocus={() => setFocusedField("rol")}
+                  onBlur={() => setFocusedField(null)}
+                  aria-pressed={rol === "alumno"}
+                  className={cn(
+                    "flex flex-col items-center gap-1.5 rounded-2xl border-2 px-3 py-3.5 font-display text-sm font-extrabold transition-all",
+                    rol === "alumno"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-card text-muted-foreground hover:border-primary/40",
+                  )}
+                >
+                  <GraduationCap className="h-6 w-6" strokeWidth={2.4} />
+                  Soy alumno
+                </button>
+                <button
+                  type="button"
+                  onClick={() => elegirRol("maestro")}
+                  onFocus={() => setFocusedField("rol")}
+                  onBlur={() => setFocusedField(null)}
+                  aria-pressed={rol === "maestro"}
+                  className={cn(
+                    "flex flex-col items-center gap-1.5 rounded-2xl border-2 px-3 py-3.5 font-display text-sm font-extrabold transition-all",
+                    rol === "maestro"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-card text-muted-foreground hover:border-primary/40",
+                  )}
+                >
+                  <Presentation className="h-6 w-6" strokeWidth={2.4} />
+                  Soy maestro
+                </button>
+              </div>
+              {camposError.rol && <FieldError text={camposError.rol} />}
+            </div>
+
+            {/* Grupo (alumno = uno, maestro = varios) */}
+            {rol && (
+              <div>
+                <p className="mb-2 pl-1 text-sm font-bold text-foreground">
+                  {rol === "alumno" ? "Tu grupo" : "Tus grupos"}
+                </p>
+
+                {/* Chips de grupos elegidos (maestro) */}
+                {rol === "maestro" && gruposMaestro.length > 0 && (
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    {gruposMaestro.map((g) => (
+                      <span
+                        key={g.id}
+                        className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary"
+                      >
+                        {g.nombre}
+                        <button
+                          type="button"
+                          onClick={() => quitarGrupoMaestro(g.id)}
+                          aria-label={`Quitar ${g.nombre}`}
+                          className="text-primary/70 transition-colors hover:text-primary"
+                        >
+                          <X className="h-3.5 w-3.5" strokeWidth={2.6} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Grupo elegido (alumno) */}
+                {rol === "alumno" && grupoAlumno && (
+                  <div className="mb-2 flex items-center justify-between rounded-2xl border-2 border-primary bg-primary/10 px-4 py-3">
+                    <span className="font-semibold text-primary">
+                      {grupoAlumno.nombre}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setGrupoAlumno(null)}
+                      aria-label="Quitar grupo"
+                      className="text-primary/70 transition-colors hover:text-primary"
+                    >
+                      <X className="h-4 w-4" strokeWidth={2.6} />
+                    </button>
+                  </div>
+                )}
+
+                {/* Buscador de grupo(s): el alumno lo oculta una vez que ya eligió el suyo */}
+                {(rol === "maestro" || !grupoAlumno) && (
+                  <div className="relative">
+                    <div className={inputWrapper(Boolean(camposError.grupo))}>
+                      <Search
+                        className="h-5 w-5 shrink-0 text-muted-foreground"
+                        strokeWidth={2.4}
+                      />
+                      <input
+                        className={inputClass}
+                        type="text"
+                        placeholder={
+                          rol === "maestro" ? "Busca tus grupos" : "Busca tu grupo"
+                        }
+                        value={busquedaGrupo}
+                        onChange={(e) => setBusquedaGrupo(e.target.value)}
+                        onFocus={() => {
+                          setFocusedField("grupo");
+                          setMostrarListaGrupos(true);
+                        }}
+                        onBlur={() => {
+                          // pequeño respiro para que el click en la lista se
+                          // registre antes de que se cierre por el blur
+                          setTimeout(() => setMostrarListaGrupos(false), 150);
+                          setFocusedField(null);
+                        }}
+                      />
+                    </div>
+
+                    {mostrarListaGrupos && (
+                      <div className="absolute z-20 mt-1.5 max-h-48 w-full overflow-y-auto rounded-2xl border-2 border-border bg-card p-1.5 shadow-(--shadow-card)">
+                        {grupoFiltrados.length === 0 ? (
+                          <p className="px-3 py-2 text-sm font-semibold text-muted-foreground">
+                            No encontramos ese grupo
+                          </p>
+                        ) : (
+                          grupoFiltrados.map((g) => {
+                            const yaElegido =
+                              rol === "maestro"
+                                ? gruposMaestro.some((x) => x.id === g.id)
+                                : grupoAlumno?.id === g.id;
+                            return (
+                              <button
+                                key={g.id}
+                                type="button"
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={() =>
+                                  rol === "maestro"
+                                    ? toggleGrupoMaestro(g)
+                                    : seleccionarGrupoAlumno(g)
+                                }
+                                className={cn(
+                                  "flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm font-semibold transition-colors",
+                                  yaElegido
+                                    ? "bg-primary/10 text-primary"
+                                    : "text-foreground hover:bg-secondary",
+                                )}
+                              >
+                                {g.nombre}
+                                {yaElegido && (
+                                  <Check className="h-4 w-4 shrink-0" strokeWidth={2.6} />
+                                )}
+                              </button>
+                            );
+                          })
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {camposError.grupo && <FieldError text={camposError.grupo} />}
+              </div>
+            )}
 
             {error && (
               <p role="alert" className="text-sm font-bold text-red-600">

@@ -17,7 +17,7 @@ export function speak(text: string) {
 
   utterance.lang = "es-MX";
   utterance.rate = 0.9;
-  utterance.volume = 0.5;
+  utterance.volume = 0.4;
 
   window.speechSynthesis.speak(utterance);
 }
