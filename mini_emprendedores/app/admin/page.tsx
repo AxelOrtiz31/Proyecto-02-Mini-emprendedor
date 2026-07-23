@@ -6,6 +6,7 @@ import { fetchKpisGlobales, type KpisGlobales } from "@/lib/admin";
 import { KpiCard } from "@/components/Admin/KpiCard";
 import { ModuleFunnel } from "@/components/Admin/ModuleFunnel";
 import { SkillDistribution } from "@/components/Admin/SkillDistribution";
+import { StalledAlerts } from "@/components/Admin/StalledAlerts";
 import { AdminLoading, AdminError } from "@/components/Admin/AdminStates";
 
 export default function AdminResumenPage() {
@@ -46,6 +47,8 @@ export default function AdminResumenPage() {
         </h1>
         <p className="text-sm font-semibold text-muted-foreground">Avance general del grupo</p>
       </header>
+
+      <StalledAlerts alertas={kpis.alertas} />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         <KpiCard label="Alumnos" value={kpis.totalAlumnos} icon={<Users className="h-5 w-5" />} tone="primary" />
