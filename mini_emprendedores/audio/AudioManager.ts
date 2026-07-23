@@ -7,7 +7,14 @@ let musicMuted = false;
 
 export function playMusic(track: keyof typeof bgm) {
   if (currentTrack === track) {
-    if (!musicMuted) currentMusic?.play();
+    // Si ya está sonando, no volver a llamar a play(): Howler solo reanuda
+    // una instancia si la encuentra pausada; si no, crea una nueva y queda
+    // sonando encimada con la anterior (la música se "duplica"). Esto pasaba
+    // al navegar entre rutas que comparten pista (p. ej. "/" y "/login", las
+    // dos con "home") o en desarrollo por el doble efecto de StrictMode.
+    if (!musicMuted && !currentMusic?.playing()) {
+      currentMusic?.play();
+    }
     return;
   }
 

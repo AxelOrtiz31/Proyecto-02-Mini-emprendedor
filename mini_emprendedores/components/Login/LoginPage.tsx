@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { getOnboardingStatus, routeForStatus } from "@/lib/onboarding";
+import { fetchCurrentProfileRole, isStaffRole } from "@/lib/admin";
 import { cn } from "@/lib/utils";
 import { RobotBuddy, type RobotMood } from "./RobotBuddy";
 
@@ -44,6 +45,16 @@ export default function LoginPage() {
     if (authError) {
       setError("Correo o contraseña incorrectos");
       setCargando(false);
+      return;
+    }
+
+    // La maestra o admin entra directo a su panel; así no pasa por el test
+    // inicial de alumno (que se dispara cuando no hay habilidad dominante).
+    const rol = await fetchCurrentProfileRole();
+
+    if (isStaffRole(rol)) {
+      setCargando(false);
+      router.push("/admin");
       return;
     }
 
