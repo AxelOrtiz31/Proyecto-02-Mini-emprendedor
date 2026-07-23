@@ -108,6 +108,7 @@ export interface AlumnoResumen {
   moduloNumero: number | null;
   modulosCompletados: number;
   porcentajeAvance: number;
+  intentosPromedio: number;
 }
 
 export interface KpisGlobales {
@@ -119,7 +120,32 @@ export interface KpisGlobales {
   cursosCompletados: number;
   embudoModulos: { modulo: number; titulo: string; completados: number }[];
   distribucionHabilidad: { habilidad: string; label: string; total: number }[];
+  alertas: AlertasEstancados;
 }
+
+export interface AlumnoInactivo {
+  id: string;
+  nombre: string;
+  diasInactivo: number | null; // null = nunca ha completado nada
+}
+
+export interface AlumnoEnDificultad {
+  id: string;
+  nombre: string;
+  intentosPromedio: number;
+  leccionesCompletadas: number;
+}
+
+export interface AlertasEstancados {
+  inactivos: AlumnoInactivo[];
+  enDificultad: AlumnoEnDificultad[];
+}
+
+// Umbrales de las alertas: configurables aquí mismo si la maestra pide
+// ajustarlos, sin tocar el resto de la lógica.
+const DIAS_INACTIVIDAD = 7;
+const INTENTOS_PROMEDIO_ALERTA = 2;
+const MIN_LECCIONES_PARA_DIFICULTAD = 3;
 
 interface PerfilRow {
   id: string;
@@ -143,6 +169,7 @@ interface ProgresoRow {
   estrellas: number | null;
   tiempo_segundos: number | null;
   completada_en: string | null;
+  intentos: number | null;
 }
 
 interface ProgresoAgg {
@@ -150,6 +177,7 @@ interface ProgresoAgg {
   xp: number;
   estrellas: number;
   tiempo: number;
+  intentosSuma: number;
   codigos: Set<string>;
   ultimaCodigo: string | null;
   ultimaFecha: string | null;
@@ -187,6 +215,7 @@ function aggVacio(): ProgresoAgg {
     xp: 0,
     estrellas: 0,
     tiempo: 0,
+    intentosSuma: 0,
     codigos: new Set(),
     ultimaCodigo: null,
     ultimaFecha: null,
@@ -207,6 +236,7 @@ function agregarProgreso(rows: ProgresoRow[]): Map<string, ProgresoAgg> {
     agg.xp += row.xp_obtenido ?? 0;
     agg.estrellas += row.estrellas ?? 0;
     agg.tiempo += row.tiempo_segundos ?? 0;
+    agg.intentosSuma += row.intentos ?? 1;
     if (row.codigo_leccion) agg.codigos.add(row.codigo_leccion);
 
     if (row.completada_en && (!agg.ultimaFecha || row.completada_en > agg.ultimaFecha)) {
@@ -240,6 +270,7 @@ function construirResumen(perfil: PerfilRow, agg: ProgresoAgg, insignias: number
     moduloNumero: moduloNumeroDeCodigo(agg.ultimaCodigo),
     modulosCompletados: contarModulosCompletados(agg.codigos),
     porcentajeAvance: porcentaje(agg.count),
+    intentosPromedio: agg.count > 0 ? agg.intentosSuma / agg.count : 0,
   };
 }
 
@@ -258,7 +289,7 @@ async function cargarDatosGrupo(): Promise<DatosGrupo> {
     supabase.from("perfiles").select(PERFIL_COLUMNS).eq("rol", "alumno").order("nombre"),
     supabase
       .from("progreso_lecciones")
-      .select("alumno_id, codigo_leccion, xp_obtenido, estrellas, tiempo_segundos, completada_en")
+      .select("alumno_id, codigo_leccion, xp_obtenido, estrellas, tiempo_segundos, completada_en, intentos")
       .eq("estado", "completada"),
     supabase.from("insignias_alumno").select("alumno_id"),
   ]);
@@ -286,6 +317,49 @@ function mapResumen(datos: DatosGrupo): AlumnoResumen[] {
       datos.insigniasPorAlumno.get(perfil.id) ?? 0,
     ),
   );
+}
+
+function diasDesde(fecha: string | null): number | null {
+  if (!fecha) return null;
+  const ms = Date.now() - new Date(fecha).getTime();
+  return Math.floor(ms / (1000 * 60 * 60 * 24));
+}
+
+// Dos señales distintas, ambas calculadas de datos que ya se guardan:
+// - Inactivos: no han tenido actividad reciente (o nunca han empezado) y
+//   todavía no terminan el curso.
+// - En dificultad: sí avanzan, pero les está tomando varios intentos en
+//   promedio aprobar cada lección (usa progreso_lecciones.intentos).
+function derivarAlertas(resumen: AlumnoResumen[]): AlertasEstancados {
+  const enCurso = resumen.filter((r) => r.activo && !r.cursoCompletadoEn);
+
+  const inactivos: AlumnoInactivo[] = enCurso
+    .filter((r) => {
+      const dias = diasDesde(r.ultimaSesion);
+      return dias === null ? true : dias >= DIAS_INACTIVIDAD;
+    })
+    .map((r) => ({
+      id: r.id,
+      nombre: nombreCompleto(r),
+      diasInactivo: diasDesde(r.ultimaSesion),
+    }))
+    .sort((a, b) => (b.diasInactivo ?? Infinity) - (a.diasInactivo ?? Infinity));
+
+  const enDificultad: AlumnoEnDificultad[] = enCurso
+    .filter(
+      (r) =>
+        r.leccionesCompletadas >= MIN_LECCIONES_PARA_DIFICULTAD &&
+        r.intentosPromedio >= INTENTOS_PROMEDIO_ALERTA,
+    )
+    .map((r) => ({
+      id: r.id,
+      nombre: nombreCompleto(r),
+      intentosPromedio: Math.round(r.intentosPromedio * 10) / 10,
+      leccionesCompletadas: r.leccionesCompletadas,
+    }))
+    .sort((a, b) => b.intentosPromedio - a.intentosPromedio);
+
+  return { inactivos, enDificultad };
 }
 
 function derivarKpis(datos: DatosGrupo, resumen: AlumnoResumen[]): KpisGlobales {
@@ -324,6 +398,7 @@ function derivarKpis(datos: DatosGrupo, resumen: AlumnoResumen[]): KpisGlobales 
     cursosCompletados,
     embudoModulos,
     distribucionHabilidad,
+    alertas: derivarAlertas(resumen),
   };
 }
 
@@ -416,7 +491,7 @@ export async function fetchAlumnoDetalle(alumnoId: string): Promise<AlumnoDetall
   const [progresoRes, insigniasRes, sesionesRes, negocioRes] = await Promise.all([
     supabase
       .from("progreso_lecciones")
-      .select("alumno_id, codigo_leccion, xp_obtenido, estrellas, tiempo_segundos, completada_en")
+      .select("alumno_id, codigo_leccion, xp_obtenido, estrellas, tiempo_segundos, completada_en, intentos")
       .eq("alumno_id", alumnoId)
       .eq("estado", "completada"),
     supabase
@@ -563,4 +638,60 @@ export async function reiniciarProgreso(alumnoId: string): Promise<void> {
     .update({ curso_completado_en: null })
     .eq("id", alumnoId);
   if (perfilError) throw new Error(perfilError.message);
+}
+
+// ============================================================
+// Catálogo de insignias (solo lectura)
+// ============================================================
+
+export interface InsigniaCatalogo {
+  nombre: string;
+  moduloNumero: number | null;
+  totalAlumnos: number;
+  ultimaObtenidaEn: string;
+}
+
+interface InsigniaAlumnoRow {
+  nombre_insignia: string;
+  modulo_numero: number | null;
+  obtenida_en: string;
+}
+
+// Agrupa insignias_alumno por nombre: cuántos alumnos la tienen y cuándo se
+// otorgó la más reciente. Es solo lectura -el nombre viene del código de
+// cada lección, así que "renombrarla" aquí no cambiaría nada real.
+export async function fetchCatalogoInsignias(): Promise<InsigniaCatalogo[]> {
+  const { data, error } = await supabase
+    .from("insignias_alumno")
+    .select("nombre_insignia, modulo_numero, obtenida_en");
+
+  if (error) throw new Error(error.message);
+
+  const porNombre = new Map<string, InsigniaCatalogo>();
+
+  for (const row of (data ?? []) as InsigniaAlumnoRow[]) {
+    const existente = porNombre.get(row.nombre_insignia);
+
+    if (!existente) {
+      porNombre.set(row.nombre_insignia, {
+        nombre: row.nombre_insignia,
+        moduloNumero: row.modulo_numero,
+        totalAlumnos: 1,
+        ultimaObtenidaEn: row.obtenida_en,
+      });
+      continue;
+    }
+
+    existente.totalAlumnos += 1;
+    if (row.obtenida_en > existente.ultimaObtenidaEn) {
+      existente.ultimaObtenidaEn = row.obtenida_en;
+    }
+  }
+
+  return Array.from(porNombre.values()).sort((a, b) => {
+    const moduloA = a.moduloNumero ?? 99;
+    const moduloB = b.moduloNumero ?? 99;
+    if (moduloA !== moduloB) return moduloA - moduloB;
+    return b.totalAlumnos - a.totalAlumnos;
+  });
 }
