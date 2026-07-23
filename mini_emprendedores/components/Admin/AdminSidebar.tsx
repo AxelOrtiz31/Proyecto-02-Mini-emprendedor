@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, ClipboardList, FileBarChart, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, Users, ClipboardList, Award, FileBarChart, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LogoutButton } from "./LogoutButton";
 import { MusicToggle } from "./MusicToggle";
@@ -18,6 +18,7 @@ export const ADMIN_NAV: NavItem[] = [
   { href: "/admin", label: "Resumen", icon: LayoutDashboard, exact: true },
   { href: "/admin/alumnos", label: "Alumnos", icon: Users, exact: false },
   { href: "/admin/evaluaciones", label: "Evaluaciones", icon: ClipboardList, exact: false },
+  { href: "/admin/insignias", label: "Insignias", icon: Award, exact: false },
   { href: "/admin/reportes", label: "Reportes", icon: FileBarChart, exact: false },
 ];
 
