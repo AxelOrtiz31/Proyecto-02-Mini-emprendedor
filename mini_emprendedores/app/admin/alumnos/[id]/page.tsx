@@ -125,7 +125,8 @@ function construirSecciones(detalle: AlumnoDetalle): SeccionPdf[] {
       lineas: [
         `Nombre: ${nombreCompleto(perfil)}`,
         `Alias: ${perfil.alias ?? "—"}`,
-        `Edad: ${perfil.edad ?? "—"}     Grado: ${perfil.gradoEscolar ?? "—"}`,
+        `Edad: ${perfil.edad ?? "—"}     Grupo: ${perfil.grupoNombre ?? "Sin asignar"}`,
+        `Escuela: ${perfil.escuelaNombre ?? "—"}`,
         `Habilidad dominante: ${habilidad}`,
         `Estado: ${perfil.activo ? "Activo" : "Inactivo"}`,
         `Último acceso: ${formatearFechaHora(perfil.ultimaSesion)}`,

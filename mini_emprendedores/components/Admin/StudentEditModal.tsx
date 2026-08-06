@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { actualizarAlumno, cambiarRolAlumno, type AlumnoResumen } from "@/lib/admin";
+import { GroupPicker, cascadaDeGrupo } from "@/components/shared/GroupPicker";
+import { fetchGruposAdmin, type Grupo } from "@/lib/grupos";
 
 const ROLES = [
   { valor: "alumno", label: "Alumno" },
@@ -25,12 +27,30 @@ export function StudentEditModal({ alumno, onClose, onSaved }: StudentEditModalP
     nombre: alumno.nombre,
     apellido: alumno.apellido,
     edad: alumno.edad?.toString() ?? "",
-    gradoEscolar: alumno.gradoEscolar ?? "",
     alias: alumno.alias ?? "",
     rol: alumno.rol,
   });
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Grupo actual del alumno, en los tres pasos de la cascada.
+  const [grupos, setGrupos] = useState<Grupo[]>([]);
+  const [escuelaId, setEscuelaId] = useState<number | null>(alumno.escuelaId);
+  const [grado, setGrado] = useState<string | null>(null);
+  const [grupoId, setGrupoId] = useState<number | null>(alumno.grupoId);
+
+  useEffect(() => {
+    fetchGruposAdmin()
+      .then((lista) => {
+        setGrupos(lista);
+        // El grado se toma del catálogo y no del texto del grupo, para que la
+        // cascada abra ya posicionada en el salón que el alumno tiene hoy.
+        const actual = cascadaDeGrupo(lista, alumno.grupoId);
+        setEscuelaId(actual.escuelaId);
+        setGrado(actual.grado);
+      })
+      .catch(() => setError("No se pudieron cargar los grupos"));
+  }, [alumno.grupoId]);
 
   function set(campo: keyof typeof form, valor: string) {
     setForm((prev) => ({ ...prev, [campo]: valor }));
@@ -45,7 +65,7 @@ export function StudentEditModal({ alumno, onClose, onSaved }: StudentEditModalP
         nombre: form.nombre.trim(),
         apellido: form.apellido.trim(),
         edad: form.edad ? parseInt(form.edad, 10) : null,
-        gradoEscolar: form.gradoEscolar.trim() || null,
+        grupoId,
         alias: form.alias.trim() || null,
       });
 
@@ -98,17 +118,24 @@ export function StudentEditModal({ alumno, onClose, onSaved }: StudentEditModalP
                 onChange={(e) => set("edad", e.target.value)}
               />
             </Campo>
-            <Campo label="Grado">
-              <input
-                className={INPUT}
-                value={form.gradoEscolar}
-                onChange={(e) => set("gradoEscolar", e.target.value)}
-              />
+            <Campo label="Alias">
+              <input className={INPUT} value={form.alias} onChange={(e) => set("alias", e.target.value)} />
             </Campo>
           </div>
-          <Campo label="Alias">
-            <input className={INPUT} value={form.alias} onChange={(e) => set("alias", e.target.value)} />
-          </Campo>
+          <div>
+            <span className="mb-1 block text-xs font-extrabold uppercase tracking-wide text-muted-foreground">
+              Salón
+            </span>
+            <GroupPicker
+              grupos={grupos}
+              escuelaId={escuelaId}
+              grado={grado}
+              grupoId={grupoId}
+              onEscuela={setEscuelaId}
+              onGrado={setGrado}
+              onGrupo={setGrupoId}
+            />
+          </div>
           <Campo label="Rol">
             <select className={INPUT} value={form.rol} onChange={(e) => set("rol", e.target.value)}>
               {ROLES.map((rol) => (
