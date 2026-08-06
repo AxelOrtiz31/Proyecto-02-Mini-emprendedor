@@ -32,7 +32,8 @@ export function StudentDetail({ detalle }: { detalle: AlumnoDetalle }) {
             <p className="text-sm font-semibold text-muted-foreground">
               {perfil.alias ? `${perfil.alias} · ` : ""}
               {perfil.edad ? `${perfil.edad} años` : "Edad sin registrar"}
-              {perfil.gradoEscolar ? ` · ${perfil.gradoEscolar}` : ""}
+              {perfil.grupoNombre ? ` · ${perfil.grupoNombre}` : ""}
+              {perfil.escuelaNombre ? ` · ${perfil.escuelaNombre}` : ""}
             </p>
             {perfil.habilidadDominante && HABILIDAD_LABEL[perfil.habilidadDominante] && (
               <p className="mt-1 text-xs font-bold uppercase tracking-wide text-primary">

@@ -93,6 +93,10 @@ export interface AlumnoResumen {
   apellido: string;
   edad: number | null;
   gradoEscolar: string | null;
+  grupoId: number | null;
+  grupoNombre: string | null;
+  escuelaId: number | null;
+  escuelaNombre: string | null;
   alias: string | null;
   rol: string;
   activo: boolean;
@@ -147,12 +151,33 @@ const DIAS_INACTIVIDAD = 7;
 const INTENTOS_PROMEDIO_ALERTA = 2;
 const MIN_LECCIONES_PARA_DIFICULTAD = 3;
 
+interface EscuelaRow {
+  id: number;
+  nombre: string;
+}
+
+interface GrupoRow {
+  id: number;
+  grado: string;
+  nombre: string;
+  escuelas: EscuelaRow | EscuelaRow[] | null;
+}
+
+// El cliente tipa las relaciones como arreglo aunque la llave foránea sea
+// a-uno; en tiempo de ejecución llega un objeto.
+function unico<T>(valor: T | T[] | null | undefined): T | null {
+  if (!valor) return null;
+  return Array.isArray(valor) ? valor[0] ?? null : valor;
+}
+
 interface PerfilRow {
   id: string;
   nombre: string;
   apellido: string;
   edad: number | null;
   grado_escolar: string | null;
+  grupo_id: number | null;
+  grupos: GrupoRow | GrupoRow[] | null;
   alias: string | null;
   rol: string;
   activo: boolean;
@@ -183,8 +208,10 @@ interface ProgresoAgg {
   ultimaFecha: string | null;
 }
 
+// El grupo llega por la llave foránea perfiles.grupo_id, así que no hace falta
+// una consulta extra para saber la escuela y el salón de cada alumno.
 const PERFIL_COLUMNS =
-  "id, nombre, apellido, edad, grado_escolar, alias, rol, activo, ultima_sesion, habilidad_dominante, fecha_registro, curso_completado_en";
+  "id, nombre, apellido, edad, grado_escolar, alias, rol, activo, ultima_sesion, habilidad_dominante, fecha_registro, curso_completado_en, grupo_id, grupos ( id, grado, nombre, escuelas ( id, nombre ) )";
 
 // ============================================================
 // Derivaciones (misma lógica que components/Profile/ProfilePage.tsx)
@@ -249,12 +276,19 @@ function agregarProgreso(rows: ProgresoRow[]): Map<string, ProgresoAgg> {
 }
 
 function construirResumen(perfil: PerfilRow, agg: ProgresoAgg, insignias: number): AlumnoResumen {
+  const grupo = unico(perfil.grupos);
+  const escuela = unico(grupo?.escuelas);
+
   return {
     id: perfil.id,
     nombre: perfil.nombre,
     apellido: perfil.apellido,
     edad: perfil.edad,
     gradoEscolar: perfil.grado_escolar,
+    grupoId: perfil.grupo_id,
+    grupoNombre: grupo ? `${grupo.grado} ${grupo.nombre}`.trim() : null,
+    escuelaId: escuela?.id ?? null,
+    escuelaNombre: escuela?.nombre ?? null,
     alias: perfil.alias,
     rol: perfil.rol,
     activo: perfil.activo,
@@ -578,7 +612,8 @@ export interface CambiosAlumno {
   nombre?: string;
   apellido?: string;
   edad?: number | null;
-  gradoEscolar?: string | null;
+  // El grado ya no se captura a mano: lo sincroniza la base desde el grupo.
+  grupoId?: number | null;
   alias?: string | null;
 }
 
@@ -588,7 +623,7 @@ export async function actualizarAlumno(id: string, cambios: CambiosAlumno): Prom
   if (cambios.nombre !== undefined) payload.nombre = cambios.nombre;
   if (cambios.apellido !== undefined) payload.apellido = cambios.apellido;
   if (cambios.edad !== undefined) payload.edad = cambios.edad;
-  if (cambios.gradoEscolar !== undefined) payload.grado_escolar = cambios.gradoEscolar;
+  if (cambios.grupoId !== undefined) payload.grupo_id = cambios.grupoId;
   if (cambios.alias !== undefined) payload.alias = cambios.alias;
 
   if (Object.keys(payload).length === 0) return;

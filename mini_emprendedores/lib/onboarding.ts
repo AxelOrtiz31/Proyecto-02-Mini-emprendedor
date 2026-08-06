@@ -180,11 +180,16 @@ async function updateProfileFields(
   if (data && data.length > 0) return true;
 
   // La fila de perfiles no existe todavía: se crea con los datos del registro.
+  // Normalmente ya la creó el trigger handle_new_user en el signUp; esto es la
+  // red por si el trigger no estuviera instalado. El rol no se copia nunca:
+  // lo fija la base como 'alumno'.
   const metadata = user.user_metadata ?? {};
   const { error: insertError } = await supabase.from("perfiles").insert({
     id: user.id,
     nombre: metadata.nombre ?? "Alumno",
     apellido: metadata.apellido ?? "",
+    edad: metadata.edad ?? null,
+    grupo_id: metadata.grupo_id ?? null,
     ...fields,
   });
 

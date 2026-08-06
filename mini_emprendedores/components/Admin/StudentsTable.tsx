@@ -52,6 +52,7 @@ export function StudentsTable({ alumnos, onEdit, onToggleActivo, onReset }: Stud
           <thead className="border-b border-border text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
             <tr>
               <th className="px-4 py-3">Alumno</th>
+              <th className="px-4 py-3">Grupo</th>
               <th className="px-4 py-3">Avance</th>
               <th className="px-4 py-3">Lecciones</th>
               <th className="px-4 py-3">XP</th>
@@ -67,6 +68,14 @@ export function StudentsTable({ alumnos, onEdit, onToggleActivo, onReset }: Stud
                   <p className="font-bold text-foreground">{nombreCompleto(alumno)}</p>
                   {alumno.alias && (
                     <p className="text-xs font-semibold text-muted-foreground">{alumno.alias}</p>
+                  )}
+                </td>
+                <td className="px-4 py-3">
+                  <p className="font-bold text-foreground">{alumno.grupoNombre ?? "Sin asignar"}</p>
+                  {alumno.escuelaNombre && (
+                    <p className="text-xs font-semibold text-muted-foreground">
+                      {alumno.escuelaNombre}
+                    </p>
                   )}
                 </td>
                 <td className="px-4 py-3">
@@ -115,6 +124,10 @@ export function StudentsTable({ alumnos, onEdit, onToggleActivo, onReset }: Stud
               <Avance pct={alumno.porcentajeAvance} />
             </div>
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-bold text-muted-foreground">
+              <span>
+                {alumno.grupoNombre ?? "Sin asignar"}
+                {alumno.escuelaNombre ? ` · ${alumno.escuelaNombre}` : ""}
+              </span>
               <span>{alumno.leccionesCompletadas} lecciones</span>
               <span>{alumno.xpTotal} XP</span>
               <span>{alumno.moduloNumero ? `Módulo ${alumno.moduloNumero}` : "Sin iniciar"}</span>

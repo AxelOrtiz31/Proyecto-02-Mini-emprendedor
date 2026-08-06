@@ -8,6 +8,7 @@ import {
   nombreCompleto,
   type AlumnoResumen,
 } from "@/lib/admin";
+import { fetchGruposAdmin, type Grupo } from "@/lib/grupos";
 import { AdminLoading, AdminError } from "@/components/Admin/AdminStates";
 import { StudentFilters, type FiltroEstado } from "@/components/Admin/StudentFilters";
 import { StudentsTable } from "@/components/Admin/StudentsTable";
@@ -23,6 +24,9 @@ export default function AdminAlumnosPage() {
   const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [filtro, setFiltro] = useState<FiltroEstado>("todos");
+  const [grupos, setGrupos] = useState<Grupo[]>([]);
+  const [escuelaId, setEscuelaId] = useState<number | null>(null);
+  const [grupoId, setGrupoId] = useState<number | null>(null);
   const [editando, setEditando] = useState<AlumnoResumen | null>(null);
   const [accion, setAccion] = useState<Accion | null>(null);
   const [procesando, setProcesando] = useState(false);
@@ -50,6 +54,12 @@ export default function AdminAlumnosPage() {
     };
   }, [nonce]);
 
+  useEffect(() => {
+    fetchGruposAdmin()
+      .then(setGrupos)
+      .catch(() => setGrupos([]));
+  }, []);
+
   const filtrados = useMemo(() => {
     if (!alumnos) return [];
 
@@ -62,10 +72,12 @@ export default function AdminAlumnosPage() {
         texto === "" ||
         nombreCompleto(alumno).toLowerCase().includes(texto) ||
         (alumno.alias ?? "").toLowerCase().includes(texto);
+      const coincideEscuela = escuelaId === null || alumno.escuelaId === escuelaId;
+      const coincideGrupo = grupoId === null || alumno.grupoId === grupoId;
 
-      return coincideEstado && coincideTexto;
+      return coincideEstado && coincideTexto && coincideEscuela && coincideGrupo;
     });
-  }, [alumnos, busqueda, filtro]);
+  }, [alumnos, busqueda, filtro, escuelaId, grupoId]);
 
   async function confirmarAccion() {
     if (!accion) return;
@@ -106,6 +118,11 @@ export default function AdminAlumnosPage() {
         onBusqueda={setBusqueda}
         estado={filtro}
         onEstado={setFiltro}
+        grupos={grupos}
+        escuelaId={escuelaId}
+        onEscuela={setEscuelaId}
+        grupoId={grupoId}
+        onGrupo={setGrupoId}
       />
 
       <StudentsTable

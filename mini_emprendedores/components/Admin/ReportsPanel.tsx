@@ -17,6 +17,8 @@ interface ReportsPanelProps {
 const HEADERS = [
   "Alumno",
   "Alias",
+  "Escuela",
+  "Grupo",
   "Avance %",
   "Lecciones",
   "XP",
@@ -30,6 +32,8 @@ function filasAlumnos(resumen: AlumnoResumen[]): (string | number)[][] {
   return resumen.map((alumno) => [
     nombreCompleto(alumno),
     alumno.alias ?? "",
+    alumno.escuelaNombre ?? "",
+    alumno.grupoNombre ?? "Sin asignar",
     alumno.porcentajeAvance,
     alumno.leccionesCompletadas,
     alumno.xpTotal,
@@ -111,6 +115,10 @@ export function ReportsPanel({ resumen, kpis }: ReportsPanelProps) {
               <tr key={alumno.id} className="hover:bg-muted/40">
                 <td className="px-4 py-2.5 font-bold text-foreground">{nombreCompleto(alumno)}</td>
                 <td className="px-4 py-2.5 text-muted-foreground">{alumno.alias ?? "—"}</td>
+                <td className="px-4 py-2.5 text-muted-foreground">{alumno.escuelaNombre ?? "—"}</td>
+                <td className="px-4 py-2.5 text-muted-foreground">
+                  {alumno.grupoNombre ?? "Sin asignar"}
+                </td>
                 <td className="px-4 py-2.5 tabular-nums text-foreground">{alumno.porcentajeAvance}%</td>
                 <td className="px-4 py-2.5 tabular-nums text-foreground">{alumno.leccionesCompletadas}</td>
                 <td className="px-4 py-2.5 tabular-nums text-foreground">{alumno.xpTotal}</td>
