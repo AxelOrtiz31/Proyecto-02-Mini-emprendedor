@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { shuffle } from "@/lib/utils";
 
 export interface EvaluationOption {
   id: number;
@@ -55,29 +56,37 @@ function byOrden(a: { orden: number }, b: { orden: number }): number {
   return a.orden - b.orden;
 }
 
-function mapEvaluation(row: EvaluationRow): Evaluation {
-  const questions = [...row.preguntas_evaluacion]
-    .sort(byOrden)
-    .map((question) => ({
-      id: question.id,
-      text: question.texto,
-      multiple: question.multiple,
-      options: [...question.opciones_respuesta]
-        .sort(byOrden)
-        .map((option) => ({
-          id: option.id,
-          label: option.etiqueta,
-          emoji: option.emoji,
-          value: option.valor,
-          isCorrect: option.es_correcta,
-        })),
-    }));
+function mapQuestion(question: QuestionRow): EvaluationQuestion {
+  const mapped: EvaluationQuestion = {
+    id: question.id,
+    text: question.texto,
+    multiple: question.multiple,
+    options: [...question.opciones_respuesta]
+      .sort(byOrden)
+      .map((option) => ({
+        id: option.id,
+        label: option.etiqueta,
+        emoji: option.emoji,
+        value: option.valor,
+        isCorrect: option.es_correcta,
+      })),
+  };
 
+  // Las opciones llegan en el orden de la base, donde la correcta solía quedar
+  // primera (A). Se mezclan al cargar para que no se adivine por posición. Las
+  // preguntas sin respuesta correcta (el test inicial clasifica, no califica)
+  // conservan su orden.
+  if (!hasCorrectOptions(mapped)) return mapped;
+
+  return { ...mapped, options: shuffle(mapped.options) };
+}
+
+function mapEvaluation(row: EvaluationRow): Evaluation {
   return {
     id: row.id,
     name: row.nombre,
     instructions: row.instrucciones,
-    questions,
+    questions: [...row.preguntas_evaluacion].sort(byOrden).map(mapQuestion),
   };
 }
 

@@ -31,7 +31,7 @@ export function IdeaNegocio({ onSaved }: IdeaNegocioProps) {
 
       <h1 className="max-w-sm font-display text-2xl font-extrabold text-foreground sm:text-3xl flex items-center gap-3">
         <SpeakButton text={speechTexts.nivel01_modulo02_ideaNegocio} />
-        <span>M¡Crea tu propia idea!</span>
+        <span>¡Crea tu propia idea!</span>
       </h1>
 
       <div className="mt-6 w-full max-w-sm text-left">

@@ -1,16 +1,40 @@
 "use client";
 
 import { useState } from "react";
-import { DETECTIVE_PARES } from "../data";
+import { DETECTIVE_PARES, type ParClienteNegocio } from "../data";
 import { speechTexts } from "@/audio/SpeechTexts";
 import { SpeakButton } from "@/controllers/SpeakButtonController";
 import { playSfx } from "@/audio/AudioManager";
+import { shuffle } from "@/lib/utils";
 
 interface DetectiveJuegoProps {
   onDone: () => void;
 }
 
+// Cada pareja se identifica por su posición en DETECTIVE_PARES, sin importar
+// en qué fila de la pantalla quede.
+interface PairItem {
+  index: number;
+  pair: ParClienteNegocio;
+}
+
+const PAIR_ITEMS: PairItem[] = DETECTIVE_PARES.map((pair, index) => ({ pair, index }));
+
+// Mezcla cada columna por separado. Si el sorteo dejara todas las filas
+// alineadas, el juego se resolvería de corrido, así que se vuelve a sortear.
+function mixColumns() {
+  const businesses = shuffle(PAIR_ITEMS);
+  let clients = shuffle(PAIR_ITEMS);
+
+  while (PAIR_ITEMS.length > 1 && clients.every((item, row) => item === businesses[row])) {
+    clients = shuffle(PAIR_ITEMS);
+  }
+
+  return { businesses, clients };
+}
+
 export function DetectiveJuego({ onDone }: DetectiveJuegoProps) {
+  const [columns] = useState(mixColumns);
   const [seleccionNegocio, setSeleccionNegocio] = useState<number | null>(null);
   const [emparejados, setEmparejados] = useState<number[]>([]);
   const [errorIndex, setErrorIndex] = useState<number | null>(null);
@@ -52,43 +76,43 @@ export function DetectiveJuego({ onDone }: DetectiveJuegoProps) {
 
         <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4">
           <div className="flex flex-col gap-3">
-            {DETECTIVE_PARES.map((par, i) => (
+            {columns.businesses.map(({ pair, index }) => (
               <button
-                key={i}
+                key={index}
                 type="button"
-                onClick={() => elegirNegocio(i)}
-                disabled={emparejados.includes(i)}
+                onClick={() => elegirNegocio(index)}
+                disabled={emparejados.includes(index)}
                 className={`rounded-2xl border-2 bg-card px-3 py-4 text-left text-xs font-extrabold transition-all active:translate-y-0.5 sm:text-sm ${
-                  emparejados.includes(i)
+                  emparejados.includes(index)
                     ? "border-success bg-success/10 text-success"
-                    : seleccionNegocio === i
+                    : seleccionNegocio === index
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border text-foreground shadow-(--shadow-card)"
                 }`}
               >
-                <span className="mr-1">{par.emojiNegocio}</span>
-                {par.negocio}
+                <span className="mr-1">{pair.emojiNegocio}</span>
+                {pair.negocio}
               </button>
             ))}
           </div>
 
           <div className="flex flex-col gap-3">
-            {DETECTIVE_PARES.map((par, i) => (
+            {columns.clients.map(({ pair, index }) => (
               <button
-                key={i}
+                key={index}
                 type="button"
-                onClick={() => elegirCliente(i)}
-                disabled={emparejados.includes(i)}
+                onClick={() => elegirCliente(index)}
+                disabled={emparejados.includes(index)}
                 className={`rounded-2xl border-2 bg-card px-3 py-4 text-left text-xs font-extrabold transition-all active:translate-y-0.5 sm:text-sm ${
-                  emparejados.includes(i)
+                  emparejados.includes(index)
                     ? "border-success bg-success/10 text-success"
-                    : errorIndex === i
+                    : errorIndex === index
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border text-foreground shadow-(--shadow-card)"
                 }`}
               >
-                <span className="mr-1">{par.emojiCliente}</span>
-                {par.cliente}
+                <span className="mr-1">{pair.emojiCliente}</span>
+                {pair.cliente}
               </button>
             ))}
           </div>
