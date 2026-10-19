@@ -130,7 +130,7 @@ export default function InitialTestPage() {
     return (
       <EvaluationError
         title="No pudimos cargar tu test inicial"
-        onBack={() => router.push("/dashboard")}
+        onBack={() => router.replace("/dashboard")}
       />
     );
   }
@@ -145,11 +145,12 @@ export default function InitialTestPage() {
     );
   }
 
+  // replace: el test ya contestado no debe quedar en el historial.
   if (phase === "result" && skill) {
     return (
       <SkillResultCard
         skill={skill}
-        onContinue={() => router.push("/onboarding/avatar")}
+        onContinue={() => router.replace("/onboarding/avatar")}
       />
     );
   }

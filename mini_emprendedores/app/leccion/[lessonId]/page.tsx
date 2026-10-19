@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
+import { BackLink } from "@/components/shared/BackLink";
 
 interface LessonPageProps {
   params: Promise<{
@@ -27,12 +27,12 @@ export default async function LessonPage({ params }: LessonPageProps) {
         <span className="font-bold text-foreground">{lessonId}</span>
       </p>
 
-      <Link
+      <BackLink
         href="/dashboard"
         className="rounded-full bg-primary px-6 py-3 font-display text-sm font-extrabold uppercase tracking-wider text-primary-foreground transition-transform hover:-translate-y-0.5"
       >
         Volver al camino
-      </Link>
+      </BackLink>
     </main>
   );
 }

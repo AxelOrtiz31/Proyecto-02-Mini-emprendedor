@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Check, Lightbulb, Sparkles, Star, TrendingUp, Trophy } from "lucide-react";
 import { RobotBuddy } from "@/components/Login/RobotBuddy";
+import { AppLogo } from "@/components/shared/AppLogo";
 
 export default function LandingPage() {
   return (
@@ -27,13 +28,8 @@ export default function LandingPage() {
       <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col items-center gap-12 px-6 py-14 lg:flex-row lg:gap-8 lg:py-0">
         {/* Izquierda: marca, mensaje y acciones */}
         <div className="flex w-full flex-col items-center text-center lg:w-1/2 lg:items-start lg:text-left">
-          <div className="flex h-20 w-20 items-center justify-center rounded-3xl border-2 border-border bg-card shadow-(--shadow-card)">
-            <img src="/caelus.svg" alt="" width={52} height={52} className="h-13 w-13" />
-          </div>
-
-          <h1 className="mt-6 font-display text-5xl font-extrabold leading-tight sm:text-6xl">
-            <span className="text-foreground">Emprende</span>
-            <span className="text-primary">Kids</span>
+          <h1>
+            <AppLogo className="h-32 sm:h-40 lg:h-52" />
           </h1>
 
           <div className="mt-3 flex items-center gap-2">

@@ -21,7 +21,8 @@ export function LogoutButton({ className }: { className?: string }) {
       return;
     }
 
-    router.push("/login");
+    // replace: tras cerrar sesión, "atrás" no debe volver al panel.
+    router.replace("/login");
     router.refresh();
   }
 

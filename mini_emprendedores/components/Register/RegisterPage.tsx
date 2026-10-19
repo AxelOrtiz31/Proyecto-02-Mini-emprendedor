@@ -18,6 +18,8 @@ import {
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { RobotBuddy, type RobotMood } from "@/components/Login/RobotBuddy";
+import { AppLogo } from "@/components/shared/AppLogo";
+import { BackLink } from "@/components/shared/BackLink";
 import { GroupPicker } from "@/components/shared/GroupPicker";
 import { fetchGruposDisponibles, type Grupo } from "@/lib/grupos";
 
@@ -150,8 +152,9 @@ export default function RegisterPage() {
       return;
     }
 
+    // replace: el formulario de registro ya cumplió su función, "atrás" no debe volver a él.
     setCargando(false);
-    router.push("/login");
+    router.replace("/login");
   }
 
   const inputWrapper = (hasError: boolean) =>
@@ -170,13 +173,13 @@ export default function RegisterPage() {
       {/* Mitad izquierda: formulario */}
       <section className="flex flex-1 items-center justify-center px-4 py-10 lg:min-h-screen">
         <div className="w-full max-w-md">
-          <Link
+          <BackLink
             href="/"
             className="mb-6 inline-flex items-center gap-1.5 font-display text-sm font-extrabold text-primary transition-opacity hover:opacity-70"
           >
             <ArrowLeft className="h-4 w-4" strokeWidth={2.6} />
             Volver
-          </Link>
+          </BackLink>
 
           <h1 className="font-display text-3xl font-extrabold leading-tight text-foreground sm:text-4xl">
             ¡Crear cuenta! ✨
@@ -338,7 +341,7 @@ export default function RegisterPage() {
 
           <p className="mt-6 text-center text-sm font-semibold text-muted-foreground">
             ¿Ya tienes cuenta?{" "}
-            <Link href="/login" className="font-bold text-primary hover:underline">
+            <Link href="/login" replace className="font-bold text-primary hover:underline">
               Inicia sesión
             </Link>
           </p>
@@ -356,15 +359,8 @@ export default function RegisterPage() {
         </div>
 
         {/* Logo */}
-        <Link
-          href="/"
-          className="absolute right-5 top-5 flex items-center gap-2 lg:right-8 lg:top-7"
-        >
-          <img src="/caelus.svg" alt="EmprendeKids" width={36} height={36} className="h-9 w-9" />
-          <span className="font-display text-xl font-extrabold">
-            <span className="text-foreground">Emprende</span>
-            <span className="text-primary">Kids</span>
-          </span>
+        <Link href="/" className="absolute right-5 top-5 lg:right-8 lg:top-7">
+          <AppLogo className="h-12 lg:h-16" />
         </Link>
 
         <div className="relative z-10 mt-10 flex flex-col items-center lg:mt-0">

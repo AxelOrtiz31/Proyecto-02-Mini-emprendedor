@@ -10,7 +10,7 @@ export function TemporaryLessonView({ lessonId }: TemporaryLessonViewProps) {
   const router = useRouter();
 
   function handleFinish() {
-    router.push(`/modules01_06_complete/modulecomplete?lesson=${lessonId}`);
+    router.replace(`/modules01_06_complete/modulecomplete?lesson=${lessonId}`);
   }
 
   return (

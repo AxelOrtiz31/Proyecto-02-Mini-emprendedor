@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { AppLogo } from "@/components/shared/AppLogo";
 import { AdminSidebar, ADMIN_NAV, esRutaActiva } from "./AdminSidebar";
 import { LogoutButton } from "./LogoutButton";
 import { MusicToggle } from "./MusicToggle";
@@ -19,8 +20,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-30 border-b border-border bg-card/85 backdrop-blur lg:hidden">
           <div className="flex items-center justify-between px-4 py-3">
             <Link href="/admin" className="flex items-center gap-2">
-              <img src="/caelus.svg" alt="EmprendeKids" width={32} height={32} className="h-8 w-8" />
-              <span className="font-display text-base font-extrabold">
+              <AppLogo className="h-10" />
+              {/* En celular no cabe junto al logo y los botones; el título de cada página ya dice dónde estás. */}
+              <span className="hidden font-display text-base font-extrabold sm:inline">
                 <span className="text-foreground">Panel</span>{" "}
                 <span className="text-primary">Maestra</span>
               </span>

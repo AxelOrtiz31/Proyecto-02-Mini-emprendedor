@@ -94,7 +94,9 @@ export default function Module04Page({
     });
     if (insignia) params.set("insignia", insignia);
     if (xpBonus) params.set("xpBonus", String(xpBonus));
-    router.push(`/modules01_06_complete/modulecomplete?${params.toString()}`);
+    // replace: la lección terminada no debe quedar en el historial; "atrás" desde
+    // las recompensas debe llevar al camino, no a la lección.
+    router.replace(`/modules01_06_complete/modulecomplete?${params.toString()}`);
   }
 
   const nivel = NIVELES[nivelIndex];

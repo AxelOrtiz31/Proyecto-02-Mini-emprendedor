@@ -173,7 +173,7 @@ export function CaminoView() {
     <div className="min-h-screen overflow-x-clip bg-background">
       <TopBar streak={streak} estrellas={estrellas} xp={xp} timestamps={timestamps} />
 
-      <div className="sticky top-16 z-30 bg-background/90 backdrop-blur lg:hidden">
+      <div className="sticky top-(--topbar-h) z-30 bg-background/90 backdrop-blur lg:hidden">
         <div className="mx-auto max-w-7xl">
           <SectionChips
             sections={sections}
@@ -197,7 +197,7 @@ export function CaminoView() {
         <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">
           <div className="mx-auto w-full xl:max-w-160 2xl:max-w-200">
             {/* Banner fijo: siempre visible y cambia según la sección que recorres. */}
-            <div className="sticky top-30 z-20 lg:top-18">
+            <div className="sticky top-[calc(var(--topbar-h)+3.5rem)] z-20 lg:top-[calc(var(--topbar-h)+0.5rem)]">
               <UnitBanner
                 key={activeSection.id}
                 sectionNumber={activeSection.number}

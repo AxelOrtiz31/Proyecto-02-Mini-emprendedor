@@ -6,6 +6,7 @@ import { User } from "@supabase/supabase-js";
 import { calculateStreak, formatStreakDays } from "@/lib/streak";
 import { fetchInsignias } from "@/lib/insignias";
 import { fetchMiNegocio, type MiNegocio } from "@/lib/negocio";
+import { BackLink } from "@/components/shared/BackLink";
 import { course } from "@/data/course";
 
 interface Profile {
@@ -337,12 +338,12 @@ export default function ProfilePage() {
 
         {/* Botón volver */}
         <div className="mt-8 flex justify-center">
-          <a
+          <BackLink
             href="/dashboard"
             className="rounded-2xl bg-primary px-8 py-3 font-display text-sm font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
           >
             Volver al camino
-          </a>
+          </BackLink>
         </div>
       </div>
     </main>

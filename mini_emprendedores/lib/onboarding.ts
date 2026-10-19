@@ -255,3 +255,28 @@ export async function fetchAvatarsBySkill(skill: Skill): Promise<AvatarRecord[]>
     imageUrl: row.url_imagen,
   }));
 }
+
+// Imagen del avatar que el alumno eligió al empezar; null si no hay sesión o
+// todavía no eligió uno.
+export async function fetchStudentAvatarUrl(): Promise<string | null> {
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+
+  if (!user) return null;
+
+  const { data: profile } = await supabase
+    .from("perfiles")
+    .select("avatar_id")
+    .eq("id", user.id)
+    .maybeSingle<{ avatar_id: number | null }>();
+
+  if (!profile?.avatar_id) return null;
+
+  const { data: avatar } = await supabase
+    .from("avatares")
+    .select("url_imagen")
+    .eq("id", profile.avatar_id)
+    .maybeSingle<{ url_imagen: string }>();
+
+  return avatar?.url_imagen ?? null;
+}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Users, School, ClipboardList, Award, FileBarChart, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AppLogo } from "@/components/shared/AppLogo";
 import { LogoutButton } from "./LogoutButton";
 import { MusicToggle } from "./MusicToggle";
 
@@ -33,13 +34,9 @@ export function AdminSidebar() {
 
   return (
     <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-card px-4 py-6 lg:flex">
-      <Link href="/admin" className="mb-8 flex items-center gap-2 px-2">
-        <img src="/caelus.svg" alt="EmprendeKids" width={36} height={36} className="h-9 w-9" />
-        <span className="font-display text-lg font-extrabold leading-tight">
-          <span className="text-foreground">Emprende</span>
-          <span className="text-primary">Kids</span>
-          <span className="block text-xs font-bold text-muted-foreground">Panel de la maestra</span>
-        </span>
+      <Link href="/admin" className="mb-8 flex flex-col items-start gap-1 px-2">
+        <AppLogo className="h-14" />
+        <span className="text-xs font-bold text-muted-foreground">Panel de la maestra</span>
       </Link>
 
       <nav className="flex flex-1 flex-col gap-1">
