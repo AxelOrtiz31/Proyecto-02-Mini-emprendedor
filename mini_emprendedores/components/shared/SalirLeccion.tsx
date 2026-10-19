@@ -2,11 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
+import { goBackOr } from "@/lib/navigation";
 import { playSfx } from "@/audio/AudioManager";
 
 // Botón fijo para salir de la lección en cualquier momento y volver al
 // camino del módulo. No borra el paso guardado (lessonProgress), así que el
-// contenido de la lección se retoma donde quedó la próxima vez.
+// contenido de la lección se retoma donde quedó la próxima vez. Saca la
+// lección del historial (en vez de abrir otro camino encima) para que "atrás"
+// no vuelva a ella.
 export function SalirLeccion() {
   const router = useRouter();
 
@@ -14,7 +17,7 @@ export function SalirLeccion() {
     <button
       type="button"
       onClick={() => {
-        router.push("/dashboard");
+        goBackOr(router, "/dashboard");
         playSfx("click");
       }}
       aria-label="Salir de la lección"

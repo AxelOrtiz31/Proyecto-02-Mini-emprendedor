@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { goBackOr } from "@/lib/navigation";
 import { ConfettiLayer } from "./ConfettiLayer";
 import { SplashScreen } from "./SplashScreen";
 import { StatsPanel } from "./StatsPanel";
@@ -87,7 +88,9 @@ export default function ModuleCompletePage() {
   // completada para el usuario -junto con el tiempo invertido, los intentos,
   // el bono de XP por terminar el módulo (si aplica), y la insignia ganada
   // (si aplica)-, lo que desbloquea la siguiente lección. Si es la primera
-  // lección del día se celebra la racha antes de volver al camino.
+  // lección del día se celebra la racha antes de volver al camino. Esta pantalla
+  // reemplazó a la lección en el historial, así que "volver" la saca y deja el
+  // camino que ya estaba debajo (en vez de apilar otro encima).
   async function handleClaim() {
     const params = new URLSearchParams(window.location.search);
     const lessonId = params.get("lesson");
@@ -109,12 +112,12 @@ export default function ModuleCompletePage() {
       }
     } catch (error) {
       console.error("Error guardando la lección:", error);
-      router.push("/dashboard");
+      goBackOr(router, "/dashboard");
       return;
     }
 
     if (!canShowStreakCelebration()) {
-      router.push("/dashboard");
+      goBackOr(router, "/dashboard");
       return;
     }
 
@@ -123,7 +126,7 @@ export default function ModuleCompletePage() {
     // Con la lección recién guardada la racha no puede ser 0: si lo es, la
     // lectura falló y es mejor callarse que enseñar un número equivocado.
     if (data.streak === 0) {
-      router.push("/dashboard");
+      goBackOr(router, "/dashboard");
       return;
     }
 
@@ -173,7 +176,7 @@ export default function ModuleCompletePage() {
           streak={streakData.streak}
           weekActivity={streakData.weekActivity}
           mascotSrc="/cloud-robotics.json"
-          onContinue={() => router.push("/dashboard")}
+          onContinue={() => goBackOr(router, "/dashboard")}
         />
       )}
     </main>

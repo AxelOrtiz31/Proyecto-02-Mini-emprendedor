@@ -19,6 +19,7 @@ import {
 } from "@/lib/evaluations";
 import { activityOrder, fetchCompletedCodes, marcarCursoCompletado } from "@/lib/progress";
 import { fetchMiNegocio } from "@/lib/negocio";
+import { goBackOr } from "@/lib/navigation";
 import { supabase } from "@/lib/supabase";
 
 /* Debe cubrir el fade-out del splash definido en globals.css (1.6 s de espera + 0.4 s). */
@@ -102,11 +103,11 @@ export default function EvaluationPage() {
   }
 
   if (phase === "locked") {
-    return <EvaluationLocked onBack={() => router.push("/dashboard")} />;
+    return <EvaluationLocked onBack={() => goBackOr(router, "/dashboard")} />;
   }
 
   if (phase === "quiz" && !evaluation) {
-    return <EvaluationError onBack={() => router.push("/dashboard")} />;
+    return <EvaluationError onBack={() => goBackOr(router, "/dashboard")} />;
   }
 
   if (phase === "fallo") {
@@ -160,7 +161,7 @@ export default function EvaluationPage() {
         nombreCompleto={datosDiploma.nombreCompleto}
         nombreNegocio={datosDiploma.nombreNegocio}
         fecha={datosDiploma.fecha}
-        onVolver={() => router.push("/dashboard")}
+        onVolver={() => goBackOr(router, "/dashboard")}
       />
     );
   }
@@ -232,7 +233,7 @@ export default function EvaluationPage() {
           title={evaluation!.name}
           step={index}
           total={preguntas.length}
-          onBack={() => (index > 0 ? setIndex(index - 1) : router.push("/dashboard"))}
+          onBack={() => (index > 0 ? setIndex(index - 1) : goBackOr(router, "/dashboard"))}
         />
 
         <ProgressSegments total={preguntas.length} current={index} />

@@ -52,6 +52,19 @@
   --animate-spark: spark 1.6s ease-out infinite;
 }
 
+/* Altura de la barra superior del camino (TopBar). Los elementos "sticky" que
+   van debajo (fichas de sección, banner de unidad, barras laterales) se miden a
+   partir de ella: si cambia, solo se edita aquí. */
+:root {
+  --topbar-h: 4rem;
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --topbar-h: 5rem;
+  }
+}
+
 @keyframes node-bounce {
   0%,
   100% {

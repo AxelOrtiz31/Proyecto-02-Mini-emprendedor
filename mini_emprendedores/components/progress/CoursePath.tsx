@@ -82,7 +82,7 @@ export function CoursePath({
             key={section.id}
             data-section-id={section.id}
             ref={(element) => registerSection(section.id, element)}
-            className="flex w-full scroll-mt-40 flex-col items-center gap-10 lg:scroll-mt-44 xl:gap-12"
+            className="flex w-full scroll-mt-[calc(var(--topbar-h)+6rem)] flex-col items-center gap-10 lg:scroll-mt-[calc(var(--topbar-h)+7rem)] xl:gap-12"
           >
             <SectionDivider section={section} />
 

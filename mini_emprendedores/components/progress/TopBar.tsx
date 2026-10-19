@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Flame, Star, Zap, LogOut, User, Trophy, MessageCircle, Volume2, VolumeX } from "lucide-react";
 import { StatPill } from "./StatPill";
+import { StudentAvatar } from "./StudentAvatar";
 import { TopBarMenu } from "./TopBarMenu";
+import { AppLogo } from "@/components/shared/AppLogo";
 import { supabase } from "@/lib/supabase";
+import { fetchStudentAvatarUrl } from "@/lib/onboarding";
 import Link from "next/link";
 import { ChatModal } from "@/components/IA_Bot/ChatModal";
 import { StreakModal } from "@/components/streak/StreakModal";
@@ -25,6 +28,11 @@ export function TopBar({ streak, estrellas, xp, timestamps }: TopBarProps) {
   const [chatOpen, setChatOpen] = useState(false);
   const [streakOpen, setStreakOpen] = useState(false);
   const [muted, setMuted] = useState(isMusicMuted());
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchStudentAvatarUrl().then(setAvatarUrl);
+  }, []);
 
   async function handleCerrarSesion() {
     setCerrando(true);
@@ -37,7 +45,8 @@ export function TopBar({ streak, estrellas, xp, timestamps }: TopBarProps) {
       return;
     }
 
-    router.push("/login");
+    // replace: tras cerrar sesión, "atrás" no debe volver al camino.
+    router.replace("/login");
     router.refresh();
   }
 
@@ -48,22 +57,12 @@ export function TopBar({ streak, estrellas, xp, timestamps }: TopBarProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-border bg-card/85 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-1 px-2 py-3 sm:gap-4 sm:px-4 md:px-8 xl:max-w-360">
-          <div className="flex shrink-0 items-center gap-2">
-            <img
-              src="/caelus.svg"
-              alt="EmprendeKids"
-              width={36}
-              height={36}
-              className="h-9 w-9 shrink-0"
-            />
-
-            <span className="hidden font-display text-xl font-extrabold sm:inline-block">
-              <span className="text-foreground">Emprende</span>
-              <span className="text-primary">Kids</span>
-            </span>
-          </div>
+      {/* La altura (--topbar-h, en globals.css) es fija porque los elementos
+          "sticky" de CaminoView y las barras laterales se miden a partir de ella. */}
+      <header className="sticky top-0 z-40 h-(--topbar-h) border-b border-border bg-card/85 backdrop-blur">
+        <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-1 px-2 sm:gap-4 sm:px-4 md:px-8 xl:max-w-360">
+          {/* En celular la barra va justa: el logo se encoge (sin bajar de 36 px) en vez de desbordarla. */}
+          <AppLogo className="h-8 min-w-9 shrink sm:h-14" />
 
           <div className="flex items-center gap-1 sm:gap-3">
             <StatPill
@@ -127,9 +126,7 @@ export function TopBar({ streak, estrellas, xp, timestamps }: TopBarProps) {
           </div>
 
           <div className="hidden items-center gap-2 sm:gap-3 lg:flex">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-display text-sm font-extrabold text-primary-foreground shadow-sm">
-              LM
-            </div>
+            <StudentAvatar imageUrl={avatarUrl} />
 
             <button
               type="button"

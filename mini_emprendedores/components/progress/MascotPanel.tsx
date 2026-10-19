@@ -90,7 +90,9 @@ export function MascotPanel({
     ? "hidden w-96 shrink-0 xl:block 2xl:w-104"
     : "mx-auto mt-12 w-full max-w-md xl:hidden";
 
-  const innerClass = isSidebar ? "sticky top-20 space-y-6 p-5" : "space-y-4";
+  const innerClass = isSidebar
+    ? "sticky top-[calc(var(--topbar-h)+1rem)] space-y-6 p-5"
+    : "space-y-4";
 
   const displayName = loading ? "Cargando..." : profile ? `${profile.nombre} ${profile.apellido}`.trim() || "Usuario" : "Usuario";
 

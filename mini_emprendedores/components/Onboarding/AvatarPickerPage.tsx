@@ -78,8 +78,9 @@ export default function AvatarPickerPage() {
     const saved = await saveAvatarChoice(avatarId);
     setSaving(false);
 
+    // replace: la selección de avatar ya hecha no debe quedar en el historial.
     if (saved) {
-      router.push("/dashboard");
+      router.replace("/dashboard");
       return;
     }
 
@@ -98,7 +99,7 @@ export default function AvatarPickerPage() {
     return (
       <EvaluationError
         title="No pudimos cargar los avatares"
-        onBack={() => router.push("/dashboard")}
+        onBack={() => router.replace("/dashboard")}
       />
     );
   }

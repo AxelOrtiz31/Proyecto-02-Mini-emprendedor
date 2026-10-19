@@ -8,6 +8,8 @@ import { supabase } from "@/lib/supabase";
 import { getOnboardingStatus, routeForStatus } from "@/lib/onboarding";
 import { fetchCurrentProfileRole, isStaffRole } from "@/lib/admin";
 import { cn } from "@/lib/utils";
+import { AppLogo } from "@/components/shared/AppLogo";
+import { BackLink } from "@/components/shared/BackLink";
 import { RobotBuddy, type RobotMood } from "./RobotBuddy";
 
 // Mensajes de la burbuja del robot según lo que esté haciendo el alumno.
@@ -52,9 +54,11 @@ export default function LoginPage() {
     // inicial de alumno (que se dispara cuando no hay habilidad dominante).
     const rol = await fetchCurrentProfileRole();
 
+    // Con replace la pantalla de inicio de sesión no queda en el historial: al
+    // volver atrás desde el camino no se regresa a un formulario ya usado.
     if (isStaffRole(rol)) {
       setCargando(false);
-      router.push("/admin");
+      router.replace("/admin");
       return;
     }
 
@@ -62,7 +66,7 @@ export default function LoginPage() {
     const status = await getOnboardingStatus();
 
     setCargando(false);
-    router.push(routeForStatus(status));
+    router.replace(routeForStatus(status));
   }
 
   return (
@@ -79,15 +83,8 @@ export default function LoginPage() {
         </div>
 
         {/* Logo */}
-        <Link
-          href="/"
-          className="absolute left-5 top-5 flex items-center gap-2 lg:left-8 lg:top-7"
-        >
-          <img src="/caelus.svg" alt="EmprendeKids" width={36} height={36} className="h-9 w-9" />
-          <span className="font-display text-xl font-extrabold">
-            <span className="text-foreground">Emprende</span>
-            <span className="text-primary">Kids</span>
-          </span>
+        <Link href="/" className="absolute left-5 top-5 lg:left-8 lg:top-7">
+          <AppLogo className="h-12 lg:h-16" />
         </Link>
 
         <div className="relative z-10 mt-10 flex flex-col items-center lg:mt-0">
@@ -106,13 +103,13 @@ export default function LoginPage() {
       {/* Mitad derecha: formulario */}
       <section className="flex flex-1 items-center justify-center px-4 py-10 lg:min-h-screen">
         <div className="w-full max-w-md">
-          <Link
+          <BackLink
             href="/"
             className="mb-6 inline-flex items-center gap-1.5 font-display text-sm font-extrabold text-primary transition-opacity hover:opacity-70"
           >
             <ArrowLeft className="h-4 w-4" strokeWidth={2.6} />
             Volver
-          </Link>
+          </BackLink>
 
           <h1 className="font-display text-3xl font-extrabold leading-tight text-foreground sm:text-4xl">
             ¡Hola de nuevo! 👋
@@ -194,7 +191,7 @@ export default function LoginPage() {
             </a>
             <p className="text-sm font-semibold text-muted-foreground">
               ¿Aún no tienes cuenta?{" "}
-              <Link href="/register" className="font-bold text-primary hover:underline">
+              <Link href="/register" replace className="font-bold text-primary hover:underline">
                 Regístrate
               </Link>
             </p>

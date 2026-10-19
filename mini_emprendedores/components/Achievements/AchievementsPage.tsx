@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { BackLink } from "@/components/shared/BackLink";
 import { fetchInsignias, type Insignia } from "@/lib/insignias";
 
 export default function AchievementsPage() {
@@ -64,12 +64,12 @@ export default function AchievementsPage() {
         )}
 
         <div className="mt-10 flex justify-center">
-          <Link
+          <BackLink
             href="/dashboard"
             className="rounded-2xl bg-primary px-6 py-3 font-display text-sm font-extrabold uppercase tracking-wider text-primary-foreground shadow-(--shadow-node) transition-transform active:translate-y-1"
           >
             Volver al camino
-          </Link>
+          </BackLink>
         </div>
       </div>
     </main>
