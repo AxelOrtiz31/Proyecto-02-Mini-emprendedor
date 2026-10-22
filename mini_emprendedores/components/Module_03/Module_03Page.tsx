@@ -83,7 +83,6 @@ export default function Module03Page({
       {fase === "nivel_teach" && (
         <NivelTeach
           nivel={nivel}
-          totalNiveles={NIVELES.length}
           onNext={() => irA(esNivelPractica ? "detective" : "nivel_check")}
         />
       )}
@@ -100,6 +99,7 @@ export default function Module03Page({
 
       {fase === "reto_final" && (
         <RetoFinal
+          lessonCode={CODIGO_RETO_FINAL}
           onSaved={async ({ persona, necesita, lugares }: {
             persona: ClientePersona;
             necesita: string;

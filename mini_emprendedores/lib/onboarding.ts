@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import type { EvaluationQuestion } from "@/lib/evaluations";
+import { clearStudentProfileCache } from "@/lib/studentProfile";
 
 export type Skill =
   | "liderazgo"
@@ -215,7 +216,13 @@ export async function saveDominantSkill(skill: Skill): Promise<boolean> {
 }
 
 export async function saveAvatarChoice(avatarId: number): Promise<boolean> {
-  return updateProfileFields({ avatar_id: avatarId });
+  const saved = await updateProfileFields({ avatar_id: avatarId });
+
+  // El saludo y la barra superior guardan el avatar anterior: se descarta para
+  // que el camino muestre el nuevo.
+  if (saved) clearStudentProfileCache();
+
+  return saved;
 }
 
 export async function fetchDominantSkill(): Promise<Skill | null> {
@@ -254,29 +261,4 @@ export async function fetchAvatarsBySkill(skill: Skill): Promise<AvatarRecord[]>
     name: row.nombre,
     imageUrl: row.url_imagen,
   }));
-}
-
-// Imagen del avatar que el alumno eligió al empezar; null si no hay sesión o
-// todavía no eligió uno.
-export async function fetchStudentAvatarUrl(): Promise<string | null> {
-  const { data: userData } = await supabase.auth.getUser();
-  const user = userData.user;
-
-  if (!user) return null;
-
-  const { data: profile } = await supabase
-    .from("perfiles")
-    .select("avatar_id")
-    .eq("id", user.id)
-    .maybeSingle<{ avatar_id: number | null }>();
-
-  if (!profile?.avatar_id) return null;
-
-  const { data: avatar } = await supabase
-    .from("avatares")
-    .select("url_imagen")
-    .eq("id", profile.avatar_id)
-    .maybeSingle<{ url_imagen: string }>();
-
-  return avatar?.url_imagen ?? null;
 }

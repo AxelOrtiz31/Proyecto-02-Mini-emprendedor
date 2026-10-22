@@ -6,9 +6,11 @@ import { MATERIALES_EMPAQUE, ELEMENTOS_IMPRESOS, type MaterialEmpaque } from "..
 
 import { speechTexts } from "@/audio/SpeechTexts";
 import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { lessonLabelFromCode } from "@/lib/lessonLabel";
 import { playSfx } from "@/audio/AudioManager";
 
 interface DisenoEmpaqueProps {
+  lessonCode: string;
   onSaved: (datos: {
     color: string;
     material: string;
@@ -19,7 +21,7 @@ interface DisenoEmpaqueProps {
 
 const COLORES = ["#FF6B6B", "#4FACFE", "#6BCB77", "#FFD93D", "#C77DFF", "#FFB347"];
 
-export function DisenoEmpaque({ onSaved }: DisenoEmpaqueProps) {
+export function DisenoEmpaque({ lessonCode, onSaved }: DisenoEmpaqueProps) {
   const [ideaNombre, setIdeaNombre] = useState<string | null>(null);
   const [color, setColor] = useState<string | null>(null);
   const [material, setMaterial] = useState<MaterialEmpaque | null>(null);
@@ -62,7 +64,7 @@ export function DisenoEmpaque({ onSaved }: DisenoEmpaqueProps) {
   return (
     <main className="flex min-h-screen flex-col items-center bg-background px-4 pb-8 pt-6 text-center sm:px-6">
       <span className="rounded-full bg-accent px-4 py-1.5 font-display text-xs font-extrabold uppercase tracking-widest text-accent-foreground">
-        Reto final · Diseña el empaque de tu producto
+        {lessonLabelFromCode(lessonCode)}
       </span>
 
       <h1 className="mt-4 max-w-sm font-display text-xl font-extrabold text-foreground sm:text-2xl">

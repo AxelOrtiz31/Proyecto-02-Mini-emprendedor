@@ -33,8 +33,22 @@ function fromRow(row: InsigniaRow): Insignia {
   };
 }
 
+let pending: Promise<Insignia[]> | null = null;
+
 // Todas las insignias ganadas por el alumno autenticado, más recientes primero.
-export async function fetchInsignias(): Promise<Insignia[]> {
+// Si ya hay una consulta en curso se comparte, así el camino no la repite por
+// cada panel que la pide; una vez terminada, la siguiente llamada consulta de nuevo.
+export function fetchInsignias(): Promise<Insignia[]> {
+  if (pending) return pending;
+
+  pending = loadInsignias().finally(() => {
+    pending = null;
+  });
+
+  return pending;
+}
+
+async function loadInsignias(): Promise<Insignia[]> {
   const userId = await getCurrentUserId();
   if (!userId) return [];
 

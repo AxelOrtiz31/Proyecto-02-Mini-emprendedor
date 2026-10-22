@@ -79,7 +79,6 @@ export default function Module06Page({
       {fase === "nivel_teach" && (
         <NivelTeach
           nivel={nivel}
-          totalNiveles={NIVELES.length}
           onNext={() => irA("nivel_check")}
         />
       )}
@@ -94,6 +93,7 @@ export default function Module06Page({
 
       {fase === "calculadora" && (
         <Calculadora
+          lessonCode={CODIGO_RETO_FINAL}
           onSaved={async ({ costo, precio, estrategia }) => {
             try {
               await saveMiNegocio({

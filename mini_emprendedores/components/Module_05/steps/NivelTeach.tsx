@@ -1,19 +1,19 @@
 "use client";
 
 import type { Nivel } from "../data";
+import { lessonLabelFromCode } from "@/lib/lessonLabel";
 import { SpeakButton } from "@/controllers/SpeakButtonController";
 
 interface NivelTeachProps {
   nivel: Nivel;
-  totalNiveles: number;
   onNext: () => void;
 }
 
-export function NivelTeach({ nivel, totalNiveles, onNext }: NivelTeachProps) {
+export function NivelTeach({ nivel, onNext }: NivelTeachProps) {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-5 bg-background px-6 py-10 text-center">
       <span className="rounded-full bg-secondary px-4 py-1.5 font-display text-xs font-extrabold uppercase tracking-widest text-secondary-foreground">
-        Nivel {nivel.numero} de {totalNiveles}
+        {lessonLabelFromCode(nivel.codigo)}
       </span>
 
       <span className="text-6xl" aria-hidden="true">

@@ -5,13 +5,15 @@ import { fetchMiNegocio } from "@/lib/negocio";
 
 import { speechTexts } from "@/audio/SpeechTexts";
 import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { lessonLabelFromCode } from "@/lib/lessonLabel";
 import { playSfx } from "@/audio/AudioManager";
 
 interface CalculadoraProps {
+  lessonCode: string;
   onSaved: (datos: { costo: number; precio: number; estrategia: string }) => void;
 }
 
-export function Calculadora({ onSaved }: CalculadoraProps) {
+export function Calculadora({ lessonCode, onSaved }: CalculadoraProps) {
   const [ideaNombre, setIdeaNombre] = useState<string | null>(null);
   const [costo, setCosto] = useState("");
   const [precio, setPrecio] = useState("");
@@ -44,7 +46,7 @@ export function Calculadora({ onSaved }: CalculadoraProps) {
   return (
     <main className="flex min-h-screen flex-col items-center bg-background px-4 pb-8 pt-6 text-center sm:px-6">
       <span className="rounded-full bg-accent px-4 py-1.5 font-display text-xs font-extrabold uppercase tracking-widest text-accent-foreground">
-        Reto final · Calcula el precio de tu producto
+        {lessonLabelFromCode(lessonCode)}
       </span>
 
       <h1 className="mt-4 max-w-sm font-display text-xl font-extrabold text-foreground sm:text-2xl">
