@@ -78,7 +78,6 @@ export default function Module02Page({
       {fase === "nivel_teach" && (
         <NivelTeach
           nivel={nivel}
-          totalNiveles={NIVELES.length}
           onNext={() => irA(esUltimoNivel ? "nivel_idea" : "nivel_check")}
         />
       )}

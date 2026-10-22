@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Flame, Star, Zap, LogOut, User, Trophy, MessageCircle, Volume2, VolumeX } from "lucide-react";
 import { StatPill } from "./StatPill";
 import { StudentAvatar } from "./StudentAvatar";
+import { useStudentProfile } from "./useStudentProfile";
 import { TopBarMenu } from "./TopBarMenu";
 import { AppLogo } from "@/components/shared/AppLogo";
 import { supabase } from "@/lib/supabase";
-import { fetchStudentAvatarUrl } from "@/lib/onboarding";
 import Link from "next/link";
 import { ChatModal } from "@/components/IA_Bot/ChatModal";
 import { StreakModal } from "@/components/streak/StreakModal";
@@ -28,11 +28,8 @@ export function TopBar({ streak, estrellas, xp, timestamps }: TopBarProps) {
   const [chatOpen, setChatOpen] = useState(false);
   const [streakOpen, setStreakOpen] = useState(false);
   const [muted, setMuted] = useState(isMusicMuted());
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchStudentAvatarUrl().then(setAvatarUrl);
-  }, []);
+  const { profile } = useStudentProfile();
+  const avatarUrl = profile?.avatarUrl ?? null;
 
   async function handleCerrarSesion() {
     setCerrando(true);

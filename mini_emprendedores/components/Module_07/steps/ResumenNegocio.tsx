@@ -3,13 +3,15 @@
 import { useEffect, useState } from "react";
 import { fetchMiNegocio, type MiNegocio } from "@/lib/negocio";
 import { LogoBadge } from "@/components/shared/LogoBadge";
+import { lessonLabelFromCode } from "@/lib/lessonLabel";
 import { playSfx } from "@/audio/AudioManager";
 
 interface ResumenNegocioProps {
+  lessonCode: string;
   onNext: () => void;
 }
 
-export function ResumenNegocio({ onNext }: ResumenNegocioProps) {
+export function ResumenNegocio({ lessonCode, onNext }: ResumenNegocioProps) {
   const [negocio, setNegocio] = useState<MiNegocio | null>(null);
 
   useEffect(() => {
@@ -25,7 +27,7 @@ export function ResumenNegocio({ onNext }: ResumenNegocioProps) {
   return (
     <main className="flex min-h-screen flex-col items-center bg-background px-4 pb-8 pt-6 text-center sm:px-6">
       <span className="rounded-full bg-accent px-4 py-1.5 font-display text-xs font-extrabold uppercase tracking-widest text-accent-foreground">
-        Gran reto final · Presenta tu emprendimiento
+        {lessonLabelFromCode(lessonCode)}
       </span>
 
       <h1 className="mt-4 max-w-sm font-display text-xl font-extrabold text-foreground sm:text-2xl">

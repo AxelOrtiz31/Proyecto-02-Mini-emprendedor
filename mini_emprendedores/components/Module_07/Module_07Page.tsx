@@ -80,7 +80,6 @@ export default function Module07Page({
       {fase === "nivel_teach" && (
         <NivelTeach
           nivel={nivel}
-          totalNiveles={NIVELES.length}
           onNext={() => irA("nivel_check")}
         />
       )}
@@ -93,7 +92,9 @@ export default function Module07Page({
         />
       )}
 
-      {fase === "resumen" && <ResumenNegocio onNext={() => irA("pitch")} />}
+      {fase === "resumen" && (
+        <ResumenNegocio lessonCode={CODIGO_RETO_FINAL} onNext={() => irA("pitch")} />
+      )}
 
       {fase === "pitch" && (
         <MiPitch

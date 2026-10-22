@@ -6,13 +6,15 @@ import { LogoBadge } from "@/components/shared/LogoBadge";
 
 import { speechTexts } from "@/audio/SpeechTexts";
 import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { lessonLabelFromCode } from "@/lib/lessonLabel";
 import { playSfx } from "@/audio/AudioManager";
 
 interface VistaPreviaProps {
+  lessonCode: string;
   onSaved: (percepcion: string) => void;
 }
 
-export function VistaPrevia({ onSaved }: VistaPreviaProps) {
+export function VistaPrevia({ lessonCode, onSaved }: VistaPreviaProps) {
   const [negocio, setNegocio] = useState<MiNegocio | null>(null);
   const [percepcion, setPercepcion] = useState("");
   const [guardando, setGuardando] = useState(false);
@@ -40,7 +42,7 @@ export function VistaPrevia({ onSaved }: VistaPreviaProps) {
   return (
     <main className="flex min-h-screen flex-col items-center bg-background px-4 pb-8 pt-6 text-center sm:px-6">
       <span className="rounded-full bg-secondary px-4 py-1.5 font-display text-xs font-extrabold uppercase tracking-widest text-secondary-foreground">
-        Reto final · Crea la identidad de tu negocio
+        {lessonLabelFromCode(lessonCode)}
       </span>
 
       <h1 className="mt-4 font-display text-lg font-extrabold text-foreground sm:text-xl">

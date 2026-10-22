@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import type { Activity } from "@/data/course";
 import { cn } from "@/lib/utils";
+import { lessonLabelFromCode } from "@/lib/lessonLabel";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { ActivityPopover } from "./ActivityPopover";
 import { playSfx } from "@/audio/AudioManager";
@@ -86,7 +87,7 @@ export function LessonNode({ activity, offsetX }: LessonNodeProps) {
             type="button"
             disabled={isLocked}
             className={cn(baseCircle, stateClass, isCurrent && "animate-node-bounce")}
-            aria-label={activity.title}
+            aria-label={`${lessonLabelFromCode(activity.id)}: ${activity.title}`}
             onClick={() => playSfx("nodos")}
           >
             <ActivityIcon
