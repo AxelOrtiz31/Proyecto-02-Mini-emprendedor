@@ -79,7 +79,6 @@ export default function Module05Page({
       {fase === "nivel_teach" && (
         <NivelTeach
           nivel={nivel}
-          totalNiveles={NIVELES.length}
           onNext={() => irA("nivel_check")}
         />
       )}
@@ -94,6 +93,7 @@ export default function Module05Page({
 
       {fase === "diseno_empaque" && (
         <DisenoEmpaque
+          lessonCode={CODIGO_RETO_FINAL}
           onSaved={async ({ color, material, elementos, ambiental }) => {
             try {
               await saveMiNegocio({

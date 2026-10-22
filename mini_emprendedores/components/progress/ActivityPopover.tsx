@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Lock } from "lucide-react";
 import type { Activity } from "@/data/course";
 import { cn } from "@/lib/utils";
+import { lessonLabelFromCode } from "@/lib/lessonLabel";
 import { PopoverContent } from "@/components/ui/popover";
 import { playSfx } from "@/audio/AudioManager";
 
@@ -32,8 +33,9 @@ export function ActivityPopover({ activity }: ActivityPopoverProps) {
           activity.status === "locked" && "bg-muted text-muted-foreground",
         )}
       >
-        <div className="text-[10px] font-bold uppercase tracking-widest opacity-85">
-          {labelFor(activity)}
+        <div className="flex flex-wrap items-center justify-between gap-x-3 text-[10px] font-bold uppercase tracking-widest opacity-85">
+          <span>{lessonLabelFromCode(activity.id)}</span>
+          <span>{labelFor(activity)}</span>
         </div>
 
         <div className="font-display text-lg font-extrabold">

@@ -7,13 +7,15 @@ import { LogoBadge } from "@/components/shared/LogoBadge";
 
 import { speechTexts } from "@/audio/SpeechTexts";
 import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { lessonLabelFromCode } from "@/lib/lessonLabel";
 import { playSfx } from "@/audio/AudioManager";
 
 interface LogoConstructorProps {
+  lessonCode: string;
   onSaved: (icono: string, forma: LogoForma) => void;
 }
 
-export function LogoConstructor({ onSaved }: LogoConstructorProps) {
+export function LogoConstructor({ lessonCode, onSaved }: LogoConstructorProps) {
   const [colorPrimario, setColorPrimario] = useState("#FFD93D");
   const [icono, setIcono] = useState<string | null>(null);
   const [forma, setForma] = useState<LogoForma | null>(null);
@@ -44,13 +46,17 @@ export function LogoConstructor({ onSaved }: LogoConstructorProps) {
   return (
     <main className="flex min-h-screen flex-col items-center bg-background px-4 pb-8 pt-6 text-center sm:px-6">
       <span className="rounded-full bg-secondary px-4 py-1.5 font-display text-xs font-extrabold uppercase tracking-widest text-secondary-foreground">
-        Un buen logo es simple y fácil de reconocer
+        {lessonLabelFromCode(lessonCode)}
       </span>
 
       <h1 className="mt-4 font-display text-lg font-extrabold text-foreground sm:text-xl">
         <SpeakButton text={speechTexts.nivel01_modulo04_logoConstructor} />
         <span>Crea el logo de tu negocio</span>
       </h1>
+
+      <p className="mt-1 text-xs font-bold text-muted-foreground">
+        Un buen logo es simple y fácil de reconocer
+      </p>
 
       <LogoBadge
         icono={icono ?? "❔"}

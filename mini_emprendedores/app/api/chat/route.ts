@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama-3.1-8b-instant";
+const GROQ_MODEL = "openai/gpt-oss-20b";
 
 const SYSTEM_PROMPT = `Eres "Mentorix", el asistente virtual de EmprendeKids, una aplicación educativa que enseña emprendimiento a niños y niñas.
 Tu misión es resolver dudas sobre emprendimiento: ideas de negocio, ahorro, ventas, clientes, publicidad, trabajo en equipo y finanzas básicas.
@@ -9,12 +9,19 @@ Reglas:
 - Responde siempre en español, con un tono alegre, amable y motivador.
 - Usa palabras sencillas que un niño de 8 a 12 años pueda entender.
 - Da respuestas cortas y claras (máximo 4 o 5 oraciones) con ejemplos divertidos.
+- Escribe solo texto plano: no uses asteriscos, negritas, títulos, tablas ni listas con símbolos de Markdown.
 - Si te preguntan algo sin relación con el emprendimiento o con la aplicación, responde amablemente que solo puedes ayudar con temas de emprendimiento.`;
 
 type ChatMessage = {
   role: "user" | "assistant";
   content: string;
 };
+
+// Respaldo por si el modelo usa Markdown: el chat muestra texto plano y los
+// asteriscos o los # saldrían literales.
+function toPlainText(text: string) {
+  return text.replace(/\*\*/g, "").replace(/^#+\s*/gm, "");
+}
 
 export async function POST(request: Request) {
   const apiKey = process.env.GROQ_API_KEY;
@@ -50,6 +57,10 @@ export async function POST(request: Request) {
         model: GROQ_MODEL,
         temperature: 0.6,
         max_tokens: 400,
+        // Modelo de razonamiento: con esfuerzo bajo y sin devolver el razonamiento,
+        // los 400 tokens alcanzan para la respuesta y no llega el texto vacío.
+        reasoning_effort: "low",
+        include_reasoning: false,
         messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
       }),
     });
@@ -62,6 +73,8 @@ export async function POST(request: Request) {
     }
 
     if (!response.ok) {
+      // El cliente solo ve un mensaje genérico; el motivo real queda en la consola del servidor.
+      console.error("Groq respondió con error:", response.status, await response.text());
       return NextResponse.json(
         { error: "El asistente no pudo responder. Intenta de nuevo en un momento." },
         { status: 502 },
@@ -69,7 +82,7 @@ export async function POST(request: Request) {
     }
 
     const data = await response.json();
-    const reply = data.choices[0].message.content;
+    const reply = toPlainText(data.choices[0].message.content);
     return NextResponse.json({ reply });
   } catch {
     return NextResponse.json(

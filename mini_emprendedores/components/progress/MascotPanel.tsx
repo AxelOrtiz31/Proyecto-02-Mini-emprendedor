@@ -1,14 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Lightbulb, Medal, PartyPopper, Sparkles } from "lucide-react";
+import { memo } from "react";
+import { PartyPopper, Sparkles } from "lucide-react";
 import type { Section } from "@/data/course";
-import { getTipOfTheDay } from "@/data/tips";
-import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
-import { formatStreakDays } from "@/lib/streak";
-import { fetchInsignias, type Insignia } from "@/lib/insignias";
-import { playSfx } from "@/audio/AudioManager";
+import { GreetingCard } from "./GreetingCard";
+import { RecentAchievements } from "./RecentAchievements";
 
 interface MascotPanelProps {
   variant: "sidebar" | "inline";
@@ -22,69 +18,23 @@ interface MascotPanelProps {
   streak?: number;
 }
 
-interface ProfileData {
-  nombre: string;
-  apellido: string;
-  avatar_url?: string;
+function sectionSubtitle(courseComplete: boolean, currentSection?: Section | null): string {
+  if (courseComplete) return "¡Completaste todo el camino! 🎉";
+  if (currentSection) return `Vamos por la sección ${currentSection.number} 🚀`;
+
+  return "¡Bienvenido a tu camino! 🚀";
 }
 
-export function MascotPanel({
+// Se envuelve en memo porque el camino cambia de sección activa con cada scroll
+// y este panel no depende de eso: solo se vuelve a renderizar si cambian sus props.
+function MascotPanelBase({
   variant,
   currentSection,
   nextSection,
   courseComplete = false,
   streak = 0,
 }: MascotPanelProps) {
-  const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [insignias, setInsignias] = useState<Insignia[]>([]);
   const isSidebar = variant === "sidebar";
-
-  useEffect(() => {
-    fetchInsignias().then(setInsignias);
-  }, []);
-
-  useEffect(() => {
-    async function loadProfile() {
-      try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-          setLoading(false);
-          return;
-        }
-
-        const { data: perfil, error: perfilError } = await supabase
-          .from("perfiles")
-          .select("nombre, apellido, avatar_id")
-          .eq("id", user.id)
-          .maybeSingle();
-
-        if (perfilError) throw perfilError;
-
-        let avatarUrl = undefined;
-        if (perfil?.avatar_id) {
-          const { data: avatar } = await supabase
-            .from("avatares")
-            .select("url_imagen")
-            .eq("id", perfil.avatar_id)
-            .maybeSingle();
-          avatarUrl = avatar?.url_imagen;
-        }
-
-        setProfile({
-          nombre: perfil?.nombre || "Alumno",
-          apellido: perfil?.apellido || "",
-          avatar_url: avatarUrl,
-        });
-      } catch (error) {
-        console.error("Error cargando perfil en MascotPanel:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadProfile();
-  }, []);
 
   const asideClass = isSidebar
     ? "hidden w-96 shrink-0 xl:block 2xl:w-104"
@@ -94,79 +44,12 @@ export function MascotPanel({
     ? "sticky top-[calc(var(--topbar-h)+1rem)] space-y-6 p-5"
     : "space-y-4";
 
-  const displayName = loading ? "Cargando..." : profile ? `${profile.nombre} ${profile.apellido}`.trim() || "Usuario" : "Usuario";
-
   return (
     <aside className={asideClass}>
       <div className={innerClass}>
-        <div className="rounded-3xl border-2 border-accent/40 bg-card p-5 shadow-(--shadow-card) xl:p-6">
-          <div className="flex items-center gap-3">
-            <img
-              src={profile?.avatar_url || "/caelus.svg"}
-              alt="Lupe"
-              width={64}
-              height={64}
-              loading="lazy"
-              className="h-16 w-16 animate-mascot"
-              onClick={() => playSfx("urururu")}
-            />
-            <div>
-              <div className="font-display text-base font-extrabold">
-                {loading ? "Cargando..." : `¡Hola, ${displayName}!`}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {courseComplete
-                  ? "¡Completaste todo el camino! 🎉"
-                  : currentSection
-                    ? `Vamos por la sección ${currentSection.number} 🚀`
-                    : "¡Bienvenido a tu camino! 🚀"}
-              </div>
-            </div>
-          </div>
-          <div className="mt-4 rounded-2xl bg-secondary p-3">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              <Lightbulb className="h-3.5 w-3.5 text-accent-foreground" />
-              Tip del día
-            </div>
-            <p className="mt-1 text-sm font-semibold text-foreground">
-              {getTipOfTheDay()}
-            </p>
-          </div>
-        </div>
+        <GreetingCard subtitle={sectionSubtitle(courseComplete, currentSection)} />
 
-        <div className="rounded-3xl border-2 border-border bg-card p-5 xl:p-6">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            <Medal className="h-4 w-4 text-primary" />
-            Logros recientes
-          </div>
-          <ul className="mt-3 space-y-2">
-            <Achievement
-              title={`Racha de ${formatStreakDays(streak)}`}
-              subtitle={streak > 0 ? "¡Sigue así!" : "Completa una lección hoy"}
-              tone="primary"
-            />
-            {insignias.length === 0 ? (
-              <li className="text-xs font-semibold text-muted-foreground">
-                Aún no tienes insignias. ¡Completa una lección para ganar tu primera!
-              </li>
-            ) : (
-              insignias
-                .slice(0, 3)
-                .map((insignia) => (
-                  <Achievement
-                    key={insignia.codigoLeccion}
-                    title={insignia.nombre}
-                    subtitle={
-                      insignia.moduloNumero
-                        ? `Módulo ${insignia.moduloNumero}`
-                        : "Insignia obtenida"
-                    }
-                    tone="accent"
-                  />
-                ))
-            )}
-          </ul>
-        </div>
+        <RecentAchievements streak={streak} />
 
         <NextSectionCard
           currentSection={currentSection}
@@ -177,6 +60,8 @@ export function MascotPanel({
     </aside>
   );
 }
+
+export const MascotPanel = memo(MascotPanelBase);
 
 // Tarjeta azul: muestra la próxima sección real del camino.
 // - Curso completo → felicitación.
@@ -235,40 +120,5 @@ function NextSectionCard({
           : "Sigue avanzando para desbloquearla"}
       </div>
     </div>
-  );
-}
-
-const toneMap: Record<string, string> = {
-  success: "bg-success/15 text-success",
-  primary: "bg-primary/15 text-primary",
-  accent: "bg-accent/40 text-accent-foreground",
-};
-
-function Achievement({
-  title,
-  subtitle,
-  tone,
-}: {
-  title: string;
-  subtitle: string;
-  tone: "success" | "primary" | "accent";
-}) {
-  return (
-    <li className="flex items-center gap-3">
-      <div
-        className={cn(
-          "flex h-9 w-9 items-center justify-center rounded-xl",
-          toneMap[tone],
-        )}
-      >
-        <Medal className="h-4 w-4" />
-      </div>
-      <div className="min-w-0">
-        <div className="truncate font-display text-sm font-extrabold text-foreground">
-          {title}
-        </div>
-        <div className="truncate text-xs text-muted-foreground">{subtitle}</div>
-      </div>
-    </li>
   );
 }

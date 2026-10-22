@@ -5,9 +5,11 @@ import { fetchMiNegocio } from "@/lib/negocio";
 import { CLIENTE_PERSONAS, LUGARES_CLIENTE, type ClientePersona } from "../data";
 import { speechTexts } from "@/audio/SpeechTexts";
 import { SpeakButton } from "@/controllers/SpeakButtonController";
+import { lessonLabelFromCode } from "@/lib/lessonLabel";
 import { playSfx } from "@/audio/AudioManager";
 
 interface RetoFinalProps {
+  lessonCode: string;
   onSaved: (datos: {
     persona: ClientePersona;
     necesita: string;
@@ -15,7 +17,7 @@ interface RetoFinalProps {
   }) => void;
 }
 
-export function RetoFinal({ onSaved }: RetoFinalProps) {
+export function RetoFinal({ lessonCode, onSaved }: RetoFinalProps) {
   const [ideaNombre, setIdeaNombre] = useState<string | null>(null);
   const [persona, setPersona] = useState<ClientePersona | null>(null);
   const [necesita, setNecesita] = useState("");
@@ -55,7 +57,7 @@ export function RetoFinal({ onSaved }: RetoFinalProps) {
   return (
     <main className="flex min-h-screen flex-col items-center bg-background px-4 pb-8 pt-6 text-center sm:px-6">
       <span className="rounded-full bg-accent px-4 py-1.5 font-display text-xs font-extrabold uppercase tracking-widest text-accent-foreground">
-        Reto final · Conoce a tu cliente ideal
+        {lessonLabelFromCode(lessonCode)}
       </span>
 
       <h1 className="max-w-sm font-display text-2xl font-extrabold text-foreground sm:text-3xl flex items-center gap-3">

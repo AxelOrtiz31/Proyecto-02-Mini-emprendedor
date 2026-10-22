@@ -110,7 +110,6 @@ export default function Module04Page({
       {fase === "nivel_teach" && (
         <NivelTeach
           nivel={nivel}
-          totalNiveles={NIVELES.length}
           onNext={() => {
             if (nivelIndex === INDICE_NOMBRE) return irA("aplicar_nombre");
             if (nivelIndex === INDICE_COLORES) return irA("colores_teach");
@@ -166,6 +165,7 @@ export default function Module04Page({
 
       {fase === "reto_final_logo" && (
         <LogoConstructor
+          lessonCode={CODIGO_RETO_FINAL}
           onSaved={async (icono: string, forma: LogoForma) => {
             await guardarNegocio({ logoIcono: icono, logoForma: forma.id });
             irA("reto_final_vista");
@@ -175,6 +175,7 @@ export default function Module04Page({
 
       {fase === "reto_final_vista" && (
         <VistaPrevia
+          lessonCode={CODIGO_RETO_FINAL}
           onSaved={async (percepcion: string) => {
             await guardarNegocio({ marcaPercepcion: percepcion });
             irA("fin_bloque");
